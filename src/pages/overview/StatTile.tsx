@@ -25,7 +25,7 @@ export function StatTile({
     </>
   );
   return to ? (
-    <Link className="card card-interactive" to={to} style={{ textDecoration: 'none' }}>
+    <Link className="card card-interactive" to={to}>
       {body}
     </Link>
   ) : (

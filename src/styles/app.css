@@ -151,6 +151,12 @@ textarea {
 }
 
 /* ── Плитки обзора ── */
+/* Карточка-ссылка наследует цвет текста: иначе числа и подписи красятся в браузерный синий. */
+a.card,
+a.tile-row {
+  color: inherit;
+  text-decoration: none;
+}
 .tiles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
