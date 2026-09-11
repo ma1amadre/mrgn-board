@@ -1,4 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { useRealtimeInvalidation } from '../shared/api/realtime';
+import { Avatar } from '../shared/ui/Avatar';
+import { useAuth, useProfile } from './auth/authContext';
 
 const NAV = [
   { to: '/', label: 'Обзор', end: true },
@@ -9,6 +12,10 @@ const NAV = [
 ];
 
 export function Layout() {
+  const profile = useProfile();
+  const { isAdmin, signOut } = useAuth();
+  useRealtimeInvalidation();
+
   return (
     <div className="shell">
       <aside className="shell-aside">
@@ -19,12 +26,20 @@ export function Layout() {
               {item.label}
             </NavLink>
           ))}
+          {isAdmin ? (
+            <NavLink to="/settings/stages" className="nav-item">
+              Стадии
+            </NavLink>
+          ) : null}
         </nav>
         <div className="shell-user">
-          <span className="avatar" aria-hidden="true">
-            ?
+          <Avatar name={profile.name} color={profile.color} />
+          <span className="name grow" title={profile.email}>
+            {profile.name}
           </span>
-          <span className="name muted">не авторизован</span>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => void signOut()}>
+            Выйти
+          </button>
         </div>
       </aside>
       <main className="shell-main">

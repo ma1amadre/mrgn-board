@@ -1,0 +1,68 @@
+import type { Priority } from './labels';
+
+/** Специальное значение фильтра по исполнителю: задачи без исполнителя. */
+export const UNASSIGNED = 'none';
+
+export type TaskFilters = {
+  assignee: string | null;
+  client: string | null;
+  priority: Priority | null;
+  q: string;
+};
+
+export const EMPTY_FILTERS: TaskFilters = { assignee: null, client: null, priority: null, q: '' };
+
+const PRIORITY_VALUES: ReadonlySet<string> = new Set(['low', 'normal', 'high', 'urgent']);
+
+type FilterableTask = {
+  title: string;
+  assignee_id: string | null;
+  client_id: string | null;
+  priority: string;
+};
+
+/** Фильтры живут в URL: ссылка на доску с фильтром шарится в чат и переживает F5. */
+export function parseFilters(sp: URLSearchParams): TaskFilters {
+  const priority = sp.get('priority');
+  return {
+    assignee: sp.get('assignee') || null,
+    client: sp.get('client') || null,
+    priority: priority && PRIORITY_VALUES.has(priority) ? (priority as Priority) : null,
+    q: sp.get('q')?.trim() ?? '',
+  };
+}
+
+/** Пишет фильтры поверх существующих параметров (например, ?task=… остаётся). */
+export function serializeFilters(f: TaskFilters, base?: URLSearchParams): URLSearchParams {
+  const sp = new URLSearchParams(base);
+  const entries: Array<[string, string | null]> = [
+    ['assignee', f.assignee],
+    ['client', f.client],
+    ['priority', f.priority],
+    ['q', f.q.trim() || null],
+  ];
+  for (const [key, value] of entries) {
+    if (value) sp.set(key, value);
+    else sp.delete(key);
+  }
+  return sp;
+}
+
+export function isFilterActive(f: TaskFilters): boolean {
+  return Boolean(f.assignee || f.client || f.priority || f.q.trim());
+}
+
+export function applyTaskFilters<T extends FilterableTask>(tasks: T[], f: TaskFilters): T[] {
+  const q = f.q.trim().toLowerCase();
+  return tasks.filter((t) => {
+    if (f.assignee === UNASSIGNED) {
+      if (t.assignee_id !== null) return false;
+    } else if (f.assignee && t.assignee_id !== f.assignee) {
+      return false;
+    }
+    if (f.client && t.client_id !== f.client) return false;
+    if (f.priority && t.priority !== f.priority) return false;
+    if (q && !t.title.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}

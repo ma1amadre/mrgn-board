@@ -1,0 +1,16 @@
+/** Фабрика ключей TanStack Query — единственное место, где они определяются. */
+export const keys = {
+  profiles: {
+    all: ['profiles'] as const,
+    me: (id: string | null) => ['profiles', 'me', id] as const,
+  },
+  clients: { all: ['clients'] as const },
+  stages: { all: ['stages'] as const },
+  tasks: { all: ['tasks'] as const },
+  ideas: { all: ['ideas'] as const },
+  comments: {
+    all: ['comments'] as const,
+    byTask: (taskId: string) => ['comments', taskId] as const,
+  },
+  migrations: ['migrations'] as const,
+};
