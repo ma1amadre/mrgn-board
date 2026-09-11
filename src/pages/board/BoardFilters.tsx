@@ -21,8 +21,7 @@ export function BoardFilters({
   return (
     <div className="toolbar" role="search">
       <input
-        className="input"
-        style={{ width: 220 }}
+        className="input toolbar-search"
         placeholder="Поиск по названию"
         value={filters.q}
         onChange={(e) => onChange({ ...filters, q: e.target.value })}

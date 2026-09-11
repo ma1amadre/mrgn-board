@@ -364,6 +364,19 @@ a.tile-row {
   width: auto;
   min-width: 160px;
 }
+.toolbar-search {
+  width: 220px;
+}
+/* На узком экране поиск во всю ширину, селекты делят строки по два — вместо четырёх строк подряд. */
+@media (max-width: 800px) {
+  .toolbar-search {
+    width: 100%;
+  }
+  .toolbar .select {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+}
 .stack {
   display: flex;
   flex-direction: column;
