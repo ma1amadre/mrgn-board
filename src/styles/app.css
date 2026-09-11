@@ -478,3 +478,8 @@ a.tile-row {
 .table th.num {
   font-family: inherit;
 }
+/* Крестик шторки в 14px терялся; 20px и без жирности — как у диалогов design-kit. */
+.drawer-head .btn-icon {
+  font-size: var(--t-lg);
+  font-weight: 400;
+}
