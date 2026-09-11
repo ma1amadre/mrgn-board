@@ -1,29 +1,72 @@
 # MRGN board
 
-Внутренний дэшборд команды: доска задач по стадиям, клиенты/проекты, идеи, команда.
+Внутренний дэшборд команды: доска задач по стадиям (kanban), клиенты/проекты, банк идей с
+голосованием, команда и роли. SPA на Vite + React, данные в Supabase (Postgres + Auth + RLS +
+Realtime), хостинг — Cloudflare Pages.
 
 ## Запуск
 
 ```
 npm install
-cp .env.example .env.local   # заполнить VITE_SUPABASE_URL и VITE_SUPABASE_ANON_KEY
+cp .env.example .env.local   # VITE_SUPABASE_URL и VITE_SUPABASE_ANON_KEY
 npm run dev                  # http://127.0.0.1:5173
 ```
 
+`npm run build` — сборка с проверкой типов, `npm test` — юнит-тесты логики, `npm run lint`.
+
+## Локальная разработка (Docker)
+
+Нужен запущенный Docker Desktop.
+
+```
+npx supabase start            # первый раз тянет образы; миграции применяются сами
+npx supabase status -o env    # API_URL → VITE_SUPABASE_URL, ANON_KEY → VITE_SUPABASE_ANON_KEY
+```
+
+Стек живёт на портах 56321 (API), 56322 (Postgres), 56323 (Studio), 56324 (почта): диапазон
+54xxx по умолчанию на этой машине зарезервирован Windows (`netsh interface ipv4 show
+excludedportrange protocol=tcp`).
+
+Тестовые пользователи (только локально, через service role):
+
+```
+set -a; . <(npx supabase status -o env); set +a; node scripts/local-users.mjs
+docker exec -i supabase_db_mrgn-board psql -U postgres -d postgres \
+  -c "update public.profiles set role='admin' where email='admin@local.test';"
+```
+
+| Email | Пароль | Роль |
+|---|---|---|
+| admin@local.test | local-admin-1 | admin |
+| member@local.test | local-member-1 | member |
+| third@local.test | local-third-1 | member |
+
+- `npx supabase db reset` — пересобрать локальную БД из миграций с нуля (данные и пользователи
+  пропадут, скрипт выше запустить заново).
+- Типы БД: `npx supabase gen types typescript --local > src/shared/supabase/database.types.ts`.
+
 ## База данных
 
-Миграции лежат в `supabase/migrations/` и применяются по порядку номеров.
+Миграции — `supabase/migrations/`, применяются по порядку номеров; каждая пишет строку в
+`public.app_migrations`. Права — только RLS и триггеры (`002_rls.sql`): участник видит всё,
+правит задачи/идеи/клиентов, удаляет только своё; админ управляет стадиями, ролями, удаляет
+клиентов. Деактивированный (`is_active = false`) видит только экран «Доступ отключён».
 
-- Локально: `npx supabase start` (нужен Docker Desktop). Ключи — `npx supabase status`.
-- В облаке: Supabase Dashboard → SQL Editor → выполнить файлы 001, 002, 003 по очереди,
-  либо `npx supabase link` + `npx supabase db push`.
+## Облако: чек-лист первого запуска
 
-После миграций: Authentication → Providers → Email → выключить «Allow new users to sign up»;
-Authentication → Users → Add user для каждого участника; первому админу —
-`update public.profiles set role = 'admin' where email = '…'`.
+1. Создать проект Supabase. SQL Editor → выполнить `001_schema.sql`, `002_rls.sql`,
+   `003_seed_realtime.sql` по очереди (или `npx supabase login` → `link` → `db push`).
+2. Authentication → Providers → Email: выключить «Allow new users to sign up».
+3. Authentication → Users → Add user (email + пароль, auto-confirm) для каждого участника.
+   Имя подхватится из metadata `name`, иначе из email — поправить в разделе «Команда».
+4. Первый админ: SQL Editor → `update public.profiles set role = 'admin' where email = '…';`
+5. Проверка: `select * from public.app_migrations` — три строки.
 
-## Деплой
+## Деплой (Cloudflare Pages)
 
-Cloudflare Pages из GitHub-репозитория: build `npm run build`, output `dist`,
+Репозиторий на GitHub → Cloudflare Pages → Connect to Git: build `npm run build`, output `dist`,
 переменные `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `NODE_VERSION=24`.
+`public/_redirects` отдаёт `index.html` на любой путь — прямые ссылки вида `/board?task=…` работают.
 В Supabase: Authentication → URL Configuration → Site URL = адрес Pages.
+
+Восстановление пароля в v1 — через администратора (Dashboard → Send password recovery).
