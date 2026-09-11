@@ -474,3 +474,7 @@ a.tile-row {
   background: var(--success);
   color: #fff;
 }
+/* Заголовок числовой колонки: .num в design-kit включает моноширинный шрифт и для th. */
+.table th.num {
+  font-family: inherit;
+}
