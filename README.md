@@ -2,7 +2,7 @@
 
 Внутренний дэшборд команды: доска задач по стадиям (kanban), клиенты/проекты, банк идей с
 голосованием, команда и роли. SPA на Vite + React, данные в Supabase (Postgres + Auth + RLS +
-Realtime), хостинг — Cloudflare Pages.
+Realtime), хостинг — GitHub Pages.
 
 ## Запуск
 
@@ -67,11 +67,15 @@ docker exec -i supabase_db_mrgn-board psql -U postgres -d postgres \
    Остальных админ включает в разделе «Команда» (новые аккаунты выключены по умолчанию).
 5. Проверка: войти админом — в шапке нет предупреждения о неприменённых миграциях.
 
-## Деплой (Cloudflare Pages)
+## Деплой (GitHub Pages)
 
-Репозиторий на GitHub → Cloudflare Pages → Connect to Git: build `npm run build`, output `dist`,
-переменные `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `NODE_VERSION=24`.
-`public/_redirects` отдаёт `index.html` на любой путь — прямые ссылки вида `/board?task=…` работают.
+Боевой адрес: https://ma1amadre.github.io/mrgn-board/. Workflow `.github/workflows/pages.yml`
+на каждый push в `main` прогоняет тесты, собирает с `BASE_PATH=/mrgn-board/` и публикует `dist`;
+`404.html` = `index.html`, поэтому прямые ссылки вида `/board?task=…` открываются.
+Боевые `VITE_SUPABASE_*` лежат в `.env.production` (ключ публичный, права держит RLS).
+
+Cloudflare Pages не подошёл: домен `pages.dev` на сети команды заблокирован (DNS подменяется,
+прямое подключение режется по SNI, проверено 11.09.2026).
 В Supabase: Authentication → URL Configuration → Site URL = адрес Pages.
 
 Восстановление пароля в v1 — через администратора (Dashboard → Send password recovery).

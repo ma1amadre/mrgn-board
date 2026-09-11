@@ -10,12 +10,15 @@ const queryClient = new QueryClient({
   },
 });
 
+/** Подпуть хостинга (GitHub Pages: /mrgn-board/) — тот же, что base у Vite, без хвостового слеша. */
+const BASENAME = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
         <AuthProvider>
-          <BrowserRouter>
+          <BrowserRouter basename={BASENAME}>
             <AppRoutes />
           </BrowserRouter>
         </AuthProvider>
