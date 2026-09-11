@@ -207,6 +207,25 @@ a.tile-row {
   align-items: center;
   gap: var(--s-2);
 }
+/* Строка нагрузки: имя и счётчик в одной строке, полоса — под ними на всю ширину.
+   В одной строке на 200px полоса ужималась до 40px и переставала читаться. */
+.load-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--s-2);
+  row-gap: var(--s-1);
+  color: inherit;
+  text-decoration: none;
+}
+.load-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.load-bar {
+  grid-column: 2 / -1;
+}
 
 /* ── Доска ── */
 .board {

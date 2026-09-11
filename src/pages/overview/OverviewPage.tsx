@@ -106,9 +106,8 @@ export function OverviewPage() {
               return (
                 <Link
                   key={w.profileId ?? 'none'}
-                  className="tile-row"
+                  className="load-row"
                   to={`/board?assignee=${w.profileId ?? UNASSIGNED}`}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   {p ? (
                     <Avatar name={p.name} color={p.color} />
@@ -117,13 +116,13 @@ export function OverviewPage() {
                       ?
                     </span>
                   )}
-                  <span style={{ minWidth: 80 }}>{p?.name ?? 'Без исполнителя'}</span>
-                  <span className="progress grow">
-                    <i style={{ width: `${(w.open / stats.maxLoad) * 100}%` }} />
-                  </span>
-                  <span className="small muted" style={{ minWidth: 64, textAlign: 'right' }}>
+                  <span className="load-name">{p?.name ?? 'Без исполнителя'}</span>
+                  <span className="small muted">
                     {w.open}
                     {w.overdue > 0 ? ` · ${w.overdue} проср.` : ''}
+                  </span>
+                  <span className="progress load-bar">
+                    <i style={{ width: `${(w.open / stats.maxLoad) * 100}%` }} />
                   </span>
                 </Link>
               );
