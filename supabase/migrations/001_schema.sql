@@ -246,7 +246,8 @@ BEGIN
 END;
 $$;
 
-REVOKE EXECUTE ON FUNCTION public.renumber_stage(UUID) FROM anon;
-REVOKE EXECUTE ON FUNCTION public.convert_idea_to_task(UUID) FROM anon;
+-- Postgres даёт EXECUTE роли PUBLIC по умолчанию — снимаем и с неё, иначе anon дотянется.
+REVOKE EXECUTE ON FUNCTION public.renumber_stage(UUID) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.convert_idea_to_task(UUID) FROM PUBLIC, anon;
 
 INSERT INTO public.app_migrations (name) VALUES ('001_schema');

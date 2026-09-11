@@ -34,3 +34,7 @@
 - `.env.local` не коммитится; в клиент попадает только anon-ключ. Service key — только в
   `scripts/` против локального стека.
 - `.ps1` с кириллицей — UTF-8 с BOM (PowerShell 5.1).
+- `idea_votes` — junction-таблица, поэтому у `ideas` два пути к `profiles`: в embed автора нужен
+  хинт `profiles!ideas_author_id_fkey`, иначе PostgREST отвечает 300.
+- Функции получают EXECUTE для PUBLIC по умолчанию: закрывать RPC от anon через
+  `REVOKE ... FROM PUBLIC, anon`, одного `FROM anon` мало.
