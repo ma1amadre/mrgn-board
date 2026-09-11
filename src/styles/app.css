@@ -107,24 +107,49 @@ textarea {
   flex-wrap: wrap;
 }
 
+/* Мобильная шапка: бренд и пользователь в одной строке, навигация — прокручиваемой лентой ниже.
+   Строка `auto 1fr`: иначе свободная высота делится между шапкой и контентом, и шапка растёт. */
 @media (max-width: 800px) {
   .shell {
-    grid-template-columns: 1fr;
+    /* minmax(0, …): трек не растягивается под min-content ленты навигации. */
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
   }
   .shell-aside {
-    position: static;
+    position: sticky;
+    top: 0;
+    z-index: 10;
     height: auto;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--s-3);
-    overflow-x: auto;
+    gap: var(--s-2) var(--s-3);
+    padding: var(--s-2) var(--s-3);
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .shell-brand {
+    padding: var(--s-2) 0;
+    white-space: nowrap;
   }
   .shell-user {
-    margin-top: 0;
-    margin-left: auto;
+    margin: 0 0 0 auto;
+    padding: 0;
   }
   .nav {
+    order: 3;
+    flex: 1 0 100%;
+    min-width: 0;
     flex-direction: row;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+  .nav-item {
+    flex: 0 0 auto;
+    white-space: nowrap;
   }
   .shell-main {
     padding: var(--s-4);
