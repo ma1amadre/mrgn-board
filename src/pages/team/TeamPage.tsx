@@ -36,10 +36,12 @@ export function TeamPage() {
   return (
     <>
       <PageHead title="Команда" />
-      <p className="muted">
-        Аккаунты создаёт администратор в Supabase (Authentication → Users). Новый аккаунт выключен,
-        пока админ не включит доступ здесь.
-      </p>
+      {isAdmin ? (
+        <p className="muted">
+          Аккаунты создаёт администратор в Supabase (Authentication → Users). Новый аккаунт
+          выключен, пока админ не включит доступ здесь.
+        </p>
+      ) : null}
       {profiles.isPending ? <EmptyState>Загрузка…</EmptyState> : null}
       {profiles.isError ? <EmptyState>Не удалось загрузить команду.</EmptyState> : null}
       {profiles.data ? (
