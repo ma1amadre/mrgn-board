@@ -28,13 +28,29 @@ export function IdeasPage() {
     [ideas.data],
   );
 
-  const busy = update.isPending || remove.isPending || vote.isPending || convert.isPending;
+  // Блокируем кнопки только у той идеи, с которой идёт запрос.
+  const pendingId =
+    (update.isPending && update.variables?.id) ||
+    (remove.isPending && remove.variables) ||
+    (vote.isPending && vote.variables?.ideaId) ||
+    (convert.isPending && convert.variables) ||
+    null;
 
   const submitNew = (values: IdeaFormValues) => {
     create.mutate(
       { title: values.title, body: values.body || null, author_id: me.id },
       { onSuccess: () => setCreating(false), onError: (err) => toast.error(err) },
     );
+  };
+
+  const edit = async (id: string, values: IdeaFormValues): Promise<boolean> => {
+    try {
+      await update.mutateAsync({ id, patch: { title: values.title, body: values.body || null } });
+      return true;
+    } catch (err) {
+      toast.error(err);
+      return false;
+    }
   };
 
   return (
@@ -59,7 +75,7 @@ export function IdeasPage() {
             idea={idea}
             myId={me.id}
             canDelete={isAdmin || idea.author_id === me.id}
-            busy={busy}
+            busy={pendingId === idea.id}
             onVote={(hasVote) =>
               vote.mutate(
                 { ideaId: idea.id, profileId: me.id, hasVote },
@@ -72,14 +88,7 @@ export function IdeasPage() {
                 { onError: (err) => toast.error(err) },
               )
             }
-            onEdit={(values) =>
-              update
-                .mutateAsync({
-                  id: idea.id,
-                  patch: { title: values.title, body: values.body || null },
-                })
-                .catch((err: unknown) => toast.error(err))
-            }
+            onEdit={(values) => edit(idea.id, values)}
             onDelete={() => {
               if (!window.confirm(`Удалить идею «${idea.title}»?`)) return;
               remove.mutate(idea.id, { onError: (err) => toast.error(err) });

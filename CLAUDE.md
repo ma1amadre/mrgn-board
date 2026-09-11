@@ -38,3 +38,7 @@
   хинт `profiles!ideas_author_id_fkey`, иначе PostgREST отвечает 300.
 - Функции получают EXECUTE для PUBLIC по умолчанию: закрывать RPC от anon через
   `REVOKE ... FROM PUBLIC, anon`, одного `FROM anon` мало.
+- Новый профиль создаётся с `is_active = false` — иначе саморегистрация через anon-ключ (если её
+  забыли выключить в облаке) давала бы полный доступ. Первого админа включать SQL-ом.
+- Owner-колонки (`created_by`, `author_id`, `idea_id`, `task_id`) и `done_at` защищены триггерами,
+  а не RLS: WITH CHECK не видит старую строку.

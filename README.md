@@ -32,14 +32,15 @@ excludedportrange protocol=tcp`).
 ```
 set -a; . <(npx supabase status -o env); set +a; node scripts/local-users.mjs
 docker exec -i supabase_db_mrgn-board psql -U postgres -d postgres \
-  -c "update public.profiles set role='admin' where email='admin@local.test';"
+  -c "update public.profiles set is_active = true;" \
+  -c "update public.profiles set role = 'admin' where email = 'admin@local.test';"
 ```
 
-| Email | Пароль | Роль |
-|---|---|---|
-| admin@local.test | local-admin-1 | admin |
+| Email             | Пароль         | Роль   |
+| ----------------- | -------------- | ------ |
+| admin@local.test  | local-admin-1  | admin  |
 | member@local.test | local-member-1 | member |
-| third@local.test | local-third-1 | member |
+| third@local.test  | local-third-1  | member |
 
 - `npx supabase db reset` — пересобрать локальную БД из миграций с нуля (данные и пользователи
   пропадут, скрипт выше запустить заново).
@@ -48,9 +49,11 @@ docker exec -i supabase_db_mrgn-board psql -U postgres -d postgres \
 ## База данных
 
 Миграции — `supabase/migrations/`, применяются по порядку номеров; каждая пишет строку в
-`public.app_migrations`. Права — только RLS и триггеры (`002_rls.sql`): участник видит всё,
-правит задачи/идеи/клиентов, удаляет только своё; админ управляет стадиями, ролями, удаляет
-клиентов. Деактивированный (`is_active = false`) видит только экран «Доступ отключён».
+`public.app_migrations` (админ видит предупреждение в шапке, если база отстаёт от кода).
+Права — только RLS и триггеры (`002_rls.sql`): участник видит всё, правит задачи/идеи/клиентов,
+удаляет только своё; админ управляет стадиями, ролями и доступом, удаляет клиентов.
+Новый аккаунт создаётся выключенным (`is_active = false`) и видит только экран «Доступ не
+включён», пока админ не включит его в разделе «Команда».
 
 ## Облако: чек-лист первого запуска
 
@@ -59,8 +62,10 @@ docker exec -i supabase_db_mrgn-board psql -U postgres -d postgres \
 2. Authentication → Providers → Email: выключить «Allow new users to sign up».
 3. Authentication → Users → Add user (email + пароль, auto-confirm) для каждого участника.
    Имя подхватится из metadata `name`, иначе из email — поправить в разделе «Команда».
-4. Первый админ: SQL Editor → `update public.profiles set role = 'admin' where email = '…';`
-5. Проверка: `select * from public.app_migrations` — три строки.
+4. Первый админ: SQL Editor →
+   `update public.profiles set role = 'admin', is_active = true where email = '…';`
+   Остальных админ включает в разделе «Команда» (новые аккаунты выключены по умолчанию).
+5. Проверка: войти админом — в шапке нет предупреждения о неприменённых миграциях.
 
 ## Деплой (Cloudflare Pages)
 

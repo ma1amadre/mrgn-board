@@ -24,8 +24,7 @@ export function TeamPage() {
       name: values.name,
       telegram: values.telegram || null,
       color: values.color,
-      // role/is_active шлём только админом: у остальных их защищает триггер, и лишнее поле
-      // в UPDATE превратилось бы в ошибку даже без изменений.
+      // role/is_active в форме есть только у админа; участник их не отправляет.
       ...(isAdmin ? { role: values.role, is_active: values.is_active } : {}),
     };
     update.mutate(
@@ -38,8 +37,8 @@ export function TeamPage() {
     <>
       <PageHead title="Команда" />
       <p className="muted">
-        Аккаунты создаёт администратор в Supabase (Authentication → Users). Здесь — имя, контакт,
-        роль и доступ.
+        Аккаунты создаёт администратор в Supabase (Authentication → Users). Новый аккаунт выключен,
+        пока админ не включит доступ здесь.
       </p>
       {profiles.isPending ? <EmptyState>Загрузка…</EmptyState> : null}
       {profiles.isError ? <EmptyState>Не удалось загрузить команду.</EmptyState> : null}
@@ -52,7 +51,7 @@ export function TeamPage() {
                 <th>Email</th>
                 <th>Telegram</th>
                 <th>Роль</th>
-                <th>Статус</th>
+                <th>Доступ</th>
                 <th />
               </tr>
             </thead>
@@ -75,9 +74,9 @@ export function TeamPage() {
                   </td>
                   <td>
                     {p.is_active ? (
-                      <span className="badge badge-success">Активен</span>
+                      <span className="badge badge-success">Включён</span>
                     ) : (
-                      <span className="badge">Отключён</span>
+                      <span className="badge badge-warning">Выключен</span>
                     )}
                   </td>
                   <td style={{ textAlign: 'right' }}>

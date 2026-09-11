@@ -365,6 +365,10 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean };
       is_member: { Args: never; Returns: boolean };
       renumber_stage: { Args: { p_stage_id: string }; Returns: undefined };
+      swap_stage_positions: {
+        Args: { p_a: string; p_b: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       client_direction: 'cdn' | 'site' | 'bot' | 'app' | 'other';

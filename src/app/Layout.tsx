@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { useMissingMigrations } from '../shared/api/migrations';
 import { useRealtimeInvalidation } from '../shared/api/realtime';
 import { Avatar } from '../shared/ui/Avatar';
 import { useAuth, useProfile } from './auth/authContext';
@@ -14,6 +15,7 @@ const NAV = [
 export function Layout() {
   const profile = useProfile();
   const { isAdmin, signOut } = useAuth();
+  const missing = useMissingMigrations();
   useRealtimeInvalidation();
 
   return (
@@ -43,6 +45,14 @@ export function Layout() {
         </div>
       </aside>
       <main className="shell-main">
+        {isAdmin && missing.length > 0 ? (
+          <div className="alert alert-warning" role="alert">
+            <p>
+              База отстаёт от кода: не применены миграции {missing.join(', ')}. Выполните их в SQL
+              Editor по порядку.
+            </p>
+          </div>
+        ) : null}
         <Outlet />
       </main>
     </div>

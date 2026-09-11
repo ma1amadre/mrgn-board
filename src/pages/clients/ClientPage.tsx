@@ -33,6 +33,7 @@ export function ClientPage() {
 
   const client = clients.data?.find((c) => c.id === id);
   if (clients.isPending) return <EmptyState>Загрузка…</EmptyState>;
+  if (clients.isError) return <EmptyState>Не удалось загрузить клиента.</EmptyState>;
   if (!client) {
     return (
       <>

@@ -28,7 +28,8 @@ export function IdeaCard({
   busy: boolean;
   onVote: (hasVote: boolean) => void;
   onStatus: (status: IdeaStatus) => void;
-  onEdit: (values: IdeaFormValues) => Promise<void>;
+  /** true — сохранено, форму можно закрыть; false — ошибка уже показана, текст остаётся. */
+  onEdit: (values: IdeaFormValues) => Promise<boolean>;
   onDelete: () => void;
   onConvert: () => void;
 }) {
@@ -44,7 +45,11 @@ export function IdeaCard({
           initial={{ title: idea.title, body: idea.body ?? '' }}
           submitLabel="Сохранить"
           busy={busy}
-          onSubmit={(values) => void onEdit(values).then(() => setEditing(false))}
+          onSubmit={(values) =>
+            void onEdit(values).then((saved) => {
+              if (saved) setEditing(false);
+            })
+          }
           onCancel={() => setEditing(false)}
         />
       </div>

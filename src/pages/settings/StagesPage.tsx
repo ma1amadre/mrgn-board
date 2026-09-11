@@ -120,9 +120,9 @@ function StageRow({
 export function StagesPage() {
   const toast = useToast();
   const stages = useStages();
-  const { create, update, remove } = useStageMutations();
+  const { create, update, remove, swap } = useStageMutations();
   const [newName, setNewName] = useState('');
-  const busy = create.isPending || update.isPending || remove.isPending;
+  const busy = create.isPending || update.isPending || remove.isPending || swap.isPending;
   const list = stages.data ?? [];
 
   const onError = (err: unknown) => {
@@ -139,17 +139,12 @@ export function StagesPage() {
     create.mutate({ name, position }, { onSuccess: () => setNewName(''), onError });
   };
 
-  // Меняем местами position соседей — порядок остаётся целочисленным с шагом 1000.
-  const move = async (index: number, dir: -1 | 1) => {
+  // Соседи меняются position одним RPC — порядок остаётся целочисленным с шагом 1000.
+  const move = (index: number, dir: -1 | 1) => {
     const a = list[index];
     const b = list[index + dir];
     if (!a || !b) return;
-    try {
-      await update.mutateAsync({ id: a.id, patch: { position: b.position } });
-      await update.mutateAsync({ id: b.id, patch: { position: a.position } });
-    } catch (err) {
-      onError(err);
-    }
+    swap.mutate({ a: a.id, b: b.id }, { onError });
   };
 
   return (
@@ -157,7 +152,8 @@ export function StagesPage() {
       <PageHead title="Стадии доски" />
       <p className="muted">
         Порядок стадий — порядок колонок на доске. Стадия с пометкой «закрывает задачу» проставляет
-        дату закрытия; такие задачи не считаются просроченными.
+        дату закрытия; такие задачи не считаются просроченными. Переключение пометки пересчитывает
+        задачи, которые уже лежат в стадии.
       </p>
       {stages.isPending ? <EmptyState>Загрузка…</EmptyState> : null}
       {stages.data ? (
@@ -181,7 +177,7 @@ export function StagesPage() {
                   isLast={i === list.length - 1}
                   busy={busy}
                   onSave={(patch) => update.mutate({ id: s.id, patch }, { onError })}
-                  onMove={(dir) => void move(i, dir)}
+                  onMove={(dir) => move(i, dir)}
                   onDelete={() => {
                     if (!window.confirm(`Удалить стадию «${s.name}»?`)) return;
                     remove.mutate(s.id, { onError });

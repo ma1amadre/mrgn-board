@@ -41,7 +41,11 @@ export function groupByStage<T extends TaskLike>(tasks: T[], stageIds: string[])
 
 export type Workload = { profileId: string | null; open: number; overdue: number };
 
-/** Нагрузка по исполнителям: открытые и просроченные. profileId null — без исполнителя. */
+/**
+ * Нагрузка по исполнителям: открытые и просроченные. profileId null — без исполнителя.
+ * `profileIds` — кого показывать всегда (даже с нулём); исполнители вне списка (например,
+ * деактивированные) появляются, только если у них есть открытые задачи.
+ */
 export function workloadByAssignee<T extends TaskLike>(
   tasks: T[],
   profileIds: string[],
@@ -52,7 +56,11 @@ export function workloadByAssignee<T extends TaskLike>(
   rows.set(null, { profileId: null, open: 0, overdue: 0 });
   for (const t of tasks) {
     if (!isOpen(t)) continue;
-    const row = rows.get(t.assignee_id) ?? rows.get(null)!;
+    let row = rows.get(t.assignee_id);
+    if (!row) {
+      row = { profileId: t.assignee_id, open: 0, overdue: 0 };
+      rows.set(t.assignee_id, row);
+    }
     row.open += 1;
     if (isOverdue(t, today)) row.overdue += 1;
   }

@@ -117,7 +117,13 @@ export function BoardPage() {
         stages.data.length === 0 ? (
           <EmptyState>Стадии не настроены — админ добавляет их в разделе «Стадии».</EmptyState>
         ) : (
-          <KanbanBoard stages={stages.data} tasks={visibleTasks} today={today} onOpen={openTask} />
+          <KanbanBoard
+            stages={stages.data}
+            tasks={visibleTasks}
+            allTasks={tasks.data}
+            today={today}
+            onOpen={openTask}
+          />
         )
       ) : null}
 

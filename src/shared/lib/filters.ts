@@ -7,6 +7,7 @@ export type TaskFilters = {
   assignee: string | null;
   client: string | null;
   priority: Priority | null;
+  /** Строка поиска как есть, с пробелами: это значение контролируемого инпута. */
   q: string;
 };
 
@@ -28,7 +29,7 @@ export function parseFilters(sp: URLSearchParams): TaskFilters {
     assignee: sp.get('assignee') || null,
     client: sp.get('client') || null,
     priority: priority && PRIORITY_VALUES.has(priority) ? (priority as Priority) : null,
-    q: sp.get('q')?.trim() ?? '',
+    q: sp.get('q') ?? '',
   };
 }
 
@@ -39,7 +40,7 @@ export function serializeFilters(f: TaskFilters, base?: URLSearchParams): URLSea
     ['assignee', f.assignee],
     ['client', f.client],
     ['priority', f.priority],
-    ['q', f.q.trim() || null],
+    ['q', f.q || null],
   ];
   for (const [key, value] of entries) {
     if (value) sp.set(key, value);

@@ -19,7 +19,7 @@ export function ProfileForm({
   onCancel,
 }: {
   profile: Profile;
-  /** Роль и активность меняет только админ; для остальных полей не показываем. */
+  /** Роль и доступ меняет только админ; остальным эти поля не показываем. */
   adminFields: boolean;
   busy: boolean;
   onSubmit: (values: ProfileFormValues) => void;
@@ -86,7 +86,9 @@ export function ProfileForm({
               ))}
             </select>
           </Field>
-          <Field label="Доступ">
+          {/* Тумблер сам является label — в Field (тоже label) его не вкладываем. */}
+          <div className="field">
+            <span className="field-label">Доступ</span>
             <label className="switch" style={{ height: 36 }}>
               <input
                 type="checkbox"
@@ -96,7 +98,7 @@ export function ProfileForm({
               <span className="switch-track" />
               {values.is_active ? 'активен' : 'отключён'}
             </label>
-          </Field>
+          </div>
         </div>
       ) : null}
       <div className="modal-actions">

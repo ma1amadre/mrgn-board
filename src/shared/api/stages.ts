@@ -5,7 +5,11 @@ import { keys } from './keys';
 import type { Inserts, Stage, Updates } from './types';
 
 export async function fetchStages(): Promise<Stage[]> {
-  const { data, error } = await supabase.from('stages').select('*').order('position');
+  const { data, error } = await supabase
+    .from('stages')
+    .select('*')
+    .order('position')
+    .order('created_at');
   if (error) throw error;
   return data;
 }
@@ -32,9 +36,19 @@ export async function deleteStage(id: string): Promise<void> {
   assertAffected(data);
 }
 
+/** Обмен position двух стадий одним запросом — см. swap_stage_positions в 001_schema.sql. */
+export async function swapStages(a: string, b: string): Promise<void> {
+  const { error } = await supabase.rpc('swap_stage_positions', { p_a: a, p_b: b });
+  if (error) throw error;
+}
+
 export function useStageMutations() {
   const qc = useQueryClient();
-  const invalidate = () => qc.invalidateQueries({ queryKey: keys.stages.all });
+  const invalidate = () => {
+    void qc.invalidateQueries({ queryKey: keys.stages.all });
+    // Смена is_terminal пересчитывает done_at у задач (триггер в БД).
+    void qc.invalidateQueries({ queryKey: keys.tasks.all });
+  };
   return {
     create: useMutation({ mutationFn: createStage, onSettled: invalidate }),
     update: useMutation({
@@ -43,5 +57,9 @@ export function useStageMutations() {
       onSettled: invalidate,
     }),
     remove: useMutation({ mutationFn: deleteStage, onSettled: invalidate }),
+    swap: useMutation({
+      mutationFn: ({ a, b }: { a: string; b: string }) => swapStages(a, b),
+      onSettled: invalidate,
+    }),
   };
 }

@@ -12,12 +12,12 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useQueryClient } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { keys } from '../../shared/api/keys';
 import { fetchTasks, renumberStage, useMoveTask } from '../../shared/api/tasks';
 import type { Stage, TaskWithRefs } from '../../shared/api/types';
-import { computePosition, needsRenumber } from '../../shared/lib/ordering';
-import { groupByStage } from '../../shared/lib/tasks';
+import { computePosition, needsRenumber, neighborPositions } from '../../shared/lib/ordering';
+import { groupByStage, sortByPosition } from '../../shared/lib/tasks';
 import { useToast } from '../../shared/ui/toastContext';
 import { KanbanColumn } from './KanbanColumn';
 import { TaskCardView } from './TaskCard';
@@ -45,11 +45,15 @@ function findColumn(id: string, cols: Columns): string | undefined {
 export function KanbanBoard({
   stages,
   tasks,
+  allTasks,
   today,
   onOpen,
 }: {
   stages: Stage[];
+  /** Видимые (отфильтрованные) задачи — из них строятся колонки. */
   tasks: TaskWithRefs[];
+  /** Все задачи — по ним считается position, чтобы не встать поверх скрытой карточки. */
+  allTasks: TaskWithRefs[];
   today: string;
   onOpen: (id: string) => void;
 }) {
@@ -62,6 +66,9 @@ export function KanbanBoard({
 
   const [local, setLocal] = useState<LocalColumns | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  // onDragOver уже поставил карточку на место при переходе между колонками —
+  // тогда в onDragEnd arrayMove не нужен, иначе она уедет на позицию ниже.
+  const movedAcross = useRef(false);
   // Кеш обновился после переноса — локальная копия своё отработала. Во время drag не трогаем.
   if (local !== null && activeId === null && local.base !== derived) setLocal(null);
   const columns = local?.cols ?? derived;
@@ -73,6 +80,7 @@ export function KanbanBoard({
   );
 
   const onDragStart = (e: DragStartEvent) => {
+    movedAcross.current = false;
     setActiveId(String(e.active.id));
     setLocal({ cols: derived, base: derived });
   };
@@ -87,6 +95,7 @@ export function KanbanBoard({
       const from = findColumn(activeKey, cols);
       const to = findColumn(overKey, cols);
       if (!from || !to || from === to) return prev;
+      movedAcross.current = true;
       const fromList = (cols[from] ?? []).filter((id) => id !== activeKey);
       const toList = [...(cols[to] ?? [])];
       const overIndex = toList.indexOf(overKey);
@@ -114,23 +123,21 @@ export function KanbanBoard({
     let list = [...(columns[stageId] ?? [])];
     const fromIndex = list.indexOf(activeKey);
     const overIndex = list.indexOf(overKey);
-    if (fromIndex >= 0 && overIndex >= 0 && fromIndex !== overIndex) {
+    if (!movedAcross.current && fromIndex >= 0 && overIndex >= 0 && fromIndex !== overIndex) {
       list = arrayMove(list, fromIndex, overIndex);
     }
     const index = list.indexOf(activeKey);
     const prevId = list[index - 1];
     const nextId = list[index + 1];
 
-    let byId = taskById;
-    let prev = prevId ? byId.get(prevId)?.position : undefined;
-    let next = nextId ? byId.get(nextId)?.position : undefined;
+    const columnOf = (source: TaskWithRefs[]) =>
+      sortByPosition(source.filter((t) => t.stage_id === stageId && t.id !== activeKey));
+    let { prev, next } = neighborPositions(columnOf(allTasks), prevId, nextId);
     try {
       if (needsRenumber(prev, next)) {
         await renumberStage(stageId);
         const fresh = await qc.fetchQuery({ queryKey: keys.tasks.all, queryFn: fetchTasks });
-        byId = new Map(fresh.map((t) => [t.id, t]));
-        prev = prevId ? byId.get(prevId)?.position : undefined;
-        next = nextId ? byId.get(nextId)?.position : undefined;
+        ({ prev, next } = neighborPositions(columnOf(fresh), prevId, nextId));
       }
     } catch (err) {
       toast.error(err);

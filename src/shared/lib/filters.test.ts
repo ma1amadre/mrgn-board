@@ -18,9 +18,9 @@ describe('parseFilters', () => {
   it('пустой URL → пустые фильтры', () => {
     expect(parseFilters(new URLSearchParams())).toEqual(EMPTY_FILTERS);
   });
-  it('читает все параметры', () => {
+  it('читает все параметры, строку поиска не трогает', () => {
     const f = parseFilters(new URLSearchParams('assignee=a&client=c1&priority=high&q=%20cdn%20'));
-    expect(f).toEqual({ assignee: 'a', client: 'c1', priority: 'high', q: 'cdn' });
+    expect(f).toEqual({ assignee: 'a', client: 'c1', priority: 'high', q: ' cdn ' });
   });
   it('неизвестный приоритет отбрасывается', () => {
     expect(parseFilters(new URLSearchParams('priority=asap')).priority).toBeNull();
@@ -35,8 +35,8 @@ describe('serializeFilters', () => {
     expect(sp.get('assignee')).toBeNull();
     expect(sp.get('client')).toBe('c2');
   });
-  it('round-trip', () => {
-    const f = { assignee: UNASSIGNED, client: 'c1', priority: 'low' as const, q: 'бот' };
+  it('round-trip, включая пробел в конце набираемого запроса', () => {
+    const f = { assignee: UNASSIGNED, client: 'c1', priority: 'low' as const, q: 'поднять ' };
     expect(parseFilters(serializeFilters(f))).toEqual(f);
   });
 });
@@ -45,6 +45,10 @@ describe('applyTaskFilters', () => {
   it('без фильтров возвращает всё', () => {
     expect(applyTaskFilters(tasks, EMPTY_FILTERS)).toHaveLength(3);
     expect(isFilterActive(EMPTY_FILTERS)).toBe(false);
+  });
+  it('одни пробелы в поиске — фильтр не активен и ничего не режет', () => {
+    expect(isFilterActive({ ...EMPTY_FILTERS, q: '   ' })).toBe(false);
+    expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, q: '   ' })).toHaveLength(3);
   });
   it('по исполнителю', () => {
     expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, assignee: 'a' }).map((t) => t.id)).toEqual([
@@ -60,8 +64,8 @@ describe('applyTaskFilters', () => {
     const f = { ...EMPTY_FILTERS, client: 'c1', priority: 'urgent' as const };
     expect(applyTaskFilters(tasks, f).map((t) => t.id)).toEqual(['3']);
   });
-  it('поиск по заголовку без учёта регистра', () => {
-    expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, q: 'ЛЕНДИНГ' }).map((t) => t.id)).toEqual([
+  it('поиск по заголовку без учёта регистра и с пробелами по краям', () => {
+    expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, q: ' ЛЕНДИНГ ' }).map((t) => t.id)).toEqual([
       '2',
     ]);
   });

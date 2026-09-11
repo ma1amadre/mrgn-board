@@ -20,7 +20,6 @@ export const PRIORITY_BADGE: Record<Priority, string> = {
   normal: 'badge',
   low: 'badge',
 };
-export const PRIORITY_ORDER: Record<Priority, number> = { urgent: 0, high: 1, normal: 2, low: 3 };
 
 export const CLIENT_DIRECTIONS: ClientDirection[] = ['cdn', 'site', 'bot', 'app', 'other'];
 export const CLIENT_DIRECTION_LABEL: Record<ClientDirection, string> = {

@@ -34,7 +34,9 @@ CREATE TABLE public.profiles (
   role       public.profile_role NOT NULL DEFAULT 'member',
   color      TEXT NOT NULL DEFAULT '#0b6e5c',
   telegram   TEXT,
-  is_active  BOOLEAN NOT NULL DEFAULT TRUE,
+  -- Новый аккаунт выключен, пока админ не включит его в «Команде»: даже если саморегистрация
+  -- окажется включённой, чужой аккаунт с anon-ключом ничего не увидит.
+  is_active  BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -181,11 +183,13 @@ CREATE TRIGGER trg_profiles_guard BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.profiles_guard();
 
 -- ─── done_at по терминальной стадии ───
+-- Срабатывает на любой INSERT/UPDATE: что бы клиент ни прислал в done_at, значение
+-- определяется только стадией. В терминальной стадии сохраняется момент первого попадания.
 CREATE OR REPLACE FUNCTION public.tasks_set_done_at() RETURNS TRIGGER
 LANGUAGE plpgsql AS $$
 BEGIN
   IF (SELECT is_terminal FROM public.stages WHERE id = NEW.stage_id) THEN
-    NEW.done_at = COALESCE(NEW.done_at, NOW());
+    NEW.done_at = COALESCE(CASE WHEN TG_OP = 'UPDATE' THEN OLD.done_at END, NOW());
   ELSE
     NEW.done_at = NULL;
   END IF;
@@ -193,8 +197,48 @@ BEGIN
 END;
 $$;
 
-CREATE TRIGGER trg_tasks_done_at BEFORE INSERT OR UPDATE OF stage_id ON public.tasks
+CREATE TRIGGER trg_tasks_done_at BEFORE INSERT OR UPDATE ON public.tasks
   FOR EACH ROW EXECUTE FUNCTION public.tasks_set_done_at();
+
+-- Переключили is_terminal у стадии — пересчитать задачи, которые уже в ней лежат.
+CREATE OR REPLACE FUNCTION public.stages_terminal_changed() RETURNS TRIGGER
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  UPDATE public.tasks SET done_at = CASE WHEN NEW.is_terminal THEN COALESCE(done_at, NOW()) END
+  WHERE stage_id = NEW.id;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_stages_terminal AFTER UPDATE OF is_terminal ON public.stages
+  FOR EACH ROW WHEN (OLD.is_terminal IS DISTINCT FROM NEW.is_terminal)
+  EXECUTE FUNCTION public.stages_terminal_changed();
+
+-- ─── Неизменяемые колонки владельца ───
+-- WITH CHECK в RLS не видит старую строку, поэтому автора/создателя защищает триггер:
+-- иначе участник переписал бы author_id на себя и удалил чужую идею.
+-- auth.uid() IS NULL — SQL editor / сервисная роль, им можно.
+CREATE OR REPLACE FUNCTION public.forbid_column_change() RETURNS TRIGGER
+LANGUAGE plpgsql AS $$
+DECLARE
+  col TEXT;
+BEGIN
+  IF auth.uid() IS NULL THEN
+    RETURN NEW;
+  END IF;
+  FOREACH col IN ARRAY TG_ARGV LOOP
+    IF to_jsonb(NEW) ->> col IS DISTINCT FROM to_jsonb(OLD) ->> col THEN
+      RAISE EXCEPTION 'column % is immutable', col USING ERRCODE = '42501';
+    END IF;
+  END LOOP;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_tasks_immutable    BEFORE UPDATE ON public.tasks    FOR EACH ROW EXECUTE FUNCTION public.forbid_column_change('created_by', 'idea_id');
+CREATE TRIGGER trg_clients_immutable  BEFORE UPDATE ON public.clients  FOR EACH ROW EXECUTE FUNCTION public.forbid_column_change('created_by');
+CREATE TRIGGER trg_ideas_immutable    BEFORE UPDATE ON public.ideas    FOR EACH ROW EXECUTE FUNCTION public.forbid_column_change('author_id');
+CREATE TRIGGER trg_comments_immutable BEFORE UPDATE ON public.comments FOR EACH ROW EXECUTE FUNCTION public.forbid_column_change('author_id', 'task_id');
 
 -- ─── RPC: перенумерация колонки ───
 -- INVOKER: работает под RLS вызывающего. Вызывается клиентом, когда зазор между соседями исчерпан.
@@ -225,7 +269,7 @@ BEGIN
   IF EXISTS (SELECT 1 FROM public.tasks WHERE idea_id = p_idea_id) THEN
     RAISE EXCEPTION 'idea already converted' USING ERRCODE = '23505';
   END IF;
-  SELECT id INTO v_stage FROM public.stages ORDER BY position LIMIT 1;
+  SELECT id INTO v_stage FROM public.stages ORDER BY position, created_at LIMIT 1;
   IF v_stage IS NULL THEN
     RAISE EXCEPTION 'no stages configured' USING ERRCODE = 'P0001';
   END IF;
@@ -247,7 +291,17 @@ END;
 $$;
 
 -- Postgres даёт EXECUTE роли PUBLIC по умолчанию — снимаем и с неё, иначе anon дотянется.
+-- ─── RPC: поменять две стадии местами ───
+-- Один UPDATE вместо двух с клиента: обрыв между ними оставил бы две стадии с одной position.
+CREATE OR REPLACE FUNCTION public.swap_stage_positions(p_a UUID, p_b UUID) RETURNS VOID
+LANGUAGE sql SECURITY INVOKER SET search_path = public AS $$
+  UPDATE public.stages s SET position = CASE s.id WHEN p_a THEN b.position ELSE a.position END
+  FROM public.stages a, public.stages b
+  WHERE a.id = p_a AND b.id = p_b AND s.id IN (p_a, p_b);
+$$;
+
 REVOKE EXECUTE ON FUNCTION public.renumber_stage(UUID) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.swap_stage_positions(UUID, UUID) FROM PUBLIC, anon;
 REVOKE EXECUTE ON FUNCTION public.convert_idea_to_task(UUID) FROM PUBLIC, anon;
 
 INSERT INTO public.app_migrations (name) VALUES ('001_schema');
