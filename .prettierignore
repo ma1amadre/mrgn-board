@@ -1,0 +1,5 @@
+node_modules/
+dist/
+src/styles/tokens.css
+src/styles/components.css
+supabase/.temp/
