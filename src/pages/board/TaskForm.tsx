@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import type { Client, Profile, Stage } from '../../shared/api/types';
 import { PRIORITIES, PRIORITY_LABEL, type Priority } from '../../shared/lib/labels';
 import { Field } from '../../shared/ui/Field';
+import { useDirty } from '../../shared/ui/useDirty';
 
 export type TaskFormValues = {
   title: string;
@@ -22,6 +23,7 @@ export function TaskForm({
   busy,
   onSubmit,
   onCancel,
+  onDirtyChange,
 }: {
   initial: TaskFormValues;
   stages: Stage[];
@@ -31,8 +33,10 @@ export function TaskForm({
   busy: boolean;
   onSubmit: (values: TaskFormValues) => void;
   onCancel: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
   const [values, setValues] = useState<TaskFormValues>(initial);
+  useDirty(values, initial, onDirtyChange);
   const set = <K extends keyof TaskFormValues>(key: K, value: TaskFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
 

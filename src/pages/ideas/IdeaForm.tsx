@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Field } from '../../shared/ui/Field';
+import { useDirty } from '../../shared/ui/useDirty';
 
 export type IdeaFormValues = { title: string; body: string };
 
@@ -9,14 +10,17 @@ export function IdeaForm({
   busy,
   onSubmit,
   onCancel,
+  onDirtyChange,
 }: {
   initial: IdeaFormValues;
   submitLabel: string;
   busy: boolean;
   onSubmit: (values: IdeaFormValues) => void;
   onCancel: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
   const [values, setValues] = useState(initial);
+  useDirty(values, initial, onDirtyChange);
   const submit = (e: FormEvent) => {
     e.preventDefault();
     const title = values.title.trim();

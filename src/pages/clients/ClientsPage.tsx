@@ -13,6 +13,7 @@ import { EmptyState } from '../../shared/ui/EmptyState';
 import { Modal } from '../../shared/ui/Modal';
 import { PageHead } from '../../shared/ui/PageHead';
 import { useToast } from '../../shared/ui/toastContext';
+import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { ClientForm, type ClientFormValues } from './ClientForm';
 
 const EMPTY_CLIENT: ClientFormValues = {
@@ -32,6 +33,8 @@ export function ClientsPage() {
   const tasks = useTasks();
   const { create } = useClientMutations();
   const [creating, setCreating] = useState(false);
+  const [draftDirty, setDraftDirty] = useState(false);
+  useDocumentTitle('Клиенты');
 
   const openByClient = useMemo(() => {
     const map = new Map<string, number>();
@@ -112,13 +115,14 @@ export function ClientsPage() {
         </div>
       ) : null}
       {creating ? (
-        <Modal title="Новый клиент" onClose={() => setCreating(false)}>
+        <Modal title="Новый клиент" onClose={() => setCreating(false)} dirty={draftDirty}>
           <ClientForm
             initial={EMPTY_CLIENT}
             submitLabel="Создать"
             busy={create.isPending}
             onSubmit={submitNew}
             onCancel={() => setCreating(false)}
+            onDirtyChange={setDraftDirty}
           />
         </Modal>
       ) : null}

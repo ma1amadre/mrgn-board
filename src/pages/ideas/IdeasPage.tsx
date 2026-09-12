@@ -2,10 +2,12 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useProfile } from '../../app/auth/authContext';
 import { useIdeaMutations, useIdeas } from '../../shared/api/ideas';
+import { useConfirm } from '../../shared/ui/confirmContext';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Modal } from '../../shared/ui/Modal';
 import { PageHead } from '../../shared/ui/PageHead';
 import { useToast } from '../../shared/ui/toastContext';
+import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { IdeaCard } from './IdeaCard';
 import { IdeaForm, type IdeaFormValues } from './IdeaForm';
 
@@ -13,10 +15,13 @@ export function IdeasPage() {
   const me = useProfile();
   const { isAdmin } = useAuth();
   const toast = useToast();
+  const confirm = useConfirm();
   const navigate = useNavigate();
   const ideas = useIdeas();
   const { create, update, remove, vote, convert } = useIdeaMutations();
   const [creating, setCreating] = useState(false);
+  const [draftDirty, setDraftDirty] = useState(false);
+  useDocumentTitle('Идеи');
 
   // Сначала самые поддержанные, внутри — новые.
   const sorted = useMemo(
@@ -90,8 +95,12 @@ export function IdeasPage() {
             }
             onEdit={(values) => edit(idea.id, values)}
             onDelete={() => {
-              if (!window.confirm(`Удалить идею «${idea.title}»?`)) return;
-              remove.mutate(idea.id, { onError: (err) => toast.error(err) });
+              void confirm({
+                title: `Удалить идею «${idea.title}»?`,
+                text: 'Голоса за неё тоже пропадут.',
+              }).then((ok) => {
+                if (ok) remove.mutate(idea.id, { onError: (err) => toast.error(err) });
+              });
             }}
             onConvert={() =>
               convert.mutate(idea.id, {
@@ -103,13 +112,14 @@ export function IdeasPage() {
         ))}
       </div>
       {creating ? (
-        <Modal title="Новая идея" onClose={() => setCreating(false)}>
+        <Modal title="Новая идея" onClose={() => setCreating(false)} dirty={draftDirty}>
           <IdeaForm
             initial={{ title: '', body: '' }}
             submitLabel="Предложить"
             busy={create.isPending}
             onSubmit={submitNew}
             onCancel={() => setCreating(false)}
+            onDirtyChange={setDraftDirty}
           />
         </Modal>
       ) : null}

@@ -8,6 +8,7 @@ import { EmptyState } from '../../shared/ui/EmptyState';
 import { Modal } from '../../shared/ui/Modal';
 import { PageHead } from '../../shared/ui/PageHead';
 import { useToast } from '../../shared/ui/toastContext';
+import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { ProfileForm, type ProfileFormValues } from './ProfileForm';
 
 export function TeamPage() {
@@ -17,6 +18,8 @@ export function TeamPage() {
   const profiles = useProfiles();
   const update = useUpdateProfile();
   const [editing, setEditing] = useState<Profile | null>(null);
+  const [draftDirty, setDraftDirty] = useState(false);
+  useDocumentTitle('Команда');
 
   const save = (values: ProfileFormValues) => {
     if (!editing) return;
@@ -102,6 +105,7 @@ export function TeamPage() {
         <Modal
           title={editing.id === me.id ? 'Мой профиль' : editing.name}
           onClose={() => setEditing(null)}
+          dirty={draftDirty}
         >
           <ProfileForm
             profile={editing}
@@ -109,6 +113,7 @@ export function TeamPage() {
             busy={update.isPending}
             onSubmit={save}
             onCancel={() => setEditing(null)}
+            onDirtyChange={setDraftDirty}
           />
         </Modal>
       ) : null}

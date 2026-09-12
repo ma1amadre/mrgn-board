@@ -5,8 +5,11 @@ import type { Client, Profile, Stage, TaskWithRefs } from '../../shared/api/type
 import { formatDate, formatDateTime } from '../../shared/lib/dates';
 import { PRIORITY_BADGE, PRIORITY_LABEL } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
+import { useConfirm } from '../../shared/ui/confirmContext';
 import { Drawer } from '../../shared/ui/Drawer';
+import { Linkify } from '../../shared/ui/Linkify';
 import { useToast } from '../../shared/ui/toastContext';
+import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { CommentsList } from './CommentsList';
 import { dueBadgeClass } from './dueBadge';
 import { TaskForm, type TaskFormValues } from './TaskForm';
@@ -27,8 +30,11 @@ export function TaskDrawer({
   onClose: () => void;
 }) {
   const toast = useToast();
+  const confirm = useConfirm();
   const { update, remove } = useTaskMutations();
   const [editing, setEditing] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  useDocumentTitle(task?.title ?? null);
 
   if (!task) {
     return (
@@ -67,13 +73,17 @@ export function TaskDrawer({
     );
   };
 
-  const del = () => {
-    if (!window.confirm(`Удалить задачу «${task.title}»?`)) return;
+  const del = async () => {
+    const ok = await confirm({
+      title: `Удалить задачу «${task.title}»?`,
+      text: 'Комментарии к ней тоже пропадут. Это действие нельзя отменить.',
+    });
+    if (!ok) return;
     remove.mutate(task.id, { onSuccess: onClose, onError: (err) => toast.error(err) });
   };
 
   return (
-    <Drawer title={<h2>{task.title}</h2>} onClose={onClose}>
+    <Drawer title={<h2>{task.title}</h2>} onClose={onClose} dirty={editing && dirty}>
       {editing ? (
         <TaskForm
           initial={initial}
@@ -84,6 +94,7 @@ export function TaskDrawer({
           busy={update.isPending}
           onSubmit={save}
           onCancel={() => setEditing(false)}
+          onDirtyChange={setDirty}
         />
       ) : (
         <>
@@ -122,7 +133,9 @@ export function TaskDrawer({
             </div>
           </div>
           {task.description ? (
-            <p className="prewrap">{task.description}</p>
+            <p className="prewrap">
+              <Linkify text={task.description} />
+            </p>
           ) : (
             <p className="muted">Без описания.</p>
           )}
@@ -137,7 +150,7 @@ export function TaskDrawer({
             <button
               type="button"
               className="btn btn-ghost btn-sm"
-              onClick={del}
+              onClick={() => void del()}
               disabled={remove.isPending}
             >
               Удалить

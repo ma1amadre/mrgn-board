@@ -8,6 +8,7 @@ import {
   type ClientStatus,
 } from '../../shared/lib/labels';
 import { Field } from '../../shared/ui/Field';
+import { useDirty } from '../../shared/ui/useDirty';
 
 export type ClientFormValues = {
   name: string;
@@ -24,14 +25,17 @@ export function ClientForm({
   busy,
   onSubmit,
   onCancel,
+  onDirtyChange,
 }: {
   initial: ClientFormValues;
   submitLabel: string;
   busy: boolean;
   onSubmit: (values: ClientFormValues) => void;
   onCancel: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
   const [values, setValues] = useState(initial);
+  useDirty(values, initial, onDirtyChange);
   const set = <K extends keyof ClientFormValues>(key: K, value: ClientFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
 

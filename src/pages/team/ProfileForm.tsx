@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import type { Profile } from '../../shared/api/types';
 import { ROLE_LABEL, type ProfileRole } from '../../shared/lib/labels';
 import { Field } from '../../shared/ui/Field';
+import { useDirty } from '../../shared/ui/useDirty';
 
 export type ProfileFormValues = {
   name: string;
@@ -17,6 +18,7 @@ export function ProfileForm({
   busy,
   onSubmit,
   onCancel,
+  onDirtyChange,
 }: {
   profile: Profile;
   /** Роль и доступ меняет только админ; остальным эти поля не показываем. */
@@ -24,14 +26,17 @@ export function ProfileForm({
   busy: boolean;
   onSubmit: (values: ProfileFormValues) => void;
   onCancel: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }) {
-  const [values, setValues] = useState<ProfileFormValues>({
+  const initial: ProfileFormValues = {
     name: profile.name,
     telegram: profile.telegram ?? '',
     color: profile.color,
     role: profile.role,
     is_active: profile.is_active,
-  });
+  };
+  const [values, setValues] = useState<ProfileFormValues>(initial);
+  useDirty(values, initial, onDirtyChange);
   const set = <K extends keyof ProfileFormValues>(key: K, value: ProfileFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
 

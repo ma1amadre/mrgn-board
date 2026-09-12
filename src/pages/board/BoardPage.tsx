@@ -17,6 +17,7 @@ import { EmptyState } from '../../shared/ui/EmptyState';
 import { Modal } from '../../shared/ui/Modal';
 import { PageHead } from '../../shared/ui/PageHead';
 import { useToast } from '../../shared/ui/toastContext';
+import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { BoardFilters } from './BoardFilters';
 import { KanbanBoard } from './KanbanBoard';
 import { TaskDrawer } from './TaskDrawer';
@@ -32,6 +33,8 @@ export function BoardPage() {
   const clients = useClients();
   const { create } = useTaskMutations();
   const [creating, setCreating] = useState(false);
+  const [draftDirty, setDraftDirty] = useState(false);
+  useDocumentTitle('Доска');
 
   const filters = useMemo(() => parseFilters(sp), [sp]);
   const setFilters = useCallback(
@@ -128,7 +131,7 @@ export function BoardPage() {
       ) : null}
 
       {creating && newTaskInitial ? (
-        <Modal title="Новая задача" onClose={() => setCreating(false)}>
+        <Modal title="Новая задача" onClose={() => setCreating(false)} dirty={draftDirty}>
           <TaskForm
             initial={newTaskInitial}
             stages={stages.data ?? []}
@@ -138,6 +141,7 @@ export function BoardPage() {
             busy={create.isPending}
             onSubmit={submitNew}
             onCancel={() => setCreating(false)}
+            onDirtyChange={setDraftDirty}
           />
         </Modal>
       ) : null}
