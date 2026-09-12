@@ -4,6 +4,7 @@ import { useRealtimeInvalidation } from '../shared/api/realtime';
 import { Avatar } from '../shared/ui/Avatar';
 import { useAuth, useProfile } from './auth/authContext';
 import { Hotkeys } from './Hotkeys';
+import { THEME_LABEL, nextTheme, useTheme } from './theme';
 
 const NAV = [
   { to: '/', label: 'Обзор', end: true },
@@ -19,6 +20,7 @@ export function Layout() {
   const profile = useProfile();
   const { isAdmin, signOut } = useAuth();
   const missing = useMissingMigrations();
+  const [theme, setTheme] = useTheme();
   useRealtimeInvalidation();
 
   return (
@@ -53,7 +55,17 @@ export function Layout() {
           </button>
         </div>
         <div className="shell-hint">
-          <kbd>?</kbd> — горячие клавиши
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => setTheme(nextTheme(theme))}
+            title="Переключить тему"
+          >
+            Тема: {THEME_LABEL[theme]}
+          </button>
+          <div>
+            <kbd>?</kbd> — горячие клавиши
+          </div>
         </div>
       </aside>
       <main className="shell-main">

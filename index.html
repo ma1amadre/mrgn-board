@@ -5,6 +5,13 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MRGN board</title>
+    <script>
+      // Тема из localStorage до первой отрисовки, чтобы не мигало светлым (ключ — THEME_KEY в app/theme.ts).
+      try {
+        var t = localStorage.getItem('mrgn-theme');
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

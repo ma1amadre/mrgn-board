@@ -852,6 +852,10 @@ kbd {
   white-space: nowrap;
 }
 .shell-hint {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  align-items: flex-start;
   margin-top: auto;
   padding-top: var(--s-4);
   color: var(--text-muted);
