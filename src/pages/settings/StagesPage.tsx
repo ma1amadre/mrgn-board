@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { useStageMutations, useStages } from '../../shared/api/stages';
 import type { Stage } from '../../shared/api/types';
+import { useConfirm } from '../../shared/ui/confirmContext';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { PageHead } from '../../shared/ui/PageHead';
 import { useToast } from '../../shared/ui/toastContext';
+import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
@@ -119,11 +121,13 @@ function StageRow({
 
 export function StagesPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const stages = useStages();
   const { create, update, remove, swap } = useStageMutations();
   const [newName, setNewName] = useState('');
   const busy = create.isPending || update.isPending || remove.isPending || swap.isPending;
   const list = stages.data ?? [];
+  useDocumentTitle('Стадии');
 
   const onError = (err: unknown) => {
     const code = (err as { code?: string } | null)?.code;
@@ -179,8 +183,12 @@ export function StagesPage() {
                   onSave={(patch) => update.mutate({ id: s.id, patch }, { onError })}
                   onMove={(dir) => move(i, dir)}
                   onDelete={() => {
-                    if (!window.confirm(`Удалить стадию «${s.name}»?`)) return;
-                    remove.mutate(s.id, { onError });
+                    void confirm({
+                      title: `Удалить стадию «${s.name}»?`,
+                      text: 'Стадию с задачами удалить нельзя: сначала перенесите их.',
+                    }).then((ok) => {
+                      if (ok) remove.mutate(s.id, { onError });
+                    });
                   }}
                 />
               ))}

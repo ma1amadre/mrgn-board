@@ -9,6 +9,7 @@ import {
   type IdeaStatus,
 } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
+import { Linkify } from '../../shared/ui/Linkify';
 import { IdeaForm, type IdeaFormValues } from './IdeaForm';
 
 export function IdeaCard({
@@ -72,7 +73,11 @@ export function IdeaCard({
         <h3 className="card-title grow">{idea.title}</h3>
         <span className={IDEA_STATUS_BADGE[idea.status]}>{IDEA_STATUS_LABEL[idea.status]}</span>
       </div>
-      {idea.body ? <p className="card-body prewrap">{idea.body}</p> : null}
+      {idea.body ? (
+        <p className="card-body prewrap">
+          <Linkify text={idea.body} />
+        </p>
+      ) : null}
       <div className="row small muted">
         {idea.author ? <Avatar name={idea.author.name} color={idea.author.color} /> : null}
         <span>{idea.author?.name ?? 'Удалённый пользователь'}</span>

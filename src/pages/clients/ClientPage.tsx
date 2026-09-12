@@ -14,9 +14,12 @@ import {
 } from '../../shared/lib/labels';
 import { isOpen, sortByPosition } from '../../shared/lib/tasks';
 import { Avatar } from '../../shared/ui/Avatar';
+import { useConfirm } from '../../shared/ui/confirmContext';
 import { EmptyState } from '../../shared/ui/EmptyState';
+import { Linkify } from '../../shared/ui/Linkify';
 import { PageHead } from '../../shared/ui/PageHead';
 import { useToast } from '../../shared/ui/toastContext';
+import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { dueBadgeClass } from '../board/dueBadge';
 import { ClientForm, type ClientFormValues } from './ClientForm';
 
@@ -24,6 +27,7 @@ export function ClientPage() {
   const { id } = useParams<{ id: string }>();
   const { isAdmin } = useAuth();
   const toast = useToast();
+  const confirm = useConfirm();
   const navigate = useNavigate();
   const clients = useClients();
   const tasks = useTasks();
@@ -32,6 +36,7 @@ export function ClientPage() {
   const [editing, setEditing] = useState(false);
 
   const client = clients.data?.find((c) => c.id === id);
+  useDocumentTitle(client?.name ?? 'Клиент');
   if (clients.isPending) return <EmptyState>Загрузка…</EmptyState>;
   if (clients.isError) return <EmptyState>Не удалось загрузить клиента.</EmptyState>;
   if (!client) {
@@ -68,8 +73,12 @@ export function ClientPage() {
     );
   };
 
-  const del = () => {
-    if (!window.confirm(`Удалить клиента «${client.name}»? Задачи останутся без клиента.`)) return;
+  const del = async () => {
+    const ok = await confirm({
+      title: `Удалить клиента «${client.name}»?`,
+      text: 'Задачи останутся на доске без привязки к клиенту.',
+    });
+    if (!ok) return;
     remove.mutate(client.id, {
       onSuccess: () => navigate('/clients'),
       onError: (err) => toast.error(err),
@@ -108,7 +117,7 @@ export function ClientPage() {
               <button
                 type="button"
                 className="btn btn-ghost"
-                onClick={del}
+                onClick={() => void del()}
                 disabled={remove.isPending}
               >
                 Удалить
@@ -149,7 +158,9 @@ export function ClientPage() {
               <div className="muted">Добавлен {formatDate(client.created_at)}</div>
             </div>
             {client.notes ? (
-              <p className="prewrap">{client.notes}</p>
+              <p className="prewrap">
+                <Linkify text={client.notes} />
+              </p>
             ) : (
               <p className="muted">Без заметок.</p>
             )}
