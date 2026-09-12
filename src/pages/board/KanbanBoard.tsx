@@ -2,7 +2,8 @@ import {
   DndContext,
   DragOverlay,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   closestCorners,
   useSensor,
   useSensors,
@@ -74,8 +75,10 @@ export function KanbanBoard({
   const columns = local?.cols ?? derived;
 
   const sensors = useSensors(
-    // Порог 5px: обычный клик открывает карточку, а не начинает drag.
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    // Мышь: порог 5px, чтобы клик открывал карточку, а не начинал drag.
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    // Палец: удержание 250 мс — иначе прокрутка доски по карточкам превращалась бы в перенос.
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
