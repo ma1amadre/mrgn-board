@@ -7,7 +7,7 @@ import type { IdeaWithRefs, Inserts, Updates } from './types';
 /** tasks(id) — есть ли уже задача из этой идеи (FK tasks.idea_id, уникальный). */
 // profiles!ideas_author_id_fkey: idea_votes — junction-таблица, и PostgREST видит второй путь ideas↔profiles.
 const IDEA_SELECT =
-  '*, author:profiles!ideas_author_id_fkey(id,name,color), idea_votes(profile_id), tasks(id)';
+  '*, author:profiles!ideas_author_id_fkey(id,name,color), idea_votes(profile_id), tasks(id), idea_comments(id)';
 
 export async function fetchIdeas(): Promise<IdeaWithRefs[]> {
   const { data, error } = await supabase

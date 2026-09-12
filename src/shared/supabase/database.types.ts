@@ -217,6 +217,48 @@ export type Database = {
           },
         ];
       };
+      idea_comments: {
+        Row: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          id: string;
+          idea_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          author_id: string;
+          body: string;
+          created_at?: string;
+          id?: string;
+          idea_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          id?: string;
+          idea_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'idea_comments_author_id_fkey';
+            columns: ['author_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'idea_comments_idea_id_fkey';
+            columns: ['idea_id'];
+            isOneToOne: false;
+            referencedRelation: 'ideas';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       idea_votes: {
         Row: {
           created_at: string;
@@ -628,6 +670,7 @@ export type Database = {
       };
       convert_idea_to_task: { Args: { p_idea_id: string }; Returns: string };
       html_escape: { Args: { p: string }; Returns: string };
+      idea_link: { Args: { p_idea_id: string }; Returns: string };
       invite_member: {
         Args: {
           p_email: string;

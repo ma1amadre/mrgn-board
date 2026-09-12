@@ -868,3 +868,9 @@ kbd {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* Обсуждение под идеей: отделено линией от карточки. */
+.idea-discussion {
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--border);
+}

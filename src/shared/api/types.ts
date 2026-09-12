@@ -12,6 +12,7 @@ export type Stage = Tables<'stages'>;
 export type Task = Tables<'tasks'>;
 export type Idea = Tables<'ideas'>;
 export type Comment = Tables<'comments'>;
+export type IdeaComment = Tables<'idea_comments'>;
 export type ChecklistItem = Tables<'task_checklist_items'>;
 export type Attachment = Tables<'task_attachments'>;
 export type Deal = Tables<'deals'>;
@@ -32,7 +33,10 @@ export type IdeaWithRefs = Idea & {
   idea_votes: { profile_id: string }[];
   /** Задача, созданная из идеи (уникальный FK) — пустой массив, если ещё нет. */
   tasks: { id: string }[];
+  /** Только для счётчика: само обсуждение грузится по запросу. */
+  idea_comments: { id: string }[];
 };
 export type CommentWithAuthor = Comment & { author: ProfileRef | null };
 export type ActivityWithActor = Activity & { actor: ProfileRef | null };
 export type DealWithRefs = Deal & { client: ClientRef | null; owner: ProfileRef | null };
+export type IdeaCommentWithAuthor = IdeaComment & { author: ProfileRef | null };

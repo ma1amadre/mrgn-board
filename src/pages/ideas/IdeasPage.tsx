@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, useProfile } from '../../app/auth/authContext';
 import { useIdeaMutations, useIdeas } from '../../shared/api/ideas';
 import { useConfirm } from '../../shared/ui/confirmContext';
@@ -18,11 +18,20 @@ export function IdeasPage() {
   const toast = useToast();
   const confirm = useConfirm();
   const navigate = useNavigate();
+  const [sp] = useSearchParams();
   const ideas = useIdeas();
   const { create, update, remove, vote, convert } = useIdeaMutations();
   const [creating, setCreating] = useState(false);
   const [draftDirty, setDraftDirty] = useState(false);
   useDocumentTitle('Идеи');
+
+  // ?idea=… приходит из уведомления: подсветить идею и развернуть её обсуждение.
+  const focusId = sp.get('idea');
+  const loaded = ideas.data !== undefined;
+  useEffect(() => {
+    if (!focusId || !loaded) return;
+    document.getElementById(`idea-${focusId}`)?.scrollIntoView({ block: 'center' });
+  }, [focusId, loaded]);
 
   // Сначала самые поддержанные, внутри — новые.
   const sorted = useMemo(
@@ -86,6 +95,7 @@ export function IdeasPage() {
             idea={idea}
             myId={me.id}
             canDelete={isAdmin || idea.author_id === me.id}
+            initialDiscussionOpen={idea.id === focusId}
             busy={pendingId === idea.id}
             onVote={(hasVote) =>
               vote.mutate(

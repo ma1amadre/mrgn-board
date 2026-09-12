@@ -10,6 +10,7 @@ import {
 } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
 import { Linkify } from '../../shared/ui/Linkify';
+import { IdeaComments } from './IdeaComments';
 import { IdeaForm, type IdeaFormValues } from './IdeaForm';
 
 export function IdeaCard({
@@ -21,6 +22,7 @@ export function IdeaCard({
   onStatus,
   onEdit,
   onDelete,
+  initialDiscussionOpen = false,
   onConvert,
 }: {
   idea: IdeaWithRefs;
@@ -33,8 +35,12 @@ export function IdeaCard({
   onEdit: (values: IdeaFormValues) => Promise<boolean>;
   onDelete: () => void;
   onConvert: () => void;
+  /** Пришли по ссылке на эту идею — обсуждение сразу развёрнуто. */
+  initialDiscussionOpen?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
+  const [discussion, setDiscussion] = useState(initialDiscussionOpen);
+  const commentsCount = idea.idea_comments.length;
   const hasVote = idea.idea_votes.some((v) => v.profile_id === myId);
   const votes = idea.idea_votes.length;
   const task = idea.tasks[0];
@@ -58,7 +64,7 @@ export function IdeaCard({
   }
 
   return (
-    <article className="card">
+    <article className="card" id={`idea-${idea.id}`}>
       <div className="row">
         <button
           type="button"
@@ -98,6 +104,14 @@ export function IdeaCard({
             </option>
           ))}
         </select>
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm"
+          aria-expanded={discussion}
+          onClick={() => setDiscussion((v) => !v)}
+        >
+          💬 {commentsCount > 0 ? `Обсуждение (${commentsCount})` : 'Обсудить'}
+        </button>
         {task ? (
           <Link className="btn btn-ghost btn-sm" to={`/board?task=${task.id}`}>
             Открыть задачу
@@ -123,6 +137,7 @@ export function IdeaCard({
           </button>
         ) : null}
       </div>
+      {discussion ? <IdeaComments ideaId={idea.id} /> : null}
     </article>
   );
 }

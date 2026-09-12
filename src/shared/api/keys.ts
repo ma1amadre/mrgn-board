@@ -13,6 +13,10 @@ export const keys = {
     all: ['comments'] as const,
     byTask: (taskId: string) => ['comments', taskId] as const,
   },
+  ideaComments: {
+    all: ['idea-comments'] as const,
+    byIdea: (ideaId: string) => ['idea-comments', ideaId] as const,
+  },
   activity: {
     all: ['activity'] as const,
     byTask: (taskId: string) => ['activity', taskId] as const,
