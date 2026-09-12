@@ -6,6 +6,7 @@ import { useConfirm } from '../../shared/ui/confirmContext';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Modal } from '../../shared/ui/Modal';
 import { PageHead } from '../../shared/ui/PageHead';
+import { SkeletonCard } from '../../shared/ui/Skeleton';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { IdeaCard } from './IdeaCard';
@@ -68,7 +69,12 @@ export function IdeasPage() {
           </button>
         }
       />
-      {ideas.isPending ? <EmptyState>Загрузка…</EmptyState> : null}
+      {ideas.isPending ? (
+        <div className="stack" aria-busy="true">
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      ) : null}
       {ideas.isError ? <EmptyState>Не удалось загрузить идеи.</EmptyState> : null}
       {ideas.data?.length === 0 ? (
         <EmptyState>Идей пока нет — предложите первую.</EmptyState>

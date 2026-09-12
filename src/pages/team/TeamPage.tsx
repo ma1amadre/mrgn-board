@@ -7,6 +7,7 @@ import { Avatar } from '../../shared/ui/Avatar';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Modal } from '../../shared/ui/Modal';
 import { PageHead } from '../../shared/ui/PageHead';
+import { SkeletonRows } from '../../shared/ui/Skeleton';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { ProfileForm, type ProfileFormValues } from './ProfileForm';
@@ -45,7 +46,7 @@ export function TeamPage() {
           выключен, пока админ не включит доступ здесь.
         </p>
       ) : null}
-      {profiles.isPending ? <EmptyState>Загрузка…</EmptyState> : null}
+      {profiles.isPending ? <SkeletonRows rows={4} /> : null}
       {profiles.isError ? <EmptyState>Не удалось загрузить команду.</EmptyState> : null}
       {profiles.data ? (
         <div className="table-wrap">

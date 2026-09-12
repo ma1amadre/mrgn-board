@@ -17,6 +17,7 @@ import { plural } from '../../shared/lib/text';
 import { Avatar } from '../../shared/ui/Avatar';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { PageHead } from '../../shared/ui/PageHead';
+import { SkeletonCard, SkeletonRows } from '../../shared/ui/Skeleton';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { DeadlinesList } from './DeadlinesList';
 import { StatTile } from './StatTile';
@@ -55,7 +56,15 @@ export function OverviewPage() {
     return (
       <>
         <PageHead title="Обзор" />
-        <EmptyState>Загрузка…</EmptyState>
+        <div className="tiles" aria-busy="true">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+        <div className="card">
+          <SkeletonRows rows={3} />
+        </div>
       </>
     );
   }
