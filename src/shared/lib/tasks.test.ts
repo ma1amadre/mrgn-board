@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   countByStage,
   groupByStage,
+  hideStaleDone,
   isOverdue,
+  isStaleDone,
   upcomingDeadlines,
   workloadByAssignee,
 } from './tasks';
@@ -102,5 +104,18 @@ describe('countByStage', () => {
     ]);
     expect(map.get('s1')).toBe(2);
     expect(map.get('s2')).toBe(1);
+  });
+});
+
+describe('hideStaleDone', () => {
+  it('открытые и свежезакрытые остаются, закрытые старше 14 дней уходят', () => {
+    const tasks = [
+      task({ id: 'open' }),
+      task({ id: 'fresh', done_at: '2026-09-05T10:00:00Z' }),
+      task({ id: 'edge', done_at: '2026-08-28T23:59:00Z' }),
+      task({ id: 'stale', done_at: '2026-08-27T10:00:00Z' }),
+    ];
+    expect(hideStaleDone(tasks, TODAY).map((t) => t.id)).toEqual(['open', 'fresh', 'edge']);
+    expect(isStaleDone({ done_at: null }, TODAY)).toBe(false);
   });
 });

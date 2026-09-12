@@ -13,9 +13,11 @@ import {
   type TaskFilters,
 } from '../../shared/lib/filters';
 import { GAP } from '../../shared/lib/ordering';
+import { DONE_VISIBLE_DAYS, hideStaleDone } from '../../shared/lib/tasks';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Modal } from '../../shared/ui/Modal';
 import { PageHead } from '../../shared/ui/PageHead';
+import { SkeletonCard } from '../../shared/ui/Skeleton';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { BoardFilters } from './BoardFilters';
@@ -32,7 +34,7 @@ export function BoardPage() {
   const profiles = useProfiles();
   const clients = useClients();
   const { create } = useTaskMutations();
-  const [creating, setCreating] = useState(false);
+  const [creatingLocal, setCreatingLocal] = useState(false);
   const [draftDirty, setDraftDirty] = useState(false);
   useDocumentTitle('Доска');
 
@@ -52,11 +54,28 @@ export function BoardPage() {
     [sp, setSp],
   );
 
+  // ?new=1 приходит с карточки клиента («Новая задача») и открывает форму; закрытие убирает его из адреса.
+  const creating = creatingLocal || sp.get('new') === '1';
+  const setCreating = useCallback(
+    (open: boolean) => {
+      setCreatingLocal(open);
+      if (!open && sp.has('new')) {
+        const next = new URLSearchParams(sp);
+        next.delete('new');
+        setSp(next, { replace: true });
+      }
+    },
+    [sp, setSp],
+  );
+
   const today = todayIso();
-  const visibleTasks = useMemo(
+  const filtered = useMemo(
     () => applyTaskFilters(tasks.data ?? [], filters),
     [tasks.data, filters],
   );
+  const fresh = useMemo(() => hideStaleDone(filtered, today), [filtered, today]);
+  const visibleTasks = filters.allDone ? filtered : fresh;
+  const hiddenDone = filtered.length - fresh.length;
 
   const firstStage = stages.data?.[0];
   const newTaskInitial: TaskFormValues | null = firstStage
@@ -112,9 +131,19 @@ export function BoardPage() {
         filters={filters}
         profiles={profiles.data ?? []}
         clients={clients.data ?? []}
+        hiddenDone={hiddenDone}
         onChange={setFilters}
       />
-      {loading ? <EmptyState>Загрузка…</EmptyState> : null}
+      {loading ? (
+        <div className="board" aria-busy="true">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className="column">
+              <SkeletonCard />
+              {i < 2 ? <SkeletonCard /> : null}
+            </div>
+          ))}
+        </div>
+      ) : null}
       {failed ? <EmptyState>Не удалось загрузить доску.</EmptyState> : null}
       {stages.data && tasks.data ? (
         stages.data.length === 0 ? (
@@ -128,6 +157,12 @@ export function BoardPage() {
             onOpen={openTask}
           />
         )
+      ) : null}
+      {!loading && hiddenDone > 0 && !filters.allDone ? (
+        <p className="small muted">
+          Закрытые старше {DONE_VISIBLE_DAYS} дней скрыты с доски; они остаются в карточках
+          клиентов.
+        </p>
       ) : null}
 
       {creating && newTaskInitial ? (

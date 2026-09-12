@@ -9,16 +9,26 @@ export type TaskFilters = {
   priority: Priority | null;
   /** Строка поиска как есть, с пробелами: это значение контролируемого инпута. */
   q: string;
+  /** Показывать все закрытые задачи, а не только свежие (см. hideStaleDone). */
+  allDone: boolean;
 };
 
-export const EMPTY_FILTERS: TaskFilters = { assignee: null, client: null, priority: null, q: '' };
+export const EMPTY_FILTERS: TaskFilters = {
+  assignee: null,
+  client: null,
+  priority: null,
+  q: '',
+  allDone: false,
+};
 
 const PRIORITY_VALUES: ReadonlySet<string> = new Set(['low', 'normal', 'high', 'urgent']);
 
 type FilterableTask = {
   title: string;
+  description: string | null;
   assignee_id: string | null;
   client_id: string | null;
+  client: { name: string } | null;
   priority: string;
 };
 
@@ -30,6 +40,7 @@ export function parseFilters(sp: URLSearchParams): TaskFilters {
     client: sp.get('client') || null,
     priority: priority && PRIORITY_VALUES.has(priority) ? (priority as Priority) : null,
     q: sp.get('q') ?? '',
+    allDone: sp.get('done') === 'all',
   };
 }
 
@@ -41,6 +52,7 @@ export function serializeFilters(f: TaskFilters, base?: URLSearchParams): URLSea
     ['client', f.client],
     ['priority', f.priority],
     ['q', f.q || null],
+    ['done', f.allDone ? 'all' : null],
   ];
   for (const [key, value] of entries) {
     if (value) sp.set(key, value);
@@ -49,12 +61,21 @@ export function serializeFilters(f: TaskFilters, base?: URLSearchParams): URLSea
   return sp;
 }
 
+/** Активен ли отбор задач; режим показа закрытых — не отбор, «Сбросить» его не трогает. */
 export function isFilterActive(f: TaskFilters): boolean {
   return Boolean(f.assignee || f.client || f.priority || f.q.trim());
 }
 
+/** Поиск смотрит в название, описание и имя клиента. */
+export function matchesQuery(t: FilterableTask, q: string): boolean {
+  const needle = q.trim().toLowerCase();
+  if (!needle) return true;
+  return [t.title, t.description ?? '', t.client?.name ?? ''].some((s) =>
+    s.toLowerCase().includes(needle),
+  );
+}
+
 export function applyTaskFilters<T extends FilterableTask>(tasks: T[], f: TaskFilters): T[] {
-  const q = f.q.trim().toLowerCase();
   return tasks.filter((t) => {
     if (f.assignee === UNASSIGNED) {
       if (t.assignee_id !== null) return false;
@@ -63,7 +84,6 @@ export function applyTaskFilters<T extends FilterableTask>(tasks: T[], f: TaskFi
     }
     if (f.client && t.client_id !== f.client) return false;
     if (f.priority && t.priority !== f.priority) return false;
-    if (q && !t.title.toLowerCase().includes(q)) return false;
-    return true;
+    return matchesQuery(t, f.q);
   });
 }

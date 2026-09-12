@@ -9,9 +9,33 @@ import {
 } from './filters';
 
 const tasks = [
-  { id: '1', title: 'Поднять CDN', assignee_id: 'a', client_id: 'c1', priority: 'high' },
-  { id: '2', title: 'Сверстать лендинг', assignee_id: 'b', client_id: 'c2', priority: 'normal' },
-  { id: '3', title: 'Написать бота', assignee_id: null, client_id: 'c1', priority: 'urgent' },
+  {
+    id: '1',
+    title: 'Поднять CDN',
+    description: 'Переключить DNS на NGENIX',
+    assignee_id: 'a',
+    client_id: 'c1',
+    client: { name: 'Интернет-магазин «Сезон»' },
+    priority: 'high',
+  },
+  {
+    id: '2',
+    title: 'Сверстать лендинг',
+    description: null,
+    assignee_id: 'b',
+    client_id: 'c2',
+    client: { name: 'Автосервис' },
+    priority: 'normal',
+  },
+  {
+    id: '3',
+    title: 'Написать бота',
+    description: 'aiogram',
+    assignee_id: null,
+    client_id: 'c1',
+    client: { name: 'Интернет-магазин «Сезон»' },
+    priority: 'urgent',
+  },
 ];
 
 describe('parseFilters', () => {
@@ -19,24 +43,35 @@ describe('parseFilters', () => {
     expect(parseFilters(new URLSearchParams())).toEqual(EMPTY_FILTERS);
   });
   it('читает все параметры, строку поиска не трогает', () => {
-    const f = parseFilters(new URLSearchParams('assignee=a&client=c1&priority=high&q=%20cdn%20'));
-    expect(f).toEqual({ assignee: 'a', client: 'c1', priority: 'high', q: ' cdn ' });
+    const f = parseFilters(
+      new URLSearchParams('assignee=a&client=c1&priority=high&q=%20cdn%20&done=all'),
+    );
+    expect(f).toEqual({ assignee: 'a', client: 'c1', priority: 'high', q: ' cdn ', allDone: true });
   });
-  it('неизвестный приоритет отбрасывается', () => {
-    expect(parseFilters(new URLSearchParams('priority=asap')).priority).toBeNull();
+  it('неизвестный приоритет и чужое значение done отбрасываются', () => {
+    const f = parseFilters(new URLSearchParams('priority=asap&done=yes'));
+    expect(f.priority).toBeNull();
+    expect(f.allDone).toBe(false);
   });
 });
 
 describe('serializeFilters', () => {
   it('сохраняет посторонние параметры и убирает пустые', () => {
-    const base = new URLSearchParams('task=t1&assignee=a');
+    const base = new URLSearchParams('task=t1&assignee=a&done=all');
     const sp = serializeFilters({ ...EMPTY_FILTERS, client: 'c2' }, base);
     expect(sp.get('task')).toBe('t1');
     expect(sp.get('assignee')).toBeNull();
+    expect(sp.get('done')).toBeNull();
     expect(sp.get('client')).toBe('c2');
   });
   it('round-trip, включая пробел в конце набираемого запроса', () => {
-    const f = { assignee: UNASSIGNED, client: 'c1', priority: 'low' as const, q: 'поднять ' };
+    const f = {
+      assignee: UNASSIGNED,
+      client: 'c1',
+      priority: 'low' as const,
+      q: 'поднять ',
+      allDone: true,
+    };
     expect(parseFilters(serializeFilters(f))).toEqual(f);
   });
 });
@@ -45,6 +80,9 @@ describe('applyTaskFilters', () => {
   it('без фильтров возвращает всё', () => {
     expect(applyTaskFilters(tasks, EMPTY_FILTERS)).toHaveLength(3);
     expect(isFilterActive(EMPTY_FILTERS)).toBe(false);
+  });
+  it('режим «все закрытые» не считается фильтром', () => {
+    expect(isFilterActive({ ...EMPTY_FILTERS, allDone: true })).toBe(false);
   });
   it('одни пробелы в поиске — фильтр не активен и ничего не режет', () => {
     expect(isFilterActive({ ...EMPTY_FILTERS, q: '   ' })).toBe(false);
@@ -67,6 +105,15 @@ describe('applyTaskFilters', () => {
   it('поиск по заголовку без учёта регистра и с пробелами по краям', () => {
     expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, q: ' ЛЕНДИНГ ' }).map((t) => t.id)).toEqual([
       '2',
+    ]);
+  });
+  it('поиск по описанию и имени клиента', () => {
+    expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, q: 'ngenix' }).map((t) => t.id)).toEqual([
+      '1',
+    ]);
+    expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, q: 'сезон' }).map((t) => t.id)).toEqual([
+      '1',
+      '3',
     ]);
   });
 });

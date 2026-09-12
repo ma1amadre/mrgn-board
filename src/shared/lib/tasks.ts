@@ -82,3 +82,21 @@ export function countByStage<T extends Pick<TaskLike, 'stage_id'>>(
   for (const t of tasks) map.set(t.stage_id, (map.get(t.stage_id) ?? 0) + 1);
   return map;
 }
+
+/** Сколько дней закрытая задача ещё видна на доске; старше — только в карточке клиента. */
+export const DONE_VISIBLE_DAYS = 14;
+
+/** Закрыта давно: дата закрытия раньше, чем today минус DONE_VISIBLE_DAYS. */
+export function isStaleDone(
+  t: Pick<TaskLike, 'done_at'>,
+  today: string,
+  days = DONE_VISIBLE_DAYS,
+): boolean {
+  if (t.done_at === null) return false;
+  return t.done_at.slice(0, 10) < addDays(today, -days);
+}
+
+/** Убирает с доски давно закрытые: без этого «Готово» через месяц становится самой длинной колонкой. */
+export function hideStaleDone<T extends TaskLike>(tasks: T[], today: string): T[] {
+  return tasks.filter((t) => !isStaleDone(t, today));
+}
