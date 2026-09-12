@@ -335,6 +335,54 @@ export type Database = {
           },
         ];
       };
+      task_attachments: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          id: string;
+          mime: string | null;
+          name: string;
+          path: string;
+          size: number;
+          task_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          mime?: string | null;
+          name: string;
+          path: string;
+          size: number;
+          task_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          mime?: string | null;
+          name?: string;
+          path?: string;
+          size?: number;
+          task_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_attachments_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'task_attachments_task_id_fkey';
+            columns: ['task_id'];
+            isOneToOne: false;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       task_checklist_items: {
         Row: {
           created_at: string;

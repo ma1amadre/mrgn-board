@@ -11,6 +11,7 @@ import { Linkify } from '../../shared/ui/Linkify';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { ActivityList } from './ActivityList';
+import { Attachments } from './Attachments';
 import { Checklist } from './Checklist';
 import { CommentsList } from './CommentsList';
 import { dueBadgeClass } from './dueBadge';
@@ -175,6 +176,7 @@ export function TaskDrawer({
         </>
       )}
       <Checklist taskId={task.id} items={task.checklist} />
+      <Attachments taskId={task.id} items={task.attachments} />
       <CommentsList taskId={task.id} />
       <ActivityList taskId={task.id} />
     </Drawer>

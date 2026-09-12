@@ -16,6 +16,7 @@ export const keys = {
     all: ['activity'] as const,
     byTask: (taskId: string) => ['activity', taskId] as const,
   },
+  attachmentUrls: (taskId: string, ids: string) => ['attachment-urls', taskId, ids] as const,
   settings: ['settings'] as const,
   notifyStatus: ['notify-status'] as const,
   migrations: ['migrations'] as const,

@@ -51,6 +51,11 @@ export function TaskCardView({
             ✓ {task.checklist.filter((i) => i.is_done).length}/{task.checklist.length}
           </span>
         ) : null}
+        {task.attachments.length > 0 ? (
+          <span className="muted" title="Вложения">
+            📎 {task.attachments.length}
+          </span>
+        ) : null}
         {task.client ? <span className="muted">{task.client.name}</span> : null}
         {task.assignee ? <Avatar name={task.assignee.name} color={task.assignee.color} /> : null}
       </div>
