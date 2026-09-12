@@ -1,14 +1,21 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { useAuth, useProfile } from '../../app/auth/authContext';
 import { useCommentMutations, useComments } from '../../shared/api/comments';
+import { keys } from '../../shared/api/keys';
+import type { CommentWithAuthor } from '../../shared/api/types';
 import { formatDateTime } from '../../shared/lib/dates';
 import { Avatar } from '../../shared/ui/Avatar';
+import { Linkify } from '../../shared/ui/Linkify';
 import { useToast } from '../../shared/ui/toastContext';
+import { useUndoable } from '../../shared/ui/useUndoable';
 
 export function CommentsList({ taskId }: { taskId: string }) {
   const me = useProfile();
   const { isAdmin } = useAuth();
   const toast = useToast();
+  const qc = useQueryClient();
+  const undoable = useUndoable();
   const comments = useComments(taskId);
   const { add, remove } = useCommentMutations(taskId);
   const [body, setBody] = useState('');
@@ -21,6 +28,16 @@ export function CommentsList({ taskId }: { taskId: string }) {
       { task_id: taskId, author_id: me.id, body: text },
       { onSuccess: () => setBody(''), onError: (err) => toast.error(err) },
     );
+  };
+
+  // Комментарий пропадает сразу, запрос уходит через 5 секунд — есть время нажать «Отменить».
+  const del = (id: string) => {
+    const key = keys.comments.byTask(taskId);
+    qc.setQueryData<CommentWithAuthor[]>(key, (xs) => xs?.filter((c) => c.id !== id));
+    undoable('Комментарий удалён', {
+      commit: () => remove.mutate(id, { onError: (err) => toast.error(err) }),
+      undo: () => void qc.invalidateQueries({ queryKey: key }),
+    });
   };
 
   return (
@@ -40,13 +57,15 @@ export function CommentsList({ taskId }: { taskId: string }) {
                 type="button"
                 className="btn btn-ghost btn-sm"
                 style={{ marginLeft: 'auto' }}
-                onClick={() => remove.mutate(c.id, { onError: (err) => toast.error(err) })}
+                onClick={() => del(c.id)}
               >
                 Удалить
               </button>
             ) : null}
           </div>
-          <div className="prewrap">{c.body}</div>
+          <div className="prewrap">
+            <Linkify text={c.body} />
+          </div>
         </div>
       ))}
       <form className="stack" onSubmit={submit}>
