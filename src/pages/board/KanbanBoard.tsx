@@ -14,17 +14,15 @@ import {
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemo, useRef, useState } from 'react';
-import { useProfile } from '../../app/auth/authContext';
 import { keys } from '../../shared/api/keys';
-import { fetchTasks, renumberStage, useMoveTask, useTaskMutations } from '../../shared/api/tasks';
+import { fetchTasks, renumberStage, useMoveTask } from '../../shared/api/tasks';
 import type { Stage, TaskWithRefs } from '../../shared/api/types';
 import { computePosition, needsRenumber, neighborPositions } from '../../shared/lib/ordering';
-import { quickActions } from '../../shared/lib/quickActions';
 import { groupByStage, sortByPosition } from '../../shared/lib/tasks';
-import type { MenuItem } from '../../shared/ui/Menu';
 import { useToast } from '../../shared/ui/toastContext';
 import { KanbanColumn } from './KanbanColumn';
 import { TaskCardView } from './TaskCard';
+import { useTaskQuickActions } from './useTaskQuickActions';
 
 type Columns = Record<string, string[]>;
 
@@ -64,8 +62,6 @@ export function KanbanBoard({
   const qc = useQueryClient();
   const toast = useToast();
   const move = useMoveTask();
-  const me = useProfile();
-  const { update } = useTaskMutations();
 
   const taskById = useMemo(() => new Map(tasks.map((t) => [t.id, t])), [tasks]);
   const derived = useMemo(() => deriveColumns(tasks, stages), [tasks, stages]);
@@ -164,26 +160,7 @@ export function KanbanBoard({
     }
   };
 
-  // Меню «⋯» на карточке: перенос стадии идёт через useMoveTask (оптимистично), остальное — patch.
-  const actionsFor = (task: TaskWithRefs): MenuItem[] =>
-    quickActions(task, { stages, tasks: allTasks, meId: me.id, today }).map((a) => ({
-      key: a.key,
-      label: a.label,
-      onSelect: () => {
-        if (a.patch.stage_id !== undefined) {
-          move.mutate(
-            {
-              id: task.id,
-              stage_id: a.patch.stage_id,
-              position: a.patch.position ?? task.position,
-            },
-            { onError: (err) => toast.error(err) },
-          );
-        } else {
-          update.mutate({ id: task.id, patch: a.patch }, { onError: (err) => toast.error(err) });
-        }
-      },
-    }));
+  const actionsFor = useTaskQuickActions(stages, allTasks, today);
 
   const activeTask = activeId ? taskById.get(activeId) : undefined;
 

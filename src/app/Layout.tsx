@@ -7,6 +7,7 @@ import { useAuth, useProfile } from './auth/authContext';
 const NAV = [
   { to: '/', label: 'Обзор', end: true },
   { to: '/board', label: 'Доска' },
+  { to: '/my', label: 'Мои задачи' },
   { to: '/clients', label: 'Клиенты' },
   { to: '/deals', label: 'Сделки' },
   { to: '/ideas', label: 'Идеи' },

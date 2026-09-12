@@ -789,3 +789,46 @@ code {
   background: var(--surface-2);
   outline: none;
 }
+
+/* «Мои задачи»: полоса недели и сетка карточек по корзинам срока. */
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--s-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.day:hover {
+  border-color: var(--border-control);
+}
+.day.is-today {
+  border-color: var(--accent);
+}
+.day.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.day-name {
+  color: var(--text-muted);
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+}
+.day-num {
+  font-weight: 600;
+}
+.agenda {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--s-3);
+}

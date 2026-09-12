@@ -5,6 +5,7 @@ import { ClientsPage } from '../pages/clients/ClientsPage';
 import { DealsPage } from '../pages/deals/DealsPage';
 import { IdeasPage } from '../pages/ideas/IdeasPage';
 import { LoginPage } from '../pages/login/LoginPage';
+import { MyTasksPage } from '../pages/my/MyTasksPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { NotificationsPage } from '../pages/settings/NotificationsPage';
 import { OverviewPage } from '../pages/overview/OverviewPage';
@@ -22,6 +23,7 @@ export function AppRoutes() {
         <Route element={<Layout />}>
           <Route index element={<OverviewPage />} />
           <Route path="board" element={<BoardPage />} />
+          <Route path="my" element={<MyTasksPage />} />
           <Route path="clients" element={<ClientsPage />} />
           <Route path="clients/:id" element={<ClientPage />} />
           <Route path="deals" element={<DealsPage />} />

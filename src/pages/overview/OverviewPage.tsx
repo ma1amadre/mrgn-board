@@ -92,7 +92,7 @@ export function OverviewPage() {
               : `${stats.mine.length === 0 ? 'ничего не назначено' : 'всё в сроке'}`
           }
           hintClass={stats.mineOverdue > 0 ? 'badge badge-danger' : 'muted'}
-          to={`/board?assignee=${me.id}`}
+          to="/my"
         />
         <StatTile
           label="Просрочено"
