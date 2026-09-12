@@ -7,7 +7,7 @@ import { PRIORITY_BADGE, PRIORITY_LABEL } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
 import { useConfirm } from '../../shared/ui/confirmContext';
 import { Drawer } from '../../shared/ui/Drawer';
-import { Linkify } from '../../shared/ui/Linkify';
+import { Markdown } from '../../shared/ui/Markdown';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { ActivityList } from './ActivityList';
@@ -150,9 +150,7 @@ export function TaskDrawer({
             </div>
           </div>
           {task.description ? (
-            <p className="prewrap">
-              <Linkify text={task.description} />
-            </p>
+            <Markdown text={task.description} />
           ) : (
             <p className="muted">Без описания.</p>
           )}

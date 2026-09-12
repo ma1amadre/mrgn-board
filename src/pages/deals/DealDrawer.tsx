@@ -8,7 +8,7 @@ import { DEAL_STAGE_BADGE, DEAL_STAGE_LABEL } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
 import { useConfirm } from '../../shared/ui/confirmContext';
 import { Drawer } from '../../shared/ui/Drawer';
-import { Linkify } from '../../shared/ui/Linkify';
+import { Markdown } from '../../shared/ui/Markdown';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { DealForm, type DealFormValues } from './DealForm';
@@ -130,13 +130,7 @@ export function DealDrawer({
               {deal.closed_at ? <span>· закрыта {formatDateTime(deal.closed_at)}</span> : null}
             </div>
           </div>
-          {deal.notes ? (
-            <p className="prewrap">
-              <Linkify text={deal.notes} />
-            </p>
-          ) : (
-            <p className="muted">Без заметок.</p>
-          )}
+          {deal.notes ? <Markdown text={deal.notes} /> : <p className="muted">Без заметок.</p>}
           <div className="row">
             <button
               type="button"

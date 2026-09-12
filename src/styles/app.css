@@ -878,3 +878,34 @@ kbd {
   padding-top: var(--s-3);
   border-top: 1px solid var(--border);
 }
+
+/* Markdown в описаниях и комментариях: компактные отступы, код на подложке. */
+.md {
+  overflow-wrap: anywhere;
+}
+.md > * + * {
+  margin-top: var(--s-2);
+}
+.md p {
+  margin: 0;
+}
+.md ul,
+.md ol {
+  margin: 0;
+  padding-left: 1.4em;
+}
+.md li + li {
+  margin-top: 2px;
+}
+.md pre {
+  margin: 0;
+  padding: var(--s-2) var(--s-3);
+  overflow-x: auto;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  font-size: var(--t-sm);
+}
+.md pre code {
+  padding: 0;
+  background: none;
+}

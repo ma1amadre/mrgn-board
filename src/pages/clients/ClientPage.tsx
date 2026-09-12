@@ -20,7 +20,7 @@ import { isOpen, sortByPosition } from '../../shared/lib/tasks';
 import { Avatar } from '../../shared/ui/Avatar';
 import { useConfirm } from '../../shared/ui/confirmContext';
 import { EmptyState } from '../../shared/ui/EmptyState';
-import { Linkify } from '../../shared/ui/Linkify';
+import { Markdown } from '../../shared/ui/Markdown';
 import { PageHead } from '../../shared/ui/PageHead';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
@@ -167,9 +167,7 @@ export function ClientPage() {
               <div className="muted">Добавлен {formatDate(client.created_at)}</div>
             </div>
             {client.notes ? (
-              <p className="prewrap">
-                <Linkify text={client.notes} />
-              </p>
+              <Markdown text={client.notes} />
             ) : (
               <p className="muted">Без заметок.</p>
             )}

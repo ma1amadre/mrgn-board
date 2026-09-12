@@ -7,7 +7,7 @@ import { useProfiles } from '../../shared/api/profiles';
 import type { CommentWithAuthor } from '../../shared/api/types';
 import { formatDateTime } from '../../shared/lib/dates';
 import { Avatar } from '../../shared/ui/Avatar';
-import { Linkify } from '../../shared/ui/Linkify';
+import { Markdown } from '../../shared/ui/Markdown';
 import { MentionTextarea } from '../../shared/ui/MentionTextarea';
 import { useToast } from '../../shared/ui/toastContext';
 import { useUndoable } from '../../shared/ui/useUndoable';
@@ -72,9 +72,7 @@ export function CommentsList({ taskId }: { taskId: string }) {
               </button>
             ) : null}
           </div>
-          <div className="prewrap">
-            <Linkify text={c.body} mentions={names} />
-          </div>
+          <Markdown text={c.body} mentions={names} />
         </div>
       ))}
       <form className="stack" onSubmit={submit}>

@@ -64,7 +64,10 @@ export function TaskForm({
           onChange={(e) => set('title', e.target.value)}
         />
       </Field>
-      <Field label="Описание">
+      <Field
+        label="Описание"
+        hint="Можно markdown: **жирный**, *курсив*, `код`, списки через «- »."
+      >
         <textarea
           className="textarea"
           value={values.description}
