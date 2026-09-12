@@ -107,6 +107,9 @@ export function ClientPage() {
         title={client.name}
         actions={
           <>
+            <Link className="btn btn-primary" to={`/board?client=${client.id}&new=1`}>
+              Новая задача
+            </Link>
             <Link className="btn btn-secondary" to={`/board?client=${client.id}`}>
               На доске
             </Link>

@@ -1,17 +1,20 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useProfile } from '../../app/auth/authContext';
 import { useClientMutations, useClients } from '../../shared/api/clients';
 import { useTasks } from '../../shared/api/tasks';
 import {
   CLIENT_DIRECTION_LABEL,
+  CLIENT_STATUSES,
   CLIENT_STATUS_BADGE,
   CLIENT_STATUS_LABEL,
+  type ClientStatus,
 } from '../../shared/lib/labels';
 import { isOpen } from '../../shared/lib/tasks';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Modal } from '../../shared/ui/Modal';
 import { PageHead } from '../../shared/ui/PageHead';
+import { SkeletonRows } from '../../shared/ui/Skeleton';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { ClientForm, type ClientFormValues } from './ClientForm';
@@ -25,16 +28,37 @@ const EMPTY_CLIENT: ClientFormValues = {
   notes: '',
 };
 
+/** Фильтр по статусу: по умолчанию всё, кроме закрытых, — они копятся и мешают. */
+type StatusFilter = 'open' | 'all' | ClientStatus;
+type Sort = 'name' | 'tasks' | 'status';
+
+const STATUS_ORDER: Record<ClientStatus, number> = { lead: 0, active: 1, support: 2, closed: 3 };
+
 export function ClientsPage() {
   const me = useProfile();
   const toast = useToast();
   const navigate = useNavigate();
+  const [sp, setSp] = useSearchParams();
   const clients = useClients();
   const tasks = useTasks();
   const { create } = useClientMutations();
   const [creating, setCreating] = useState(false);
   const [draftDirty, setDraftDirty] = useState(false);
   useDocumentTitle('Клиенты');
+
+  const statusParam = sp.get('status');
+  const status: StatusFilter =
+    statusParam === 'all' || (CLIENT_STATUSES as string[]).includes(statusParam ?? '')
+      ? (statusParam as StatusFilter)
+      : 'open';
+  const sortParam = sp.get('sort');
+  const sort: Sort = sortParam === 'tasks' || sortParam === 'status' ? sortParam : 'name';
+  const setParam = (key: string, value: string | null) => {
+    const next = new URLSearchParams(sp);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setSp(next, { replace: true });
+  };
 
   const openByClient = useMemo(() => {
     const map = new Map<string, number>();
@@ -43,6 +67,23 @@ export function ClientsPage() {
     }
     return map;
   }, [tasks.data]);
+
+  const rows = useMemo(() => {
+    const list = (clients.data ?? []).filter((c) =>
+      status === 'all' ? true : status === 'open' ? c.status !== 'closed' : c.status === status,
+    );
+    const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name, 'ru');
+    return list.sort((a, b) => {
+      if (sort === 'tasks') {
+        return (openByClient.get(b.id) ?? 0) - (openByClient.get(a.id) ?? 0) || byName(a, b);
+      }
+      if (sort === 'status') return STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || byName(a, b);
+      return byName(a, b);
+    });
+  }, [clients.data, status, sort, openByClient]);
+
+  const hiddenClosed =
+    status === 'open' ? (clients.data ?? []).filter((c) => c.status === 'closed').length : 0;
 
   const submitNew = (values: ClientFormValues) => {
     create.mutate(
@@ -75,10 +116,42 @@ export function ClientsPage() {
           </button>
         }
       />
-      {clients.isPending ? <EmptyState>Загрузка…</EmptyState> : null}
+      <div className="toolbar">
+        <select
+          className="select"
+          aria-label="Статус"
+          value={status}
+          onChange={(e) => setParam('status', e.target.value === 'open' ? null : e.target.value)}
+        >
+          <option value="open">Все, кроме закрытых</option>
+          <option value="all">Все статусы</option>
+          {CLIENT_STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {CLIENT_STATUS_LABEL[s]}
+            </option>
+          ))}
+        </select>
+        <select
+          className="select"
+          aria-label="Сортировка"
+          value={sort}
+          onChange={(e) => setParam('sort', e.target.value === 'name' ? null : e.target.value)}
+        >
+          <option value="name">По названию</option>
+          <option value="tasks">По открытым задачам</option>
+          <option value="status">По статусу</option>
+        </select>
+        {hiddenClosed > 0 ? (
+          <span className="small muted">Скрыто закрытых: {hiddenClosed}</span>
+        ) : null}
+      </div>
+      {clients.isPending ? <SkeletonRows rows={4} /> : null}
       {clients.isError ? <EmptyState>Не удалось загрузить клиентов.</EmptyState> : null}
       {clients.data?.length === 0 ? <EmptyState>Клиентов пока нет.</EmptyState> : null}
-      {clients.data && clients.data.length > 0 ? (
+      {clients.data && clients.data.length > 0 && rows.length === 0 ? (
+        <EmptyState>Под этот фильтр никто не попал.</EmptyState>
+      ) : null}
+      {rows.length > 0 ? (
         <div className="table-wrap">
           <table className="table">
             <thead>
@@ -91,7 +164,7 @@ export function ClientsPage() {
               </tr>
             </thead>
             <tbody>
-              {clients.data.map((c) => (
+              {rows.map((c) => (
                 <tr key={c.id}>
                   <td>
                     <Link className="link" to={`/clients/${c.id}`}>
