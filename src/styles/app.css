@@ -728,3 +728,64 @@ code {
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
+/* Меню «⋯» на карточке: появляется при наведении или фокусе, на тач-экранах видно всегда. */
+.task-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+}
+.task-head .task-title {
+  flex: 1;
+  min-width: 0;
+}
+.menu {
+  position: relative;
+  flex: 0 0 auto;
+}
+.task .menu {
+  margin: calc(-1 * var(--s-1)) calc(-1 * var(--s-1)) 0 0;
+  opacity: 0;
+  transition: opacity var(--dur-1) var(--ease);
+}
+.task:hover .menu,
+.task:focus-within .menu,
+.task .menu.is-open {
+  opacity: 1;
+}
+@media (pointer: coarse) {
+  .task .menu {
+    opacity: 1;
+  }
+}
+.popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  margin-top: var(--s-1);
+  padding: var(--s-1);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--sh-2);
+}
+.popover-item {
+  padding: var(--s-1) var(--s-2);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.popover-item:hover,
+.popover-item:focus-visible {
+  background: var(--surface-2);
+  outline: none;
+}

@@ -1,10 +1,11 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { TaskWithRefs } from '../../shared/api/types';
 import { formatDate } from '../../shared/lib/dates';
 import { PRIORITY_BADGE, PRIORITY_LABEL } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
+import { Menu, type MenuItem } from '../../shared/ui/Menu';
 import { dueBadgeClass } from './dueBadge';
 
 /** Презентационная карточка: в колонке и в DragOverlay. */
@@ -14,6 +15,7 @@ export function TaskCardView({
   className,
   style,
   onClick,
+  menu,
   ...rest
 }: {
   task: TaskWithRefs;
@@ -21,6 +23,8 @@ export function TaskCardView({
   className?: string;
   style?: CSSProperties;
   onClick?: () => void;
+  /** Меню быстрых действий; в DragOverlay его нет. */
+  menu?: ReactNode;
 } & Record<string, unknown>) {
   return (
     <div
@@ -29,7 +33,10 @@ export function TaskCardView({
       onClick={onClick}
       {...rest}
     >
-      <div className="task-title">{task.title}</div>
+      <div className="task-head">
+        <div className="task-title">{task.title}</div>
+        {menu}
+      </div>
       {task.labels.length > 0 ? (
         <div className="task-labels">
           {task.labels.map((l) => (
@@ -66,10 +73,12 @@ export function TaskCardView({
 export function SortableTaskCard({
   task,
   today,
+  actions,
   onOpen,
 }: {
   task: TaskWithRefs;
   today: string;
+  actions: MenuItem[];
   onOpen: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -85,6 +94,7 @@ export function SortableTaskCard({
       className={isDragging ? 'task-dragging' : ''}
       style={style}
       onClick={() => onOpen(task.id)}
+      menu={<Menu label={`Действия: ${task.title}`} items={actions} />}
       {...attributes}
       {...listeners}
     />
