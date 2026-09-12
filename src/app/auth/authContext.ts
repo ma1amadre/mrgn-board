@@ -11,8 +11,12 @@ export type AuthValue = {
   profile: Profile | null;
   profileError: unknown;
   isAdmin: boolean;
+  /** Пользователь пришёл по ссылке из письма о сбросе пароля — его нужно отправить на форму. */
+  recovery: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthValue | null>(null);

@@ -163,6 +163,13 @@ export function TeamPage() {
             onCancel={() => setEditing(null)}
             onDirtyChange={setDraftDirty}
           />
+          {editing.id === me.id ? (
+            <p className="small" style={{ marginTop: 'var(--s-3)' }}>
+              <Link className="link" to="/reset-password">
+                Сменить пароль
+              </Link>
+            </p>
+          ) : null}
         </Modal>
       ) : null}
     </>

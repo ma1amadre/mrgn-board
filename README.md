@@ -124,4 +124,8 @@ Cloudflare Pages не подошёл: домен `pages.dev` на сети ко�
 прямое подключение режется по SNI, проверено 11.09.2026).
 В Supabase: Authentication → URL Configuration → Site URL = адрес Pages.
 
-Восстановление пароля в v1 — через администратора (Dashboard → Send password recovery).
+Сброс пароля — самостоятельно: «Забыли пароль?» на входе шлёт письмо со ссылкой на
+`/reset-password` (встроенная почта Supabase, лимит несколько писем в час). В Authentication →
+URL Configuration → Redirect URLs добавить `https://ma1amadre.github.io/mrgn-board/**`; без этого
+ссылка приведёт на Site URL, приложение всё равно перекинет на форму по событию PASSWORD_RECOVERY.
+Сменить пароль без письма: «Команда» → свой профиль → «Сменить пароль».

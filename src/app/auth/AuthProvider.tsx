@@ -6,10 +6,16 @@ import { fetchProfile } from '../../shared/api/profiles';
 import { supabase } from '../../shared/supabase/client';
 import { AuthContext, type AuthStatus, type AuthValue } from './authContext';
 
+/** Адрес формы нового пароля — с учётом base-пути GitHub Pages. */
+function resetRedirectUrl(): string {
+  return new URL(`${import.meta.env.BASE_URL}reset-password`, window.location.origin).toString();
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [session, setSession] = useState<Session | null>(null);
   const [sessionStatus, setSessionStatus] = useState<AuthStatus>('loading');
+  const [recovery, setRecovery] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -18,9 +24,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(data.session);
       setSessionStatus(data.session ? 'signedIn' : 'signedOut');
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, next) => {
       setSession(next);
       setSessionStatus(next ? 'signedIn' : 'signedOut');
+      // Ссылка из письма открывает сайт с токеном восстановления: сессия уже есть,
+      // но пароль ещё старый — флаг снимается после смены пароля или выхода.
+      if (event === 'PASSWORD_RECOVERY') setRecovery(true);
+      if (event === 'SIGNED_OUT') setRecovery(false);
     });
     return () => {
       active = false;
@@ -46,6 +56,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryClient.clear();
   }, [queryClient]);
 
+  const resetPassword = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: resetRedirectUrl(),
+    });
+    if (error) throw error;
+  }, []);
+
+  const updatePassword = useCallback(async (password: string) => {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+    setRecovery(false);
+  }, []);
+
   const value = useMemo<AuthValue>(() => {
     const profile = profileQuery.data ?? null;
     const waitingProfile = sessionStatus === 'signedIn' && profileQuery.isPending;
@@ -55,8 +78,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profile,
       profileError: profileQuery.error,
       isAdmin: profile !== null && profile.is_active && profile.role === 'admin',
+      recovery,
       signIn,
       signOut,
+      resetPassword,
+      updatePassword,
     };
   }, [
     profileQuery.data,
@@ -64,8 +90,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profileQuery.error,
     session,
     sessionStatus,
+    recovery,
     signIn,
     signOut,
+    resetPassword,
+    updatePassword,
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
