@@ -43,6 +43,24 @@ export type Database = {
         };
         Relationships: [];
       };
+      app_settings: {
+        Row: {
+          key: string;
+          updated_at: string;
+          value: string;
+        };
+        Insert: {
+          key: string;
+          updated_at?: string;
+          value: string;
+        };
+        Update: {
+          key?: string;
+          updated_at?: string;
+          value?: string;
+        };
+        Relationships: [];
+      };
       clients: {
         Row: {
           contact: string | null;
@@ -213,6 +231,7 @@ export type Database = {
           name: string;
           role: Database['public']['Enums']['profile_role'];
           telegram: string | null;
+          telegram_chat_id: number | null;
           updated_at: string;
         };
         Insert: {
@@ -224,6 +243,7 @@ export type Database = {
           name: string;
           role?: Database['public']['Enums']['profile_role'];
           telegram?: string | null;
+          telegram_chat_id?: number | null;
           updated_at?: string;
         };
         Update: {
@@ -235,6 +255,7 @@ export type Database = {
           name?: string;
           role?: Database['public']['Enums']['profile_role'];
           telegram?: string | null;
+          telegram_chat_id?: number | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -362,11 +383,21 @@ export type Database = {
     };
     Functions: {
       convert_idea_to_task: { Args: { p_idea_id: string }; Returns: string };
+      html_escape: { Args: { p: string }; Returns: string };
       is_admin: { Args: never; Returns: boolean };
       is_member: { Args: never; Returns: boolean };
+      notify_due_digest: { Args: never; Returns: number };
+      notify_status: { Args: never; Returns: Json };
+      notify_test: { Args: never; Returns: string };
       renumber_stage: { Args: { p_stage_id: string }; Returns: undefined };
+      setting: { Args: { p_key: string }; Returns: string };
       swap_stage_positions: {
         Args: { p_a: string; p_b: string };
+        Returns: undefined;
+      };
+      task_link: { Args: { p_task_id: string }; Returns: string };
+      telegram_send: {
+        Args: { p_chat_id: number; p_text: string };
         Returns: undefined;
       };
     };

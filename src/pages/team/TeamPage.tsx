@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth, useProfile } from '../../app/auth/authContext';
+import { useNotifyTest } from '../../shared/api/notifications';
 import { useProfiles, useUpdateProfile } from '../../shared/api/profiles';
 import type { Profile } from '../../shared/api/types';
 import { ROLE_LABEL } from '../../shared/lib/labels';
@@ -12,12 +14,19 @@ import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { ProfileForm, type ProfileFormValues } from './ProfileForm';
 
+const TEST_MESSAGE = {
+  sent: 'Сообщение отправлено, проверьте Telegram.',
+  no_chat_id: 'Сначала укажите chat ID в профиле.',
+  no_token: 'Бот ещё не настроен администратором.',
+} as const;
+
 export function TeamPage() {
   const me = useProfile();
   const { isAdmin } = useAuth();
   const toast = useToast();
   const profiles = useProfiles();
   const update = useUpdateProfile();
+  const test = useNotifyTest();
   const [editing, setEditing] = useState<Profile | null>(null);
   const [draftDirty, setDraftDirty] = useState(false);
   useDocumentTitle('Команда');
@@ -27,6 +36,7 @@ export function TeamPage() {
     const patch = {
       name: values.name,
       telegram: values.telegram || null,
+      telegram_chat_id: values.telegram_chat_id ? Number(values.telegram_chat_id) : null,
       color: values.color,
       // role/is_active в форме есть только у админа; участник их не отправляет.
       ...(isAdmin ? { role: values.role, is_active: values.is_active } : {}),
@@ -37,9 +47,26 @@ export function TeamPage() {
     );
   };
 
+  const runTest = () => {
+    test.mutate(undefined, {
+      onSuccess: (result) =>
+        toast.show(TEST_MESSAGE[result], result === 'sent' ? 'success' : 'info'),
+      onError: (err) => toast.error(err),
+    });
+  };
+
   return (
     <>
-      <PageHead title="Команда" />
+      <PageHead
+        title="Команда"
+        actions={
+          isAdmin ? (
+            <Link className="btn btn-secondary" to="/settings/notifications">
+              Настройка уведомлений
+            </Link>
+          ) : null
+        }
+      />
       {isAdmin ? (
         <p className="muted">
           Аккаунты создаёт администратор в Supabase (Authentication → Users). Новый аккаунт
@@ -56,6 +83,7 @@ export function TeamPage() {
                 <th>Участник</th>
                 <th>Email</th>
                 <th>Telegram</th>
+                <th>Уведомления</th>
                 <th>Роль</th>
                 <th>Доступ</th>
                 <th />
@@ -73,6 +101,25 @@ export function TeamPage() {
                   </td>
                   <td className="muted">{p.email}</td>
                   <td className="muted">{p.telegram ? `@${p.telegram}` : '—'}</td>
+                  <td>
+                    {p.telegram_chat_id !== null ? (
+                      <span className="row">
+                        <span className="badge badge-success">Подключены</span>
+                        {p.id === me.id ? (
+                          <button
+                            type="button"
+                            className="btn btn-ghost btn-sm"
+                            onClick={runTest}
+                            disabled={test.isPending}
+                          >
+                            Проверить
+                          </button>
+                        ) : null}
+                      </span>
+                    ) : (
+                      <span className="badge">Нет</span>
+                    )}
+                  </td>
                   <td>
                     <span className={p.role === 'admin' ? 'badge badge-accent' : 'badge'}>
                       {ROLE_LABEL[p.role]}

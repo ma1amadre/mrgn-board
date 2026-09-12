@@ -29,9 +29,14 @@ export function Layout() {
             </NavLink>
           ))}
           {isAdmin ? (
-            <NavLink to="/settings/stages" className="nav-item">
-              Стадии
-            </NavLink>
+            <>
+              <NavLink to="/settings/stages" className="nav-item">
+                Стадии
+              </NavLink>
+              <NavLink to="/settings/notifications" className="nav-item">
+                Уведомления
+              </NavLink>
+            </>
           ) : null}
         </nav>
         <div className="shell-user">

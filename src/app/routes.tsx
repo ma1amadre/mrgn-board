@@ -5,6 +5,7 @@ import { ClientsPage } from '../pages/clients/ClientsPage';
 import { IdeasPage } from '../pages/ideas/IdeasPage';
 import { LoginPage } from '../pages/login/LoginPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
+import { NotificationsPage } from '../pages/settings/NotificationsPage';
 import { OverviewPage } from '../pages/overview/OverviewPage';
 import { StagesPage } from '../pages/settings/StagesPage';
 import { TeamPage } from '../pages/team/TeamPage';
@@ -26,6 +27,7 @@ export function AppRoutes() {
           <Route path="team" element={<TeamPage />} />
           <Route element={<RequireAdmin />}>
             <Route path="settings/stages" element={<StagesPage />} />
+            <Route path="settings/notifications" element={<NotificationsPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Route>
