@@ -13,6 +13,7 @@ import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { ActivityList } from './ActivityList';
 import { Attachments } from './Attachments';
 import { Checklist } from './Checklist';
+import { SaveTemplateModal } from './SaveTemplateModal';
 import { CommentsList } from './CommentsList';
 import { dueBadgeClass } from './dueBadge';
 import { TaskForm, type TaskFormValues } from './TaskForm';
@@ -39,6 +40,7 @@ export function TaskDrawer({
   const { update, remove } = useTaskMutations();
   const [editing, setEditing] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState(false);
   useDocumentTitle(task?.title ?? null);
 
   if (!task) {
@@ -165,6 +167,14 @@ export function TaskDrawer({
             <button
               type="button"
               className="btn btn-ghost btn-sm"
+              onClick={() => setSavingTemplate(true)}
+              title="Сохранить как шаблон для новых задач"
+            >
+              В шаблон
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
               onClick={() => void del()}
               disabled={remove.isPending}
             >
@@ -177,6 +187,9 @@ export function TaskDrawer({
       <Attachments taskId={task.id} items={task.attachments} />
       <CommentsList taskId={task.id} />
       <ActivityList taskId={task.id} />
+      {savingTemplate ? (
+        <SaveTemplateModal task={task} onClose={() => setSavingTemplate(false)} />
+      ) : null}
     </Drawer>
   );
 }

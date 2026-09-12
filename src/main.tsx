@@ -30,3 +30,10 @@ if (envError) {
     </StrictMode>,
   );
 }
+
+// Service worker только в проде: в dev он мешает HMR. Scope — базовый путь (на Pages /mrgn-board/).
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => undefined);
+  });
+}

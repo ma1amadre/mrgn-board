@@ -12,6 +12,7 @@ import { ResetPasswordPage } from '../pages/login/ResetPasswordPage';
 import { NotificationsPage } from '../pages/settings/NotificationsPage';
 import { OverviewPage } from '../pages/overview/OverviewPage';
 import { StagesPage } from '../pages/settings/StagesPage';
+import { TemplatesPage } from '../pages/settings/TemplatesPage';
 import { TeamPage } from '../pages/team/TeamPage';
 import { RequireAdmin } from './auth/RequireAdmin';
 import { useAuth } from './auth/authContext';
@@ -43,6 +44,7 @@ export function AppRoutes() {
           <Route path="deals" element={<DealsPage />} />
           <Route path="ideas" element={<IdeasPage />} />
           <Route path="team" element={<TeamPage />} />
+          <Route path="settings/templates" element={<TemplatesPage />} />
           <Route element={<RequireAdmin />}>
             <Route path="settings/stages" element={<StagesPage />} />
             <Route path="settings/notifications" element={<NotificationsPage />} />

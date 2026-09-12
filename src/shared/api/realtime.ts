@@ -20,6 +20,7 @@ const TABLE_KEYS: Record<string, readonly string[]> = {
   profiles: keys.profiles.all,
   app_settings: keys.settings,
   invites: keys.invites,
+  task_templates: keys.templates,
 };
 
 /** Один канал на приложение; монтируется в Layout, живёт пока пользователь внутри. */

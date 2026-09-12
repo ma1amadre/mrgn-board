@@ -16,6 +16,7 @@ export const EXPECTED_MIGRATIONS = [
   '010_deals',
   '011_invites',
   '012_idea_comments',
+  '013_task_templates',
 ] as const;
 
 export async function fetchAppliedMigrations(): Promise<string[]> {

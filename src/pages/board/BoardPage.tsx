@@ -1,10 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useProfile } from '../../app/auth/authContext';
+import { addChecklistItem } from '../../shared/api/checklist';
 import { useClients } from '../../shared/api/clients';
 import { useProfiles } from '../../shared/api/profiles';
 import { useStages } from '../../shared/api/stages';
 import { useTaskMutations, useTasks } from '../../shared/api/tasks';
+import { useTemplates } from '../../shared/api/templates';
 import { csvFilename, toCsv } from '../../shared/lib/csv';
 import { today as todayIso } from '../../shared/lib/dates';
 import { downloadTextFile } from '../../shared/lib/download';
@@ -18,6 +20,7 @@ import { PRIORITY_LABEL } from '../../shared/lib/labels';
 import { GAP } from '../../shared/lib/ordering';
 import { collectLabels } from '../../shared/lib/taskLabels';
 import { DONE_VISIBLE_DAYS, hideStaleDone } from '../../shared/lib/tasks';
+import { templateToForm } from '../../shared/lib/templates';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Modal } from '../../shared/ui/Modal';
 import { PageHead } from '../../shared/ui/PageHead';
@@ -39,6 +42,8 @@ export function BoardPage() {
   const clients = useClients();
   const { create } = useTaskMutations();
   const [creatingLocal, setCreatingLocal] = useState(false);
+  const [templateId, setTemplateId] = useState<string | null>(null);
+  const templates = useTemplates();
   const [draftDirty, setDraftDirty] = useState(false);
   useDocumentTitle('Доска');
 
@@ -118,7 +123,7 @@ export function BoardPage() {
   };
 
   const firstStage = stages.data?.[0];
-  const newTaskInitial: TaskFormValues | null = firstStage
+  const blankInitial: TaskFormValues | null = firstStage
     ? {
         title: '',
         description: '',
@@ -130,6 +135,26 @@ export function BoardPage() {
         labels: filters.label ? [filters.label] : [],
       }
     : null;
+  const template = templates.data?.find((t) => t.id === templateId) ?? null;
+  const newTaskInitial =
+    blankInitial && template
+      ? templateToForm(template, {
+          stage_id: blankInitial.stage_id,
+          client_id: blankInitial.client_id,
+        })
+      : blankInitial;
+
+  // Пункты чек-листа из шаблона добавляются после создания задачи; кеш обновит realtime.
+  const seedChecklist = async (taskId: string) => {
+    for (const title of template?.checklist ?? []) {
+      try {
+        await addChecklistItem({ task_id: taskId, created_by: me.id, title });
+      } catch (err) {
+        toast.error(err);
+        break;
+      }
+    }
+  };
 
   const submitNew = (values: TaskFormValues) => {
     const inStage = (tasks.data ?? []).filter((t) => t.stage_id === values.stage_id);
@@ -147,7 +172,14 @@ export function BoardPage() {
         position: maxPos + GAP,
         created_by: me.id,
       },
-      { onSuccess: () => setCreating(false), onError: (err) => toast.error(err) },
+      {
+        onSuccess: (created) => {
+          setCreating(false);
+          setTemplateId(null);
+          void seedChecklist(created.id);
+        },
+        onError: (err) => toast.error(err),
+      },
     );
   };
 
@@ -221,7 +253,30 @@ export function BoardPage() {
 
       {creating && newTaskInitial ? (
         <Modal title="Новая задача" onClose={() => setCreating(false)} dirty={draftDirty}>
+          {templates.data && templates.data.length > 0 ? (
+            <div className="row" style={{ marginBottom: 'var(--s-3)' }}>
+              <label className="row">
+                <span className="muted small">Шаблон:</span>
+                <select
+                  className="select"
+                  value={templateId ?? ''}
+                  onChange={(e) => setTemplateId(e.target.value || null)}
+                >
+                  <option value="">Без шаблона</option>
+                  {templates.data.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <Link className="link small" to="/settings/templates">
+                Управлять
+              </Link>
+            </div>
+          ) : null}
           <TaskForm
+            key={templateId ?? 'blank'}
             initial={newTaskInitial}
             stages={stages.data ?? []}
             profiles={profiles.data ?? []}

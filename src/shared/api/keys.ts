@@ -24,6 +24,7 @@ export const keys = {
   attachmentUrls: (taskId: string, ids: string) => ['attachment-urls', taskId, ids] as const,
   settings: ['settings'] as const,
   invites: ['invites'] as const,
+  templates: ['templates'] as const,
   notifyStatus: ['notify-status'] as const,
   migrations: ['migrations'] as const,
 };

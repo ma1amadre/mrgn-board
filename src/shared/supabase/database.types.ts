@@ -569,6 +569,53 @@ export type Database = {
           },
         ];
       };
+      task_templates: {
+        Row: {
+          checklist: string[];
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          id: string;
+          labels: string[];
+          name: string;
+          priority: Database['public']['Enums']['task_priority'];
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          checklist?: string[];
+          created_at?: string;
+          created_by: string;
+          description?: string | null;
+          id?: string;
+          labels?: string[];
+          name: string;
+          priority?: Database['public']['Enums']['task_priority'];
+          title?: string;
+          updated_at?: string;
+        };
+        Update: {
+          checklist?: string[];
+          created_at?: string;
+          created_by?: string;
+          description?: string | null;
+          id?: string;
+          labels?: string[];
+          name?: string;
+          priority?: Database['public']['Enums']['task_priority'];
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_templates_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       tasks: {
         Row: {
           assignee_id: string | null;
