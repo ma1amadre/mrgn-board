@@ -1,9 +1,10 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { BoardPage } from '../pages/board/BoardPage';
 import { ClientPage } from '../pages/clients/ClientPage';
 import { ClientsPage } from '../pages/clients/ClientsPage';
 import { IdeasPage } from '../pages/ideas/IdeasPage';
 import { LoginPage } from '../pages/login/LoginPage';
+import { NotFoundPage } from '../pages/NotFoundPage';
 import { OverviewPage } from '../pages/overview/OverviewPage';
 import { StagesPage } from '../pages/settings/StagesPage';
 import { TeamPage } from '../pages/team/TeamPage';
@@ -26,9 +27,9 @@ export function AppRoutes() {
           <Route element={<RequireAdmin />}>
             <Route path="settings/stages" element={<StagesPage />} />
           </Route>
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

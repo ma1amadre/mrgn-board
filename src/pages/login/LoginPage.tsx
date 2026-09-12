@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../app/auth/authContext';
 import { errorMessage } from '../../shared/api/errors';
 import { Field } from '../../shared/ui/Field';
+import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 
 export function LoginPage() {
   const { status, signIn } = useAuth();
@@ -11,6 +12,7 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  useDocumentTitle('Вход');
 
   if (status === 'signedIn') {
     const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/';
@@ -34,7 +36,10 @@ export function LoginPage() {
     <div className="center-screen">
       <form className="card form" onSubmit={onSubmit}>
         <h3 className="card-title">MRGN board</h3>
-        <p className="card-body">Вход для участников команды. Аккаунты выдаёт администратор.</p>
+        <p className="card-body">
+          Вход для участников команды. Нет доступа или забыли пароль? Напишите администратору: он
+          выдаёт аккаунты и сбрасывает пароли.
+        </p>
         {error ? (
           <div className="alert alert-danger" role="alert">
             <p>{error}</p>

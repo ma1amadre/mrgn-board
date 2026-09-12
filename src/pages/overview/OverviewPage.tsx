@@ -17,6 +17,7 @@ import { plural } from '../../shared/lib/text';
 import { Avatar } from '../../shared/ui/Avatar';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { PageHead } from '../../shared/ui/PageHead';
+import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { DeadlinesList } from './DeadlinesList';
 import { StatTile } from './StatTile';
 
@@ -26,6 +27,7 @@ export function OverviewPage() {
   const stages = useStages();
   const profiles = useProfiles();
   const today = todayIso();
+  useDocumentTitle('Обзор');
 
   const stats = useMemo(() => {
     const all = tasks.data ?? [];
