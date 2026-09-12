@@ -288,6 +288,38 @@ export type Database = {
           },
         ];
       };
+      invites: {
+        Row: {
+          accepted_at: string | null;
+          created_at: string;
+          email: string;
+          invited_by: string;
+          role: Database['public']['Enums']['profile_role'];
+        };
+        Insert: {
+          accepted_at?: string | null;
+          created_at?: string;
+          email: string;
+          invited_by: string;
+          role?: Database['public']['Enums']['profile_role'];
+        };
+        Update: {
+          accepted_at?: string | null;
+          created_at?: string;
+          email?: string;
+          invited_by?: string;
+          role?: Database['public']['Enums']['profile_role'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'invites_invited_by_fkey';
+            columns: ['invited_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
           color: string;
@@ -596,6 +628,13 @@ export type Database = {
       };
       convert_idea_to_task: { Args: { p_idea_id: string }; Returns: string };
       html_escape: { Args: { p: string }; Returns: string };
+      invite_member: {
+        Args: {
+          p_email: string;
+          p_role?: Database['public']['Enums']['profile_role'];
+        };
+        Returns: string;
+      };
       is_admin: { Args: never; Returns: boolean };
       is_member: { Args: never; Returns: boolean };
       notify_due_digest: { Args: never; Returns: number };

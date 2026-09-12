@@ -63,8 +63,10 @@ docker exec -i supabase_db_mrgn-board psql -U postgres -d postgres \
 1. Создать проект Supabase. SQL Editor → выполнить `001_schema.sql`, `002_rls.sql`,
    `003_seed_realtime.sql` по очереди (или `npx supabase login` → `link` → `db push`).
 2. Authentication → Providers → Email: выключить «Allow new users to sign up».
-3. Authentication → Users → Add user (email + пароль, auto-confirm) для каждого участника.
-   Имя подхватится из metadata `name`, иначе из email — поправить в разделе «Команда».
+3. Участников проще звать из приложения («Команда» → «Пригласить участника»): один раз положить
+   service_role-ключ в Vault — `select vault.create_secret('<ключ>', 'service_role_key');`
+   (Project Settings → API). Письмо шлёт GoTrue, приглашённый задаёт пароль по ссылке и сразу
+   включён. Запасной путь — Authentication → Users → Add user, потом включить в «Команде».
 4. Первый админ: SQL Editor →
    `update public.profiles set role = 'admin', is_active = true where email = '…';`
    Остальных админ включает в разделе «Команда» (новые аккаунты выключены по умолчанию).

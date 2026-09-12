@@ -30,6 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Ссылка из письма открывает сайт с токеном восстановления: сессия уже есть,
       // но пароль ещё старый — флаг снимается после смены пароля или выхода.
       if (event === 'PASSWORD_RECOVERY') setRecovery(true);
+      // Приглашённый приходит по ссылке уже с сессией, но без пароля (флаг ставит invite_member).
+      if (next?.user.user_metadata?.needs_password === true) setRecovery(true);
       if (event === 'SIGNED_OUT') setRecovery(false);
     });
     return () => {
@@ -64,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updatePassword = useCallback(async (password: string) => {
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error } = await supabase.auth.updateUser({ password, data: { needs_password: false } });
     if (error) throw error;
     setRecovery(false);
   }, []);

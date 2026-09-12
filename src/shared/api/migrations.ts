@@ -14,6 +14,7 @@ export const EXPECTED_MIGRATIONS = [
   '008_mentions',
   '009_attachments',
   '010_deals',
+  '011_invites',
 ] as const;
 
 export async function fetchAppliedMigrations(): Promise<string[]> {

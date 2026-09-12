@@ -12,6 +12,7 @@ import { PageHead } from '../../shared/ui/PageHead';
 import { SkeletonRows } from '../../shared/ui/Skeleton';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
+import { InvitePanel } from './InvitePanel';
 import { ProfileForm, type ProfileFormValues } from './ProfileForm';
 
 const TEST_MESSAGE = {
@@ -67,12 +68,7 @@ export function TeamPage() {
           ) : null
         }
       />
-      {isAdmin ? (
-        <p className="muted">
-          Аккаунты создаёт администратор в Supabase (Authentication → Users). Новый аккаунт
-          выключен, пока админ не включит доступ здесь.
-        </p>
-      ) : null}
+      {isAdmin ? <InvitePanel /> : null}
       {profiles.isPending ? <SkeletonRows rows={4} /> : null}
       {profiles.isError ? <EmptyState>Не удалось загрузить команду.</EmptyState> : null}
       {profiles.data ? (

@@ -18,6 +18,7 @@ const TABLE_KEYS: Record<string, readonly string[]> = {
   clients: keys.clients.all,
   profiles: keys.profiles.all,
   app_settings: keys.settings,
+  invites: keys.invites,
 };
 
 /** Один канал на приложение; монтируется в Layout, живёт пока пользователь внутри. */

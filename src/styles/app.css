@@ -857,3 +857,14 @@ kbd {
   color: var(--text-muted);
   font-size: var(--t-xs);
 }
+
+/* Кнопка, выглядящая как ссылка — для «как настроить» внутри абзаца. */
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
