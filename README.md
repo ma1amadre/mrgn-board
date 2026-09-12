@@ -121,6 +121,13 @@ docker exec -i supabase_db_mrgn-board psql -U postgres -d postgres \
 `task_id/uuid.ext`, исходное имя хранится в `task_attachments`. При удалении задачи строки уходят
 каскадом, а файлы в бакете остаются — чистить вручную в Storage, если станет жалко места.
 
+## PWA
+
+Есть манифест и service worker (`public/sw.js`, только в проде): приложение ставится на рабочий
+стол и телефон («Установить» в браузере), оболочка и ассеты с хешами работают офлайн, данные —
+всегда из сети. Новая версия подхватывается при следующем открытии; при смене стратегии кеша
+поднять `CACHE` в sw.js. Иконки в `public/icons` собраны скриптом из favicon.svg.
+
 ## Деплой (GitHub Pages)
 
 Боевой адрес: https://ma1amadre.github.io/mrgn-board/. Workflow `.github/workflows/pages.yml`

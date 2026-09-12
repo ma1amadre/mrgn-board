@@ -1,0 +1,21 @@
+{
+  "name": "MRGN board",
+  "short_name": "MRGN board",
+  "description": "Дэшборд команды MRGN: задачи, клиенты, сделки, идеи",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f8f8",
+  "theme_color": "#0b6e5c",
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
