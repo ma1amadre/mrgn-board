@@ -3,6 +3,7 @@ import { useMissingMigrations } from '../shared/api/migrations';
 import { useRealtimeInvalidation } from '../shared/api/realtime';
 import { Avatar } from '../shared/ui/Avatar';
 import { useAuth, useProfile } from './auth/authContext';
+import { Hotkeys } from './Hotkeys';
 
 const NAV = [
   { to: '/', label: 'Обзор', end: true },
@@ -22,6 +23,7 @@ export function Layout() {
 
   return (
     <div className="shell">
+      <Hotkeys />
       <aside className="shell-aside">
         <div className="shell-brand">MRGN board</div>
         <nav className="nav" aria-label="Разделы">
@@ -49,6 +51,9 @@ export function Layout() {
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => void signOut()}>
             Выйти
           </button>
+        </div>
+        <div className="shell-hint">
+          <kbd>?</kbd> — горячие клавиши
         </div>
       </aside>
       <main className="shell-main">

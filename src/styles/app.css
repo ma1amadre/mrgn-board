@@ -832,3 +832,28 @@ code {
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--s-3);
 }
+
+/* Подсказка по горячим клавишам. */
+kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 var(--s-1);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-family: inherit;
+  font-size: var(--t-xs);
+  line-height: 1.6;
+  text-align: center;
+}
+.hotkeys td:first-child {
+  width: 6em;
+  white-space: nowrap;
+}
+.shell-hint {
+  margin-top: auto;
+  padding-top: var(--s-4);
+  color: var(--text-muted);
+  font-size: var(--t-xs);
+}

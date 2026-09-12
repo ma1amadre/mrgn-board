@@ -32,6 +32,7 @@ export function BoardFilters({
     <div className="toolbar" role="search">
       <input
         className="input toolbar-search"
+        data-hotkey="search"
         placeholder="Поиск: название, описание, клиент"
         value={filters.q}
         onChange={(e) => onChange({ ...filters, q: e.target.value })}

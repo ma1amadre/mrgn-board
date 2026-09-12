@@ -137,6 +137,7 @@ export function DealsPage() {
       <div className="toolbar" role="search">
         <input
           className="input toolbar-search"
+          data-hotkey="search"
           placeholder="Поиск: название, клиент, заметки"
           value={q}
           onChange={(e) => setParam('q', e.target.value || null)}
