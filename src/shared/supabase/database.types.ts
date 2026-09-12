@@ -290,6 +290,96 @@ export type Database = {
         };
         Relationships: [];
       };
+      task_activity: {
+        Row: {
+          actor_id: string | null;
+          created_at: string;
+          from_value: string | null;
+          id: string;
+          kind: string;
+          task_id: string;
+          to_value: string | null;
+        };
+        Insert: {
+          actor_id?: string | null;
+          created_at?: string;
+          from_value?: string | null;
+          id?: string;
+          kind: string;
+          task_id: string;
+          to_value?: string | null;
+        };
+        Update: {
+          actor_id?: string | null;
+          created_at?: string;
+          from_value?: string | null;
+          id?: string;
+          kind?: string;
+          task_id?: string;
+          to_value?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_activity_actor_id_fkey';
+            columns: ['actor_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'task_activity_task_id_fkey';
+            columns: ['task_id'];
+            isOneToOne: false;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      task_checklist_items: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          id: string;
+          is_done: boolean;
+          task_id: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          is_done?: boolean;
+          task_id: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          is_done?: boolean;
+          task_id?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_checklist_items_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'task_checklist_items_task_id_fkey';
+            columns: ['task_id'];
+            isOneToOne: false;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       tasks: {
         Row: {
           assignee_id: string | null;
@@ -301,6 +391,7 @@ export type Database = {
           due_date: string | null;
           id: string;
           idea_id: string | null;
+          labels: string[];
           position: number;
           priority: Database['public']['Enums']['task_priority'];
           stage_id: string;
@@ -317,6 +408,7 @@ export type Database = {
           due_date?: string | null;
           id?: string;
           idea_id?: string | null;
+          labels?: string[];
           position?: number;
           priority?: Database['public']['Enums']['task_priority'];
           stage_id: string;
@@ -333,6 +425,7 @@ export type Database = {
           due_date?: string | null;
           id?: string;
           idea_id?: string | null;
+          labels?: string[];
           position?: number;
           priority?: Database['public']['Enums']['task_priority'];
           stage_id?: string;
@@ -382,6 +475,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      activity_label: {
+        Args: { p_id: string; p_name: string };
+        Returns: string;
+      };
       convert_idea_to_task: { Args: { p_idea_id: string }; Returns: string };
       html_escape: { Args: { p: string }; Returns: string };
       is_admin: { Args: never; Returns: boolean };

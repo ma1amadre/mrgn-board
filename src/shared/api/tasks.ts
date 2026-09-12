@@ -6,7 +6,7 @@ import type { Inserts, Stage, TaskWithRefs, Updates } from './types';
 
 /** Два FK на profiles (assignee_id, created_by) — без хинта PostgREST не знает, какой брать. */
 const TASK_SELECT =
-  '*, assignee:profiles!tasks_assignee_id_fkey(id,name,color), client:clients(id,name)';
+  '*, assignee:profiles!tasks_assignee_id_fkey(id,name,color), client:clients(id,name), checklist:task_checklist_items(*)';
 
 export async function fetchTasks(): Promise<TaskWithRefs[]> {
   const { data, error } = await supabase.from('tasks').select(TASK_SELECT).order('created_at');

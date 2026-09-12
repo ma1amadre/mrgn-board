@@ -12,12 +12,18 @@ export type Stage = Tables<'stages'>;
 export type Task = Tables<'tasks'>;
 export type Idea = Tables<'ideas'>;
 export type Comment = Tables<'comments'>;
+export type ChecklistItem = Tables<'task_checklist_items'>;
+export type Activity = Tables<'task_activity'>;
 
 export type ProfileRef = Pick<Profile, 'id' | 'name' | 'color'>;
 export type ClientRef = Pick<Client, 'id' | 'name'>;
 
 /** Задача с подтянутыми исполнителем и клиентом — то, что лежит в кеше ['tasks']. */
-export type TaskWithRefs = Task & { assignee: ProfileRef | null; client: ClientRef | null };
+export type TaskWithRefs = Task & {
+  assignee: ProfileRef | null;
+  client: ClientRef | null;
+  checklist: ChecklistItem[];
+};
 export type IdeaWithRefs = Idea & {
   author: ProfileRef | null;
   idea_votes: { profile_id: string }[];
@@ -25,3 +31,4 @@ export type IdeaWithRefs = Idea & {
   tasks: { id: string }[];
 };
 export type CommentWithAuthor = Comment & { author: ProfileRef | null };
+export type ActivityWithActor = Activity & { actor: ProfileRef | null };

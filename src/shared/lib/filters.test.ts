@@ -17,6 +17,7 @@ const tasks = [
     client_id: 'c1',
     client: { name: 'Интернет-магазин «Сезон»' },
     priority: 'high',
+    labels: ['cdn', 'срочно'],
   },
   {
     id: '2',
@@ -26,6 +27,7 @@ const tasks = [
     client_id: 'c2',
     client: { name: 'Автосервис' },
     priority: 'normal',
+    labels: [],
   },
   {
     id: '3',
@@ -35,6 +37,7 @@ const tasks = [
     client_id: 'c1',
     client: { name: 'Интернет-магазин «Сезон»' },
     priority: 'urgent',
+    labels: ['бот'],
   },
 ];
 
@@ -46,7 +49,14 @@ describe('parseFilters', () => {
     const f = parseFilters(
       new URLSearchParams('assignee=a&client=c1&priority=high&q=%20cdn%20&done=all'),
     );
-    expect(f).toEqual({ assignee: 'a', client: 'c1', priority: 'high', q: ' cdn ', allDone: true });
+    expect(f).toEqual({
+      assignee: 'a',
+      client: 'c1',
+      priority: 'high',
+      label: null,
+      q: ' cdn ',
+      allDone: true,
+    });
   });
   it('неизвестный приоритет и чужое значение done отбрасываются', () => {
     const f = parseFilters(new URLSearchParams('priority=asap&done=yes'));
@@ -69,6 +79,7 @@ describe('serializeFilters', () => {
       assignee: UNASSIGNED,
       client: 'c1',
       priority: 'low' as const,
+      label: 'cdn',
       q: 'поднять ',
       allDone: true,
     };
@@ -115,5 +126,24 @@ describe('applyTaskFilters', () => {
       '1',
       '3',
     ]);
+  });
+});
+
+describe('метки', () => {
+  it('фильтр по метке — точное совпадение, регистр значим', () => {
+    expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, label: 'cdn' }).map((t) => t.id)).toEqual([
+      '1',
+    ]);
+    expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, label: 'CDN' })).toHaveLength(0);
+    expect(isFilterActive({ ...EMPTY_FILTERS, label: 'cdn' })).toBe(true);
+  });
+  it('поиск находит и по метке', () => {
+    expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, q: 'срочно' }).map((t) => t.id)).toEqual([
+      '1',
+    ]);
+  });
+  it('метка ходит через URL', () => {
+    expect(parseFilters(new URLSearchParams('label=%D0%B1%D0%BE%D1%82')).label).toBe('бот');
+    expect(serializeFilters({ ...EMPTY_FILTERS, label: 'бот' }).get('label')).toBe('бот');
   });
 });

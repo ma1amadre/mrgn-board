@@ -30,12 +30,26 @@ export function TaskCardView({
       {...rest}
     >
       <div className="task-title">{task.title}</div>
+      {task.labels.length > 0 ? (
+        <div className="task-labels">
+          {task.labels.map((l) => (
+            <span key={l} className="chip">
+              {l}
+            </span>
+          ))}
+        </div>
+      ) : null}
       <div className="task-meta">
         {task.priority !== 'normal' ? (
           <span className={PRIORITY_BADGE[task.priority]}>{PRIORITY_LABEL[task.priority]}</span>
         ) : null}
         {task.due_date ? (
           <span className={dueBadgeClass(task, today)}>{formatDate(task.due_date)}</span>
+        ) : null}
+        {task.checklist.length > 0 ? (
+          <span className="muted" title="Чек-лист">
+            ✓ {task.checklist.filter((i) => i.is_done).length}/{task.checklist.length}
+          </span>
         ) : null}
         {task.client ? <span className="muted">{task.client.name}</span> : null}
         {task.assignee ? <Avatar name={task.assignee.name} color={task.assignee.color} /> : null}

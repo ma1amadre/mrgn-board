@@ -7,6 +7,8 @@ export type TaskFilters = {
   assignee: string | null;
   client: string | null;
   priority: Priority | null;
+  /** Метка задачи как есть (регистр значим — так же хранит БД). */
+  label: string | null;
   /** Строка поиска как есть, с пробелами: это значение контролируемого инпута. */
   q: string;
   /** Показывать все закрытые задачи, а не только свежие (см. hideStaleDone). */
@@ -17,6 +19,7 @@ export const EMPTY_FILTERS: TaskFilters = {
   assignee: null,
   client: null,
   priority: null,
+  label: null,
   q: '',
   allDone: false,
 };
@@ -30,6 +33,7 @@ type FilterableTask = {
   client_id: string | null;
   client: { name: string } | null;
   priority: string;
+  labels: string[];
 };
 
 /** Фильтры живут в URL: ссылка на доску с фильтром шарится в чат и переживает F5. */
@@ -39,6 +43,7 @@ export function parseFilters(sp: URLSearchParams): TaskFilters {
     assignee: sp.get('assignee') || null,
     client: sp.get('client') || null,
     priority: priority && PRIORITY_VALUES.has(priority) ? (priority as Priority) : null,
+    label: sp.get('label') || null,
     q: sp.get('q') ?? '',
     allDone: sp.get('done') === 'all',
   };
@@ -51,6 +56,7 @@ export function serializeFilters(f: TaskFilters, base?: URLSearchParams): URLSea
     ['assignee', f.assignee],
     ['client', f.client],
     ['priority', f.priority],
+    ['label', f.label],
     ['q', f.q || null],
     ['done', f.allDone ? 'all' : null],
   ];
@@ -63,14 +69,14 @@ export function serializeFilters(f: TaskFilters, base?: URLSearchParams): URLSea
 
 /** Активен ли отбор задач; режим показа закрытых — не отбор, «Сбросить» его не трогает. */
 export function isFilterActive(f: TaskFilters): boolean {
-  return Boolean(f.assignee || f.client || f.priority || f.q.trim());
+  return Boolean(f.assignee || f.client || f.priority || f.label || f.q.trim());
 }
 
-/** Поиск смотрит в название, описание и имя клиента. */
+/** Поиск смотрит в название, описание, имя клиента и метки. */
 export function matchesQuery(t: FilterableTask, q: string): boolean {
   const needle = q.trim().toLowerCase();
   if (!needle) return true;
-  return [t.title, t.description ?? '', t.client?.name ?? ''].some((s) =>
+  return [t.title, t.description ?? '', t.client?.name ?? '', ...t.labels].some((s) =>
     s.toLowerCase().includes(needle),
   );
 }
@@ -84,6 +90,7 @@ export function applyTaskFilters<T extends FilterableTask>(tasks: T[], f: TaskFi
     }
     if (f.client && t.client_id !== f.client) return false;
     if (f.priority && t.priority !== f.priority) return false;
+    if (f.label && !t.labels.includes(f.label)) return false;
     return matchesQuery(t, f.q);
   });
 }

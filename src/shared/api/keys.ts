@@ -12,6 +12,10 @@ export const keys = {
     all: ['comments'] as const,
     byTask: (taskId: string) => ['comments', taskId] as const,
   },
+  activity: {
+    all: ['activity'] as const,
+    byTask: (taskId: string) => ['activity', taskId] as const,
+  },
   settings: ['settings'] as const,
   notifyStatus: ['notify-status'] as const,
   migrations: ['migrations'] as const,

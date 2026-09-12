@@ -12,16 +12,22 @@ export function BoardFilters({
   filters,
   profiles,
   clients,
+  labels,
   hiddenDone,
   onChange,
 }: {
   filters: TaskFilters;
   profiles: Profile[];
   clients: Client[];
+  /** Метки, встречающиеся в задачах, — варианты фильтра. */
+  labels: string[];
   /** Сколько давно закрытых задач скрыто с доски. */
   hiddenDone: number;
   onChange: (f: TaskFilters) => void;
 }) {
+  // Метка из ссылки могла уже исчезнуть из задач — оставляем её в списке, чтобы фильтр было видно.
+  const labelOptions =
+    filters.label && !labels.includes(filters.label) ? [filters.label, ...labels] : labels;
   return (
     <div className="toolbar" role="search">
       <input
@@ -72,6 +78,21 @@ export function BoardFilters({
           </option>
         ))}
       </select>
+      {labelOptions.length > 0 ? (
+        <select
+          className="select"
+          aria-label="Метка"
+          value={filters.label ?? ''}
+          onChange={(e) => onChange({ ...filters, label: e.target.value || null })}
+        >
+          <option value="">Все метки</option>
+          {labelOptions.map((l) => (
+            <option key={l} value={l}>
+              {l}
+            </option>
+          ))}
+        </select>
+      ) : null}
       {isFilterActive(filters) ? (
         <button
           type="button"

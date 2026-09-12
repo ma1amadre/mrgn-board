@@ -10,6 +10,8 @@ import { Drawer } from '../../shared/ui/Drawer';
 import { Linkify } from '../../shared/ui/Linkify';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
+import { ActivityList } from './ActivityList';
+import { Checklist } from './Checklist';
 import { CommentsList } from './CommentsList';
 import { dueBadgeClass } from './dueBadge';
 import { TaskForm, type TaskFormValues } from './TaskForm';
@@ -20,6 +22,7 @@ export function TaskDrawer({
   profiles,
   clients,
   today,
+  labelSuggestions,
   onClose,
 }: {
   task: TaskWithRefs | undefined;
@@ -27,6 +30,7 @@ export function TaskDrawer({
   profiles: Profile[];
   clients: Client[];
   today: string;
+  labelSuggestions: string[];
   onClose: () => void;
 }) {
   const toast = useToast();
@@ -53,6 +57,7 @@ export function TaskDrawer({
     client_id: task.client_id,
     priority: task.priority,
     due_date: task.due_date,
+    labels: task.labels,
   };
 
   const save = (values: TaskFormValues) => {
@@ -67,6 +72,7 @@ export function TaskDrawer({
           client_id: values.client_id,
           priority: values.priority,
           due_date: values.due_date,
+          labels: values.labels,
         },
       },
       { onSuccess: () => setEditing(false), onError: (err) => toast.error(err) },
@@ -90,6 +96,7 @@ export function TaskDrawer({
           stages={stages}
           profiles={profiles}
           clients={clients}
+          labelSuggestions={labelSuggestions}
           submitLabel="Сохранить"
           busy={update.isPending}
           onSubmit={save}
@@ -105,6 +112,15 @@ export function TaskDrawer({
               <span className={dueBadgeClass(task, today)}>до {formatDate(task.due_date)}</span>
             ) : null}
           </div>
+          {task.labels.length > 0 ? (
+            <div className="task-labels">
+              {task.labels.map((l) => (
+                <Link key={l} className="chip" to={`/board?label=${encodeURIComponent(l)}`}>
+                  {l}
+                </Link>
+              ))}
+            </div>
+          ) : null}
           <div className="stack small">
             <div className="row">
               <span className="muted">Исполнитель:</span>
@@ -158,7 +174,9 @@ export function TaskDrawer({
           </div>
         </>
       )}
+      <Checklist taskId={task.id} items={task.checklist} />
       <CommentsList taskId={task.id} />
+      <ActivityList taskId={task.id} />
     </Drawer>
   );
 }

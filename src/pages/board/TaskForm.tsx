@@ -3,6 +3,7 @@ import type { Client, Profile, Stage } from '../../shared/api/types';
 import { PRIORITIES, PRIORITY_LABEL, type Priority } from '../../shared/lib/labels';
 import { Field } from '../../shared/ui/Field';
 import { useDirty } from '../../shared/ui/useDirty';
+import { LabelsInput } from './LabelsInput';
 
 export type TaskFormValues = {
   title: string;
@@ -12,6 +13,7 @@ export type TaskFormValues = {
   client_id: string | null;
   priority: Priority;
   due_date: string | null;
+  labels: string[];
 };
 
 export function TaskForm({
@@ -19,6 +21,7 @@ export function TaskForm({
   stages,
   profiles,
   clients,
+  labelSuggestions,
   submitLabel,
   busy,
   onSubmit,
@@ -29,6 +32,8 @@ export function TaskForm({
   stages: Stage[];
   profiles: Profile[];
   clients: Client[];
+  /** Метки, уже встречающиеся в задачах, — подсказки в поле. */
+  labelSuggestions: string[];
   submitLabel: string;
   busy: boolean;
   onSubmit: (values: TaskFormValues) => void;
@@ -134,6 +139,13 @@ export function TaskForm({
           />
         </Field>
       </div>
+      <Field label="Метки" hint="Enter или запятая добавляет метку, до десяти на задачу.">
+        <LabelsInput
+          value={values.labels}
+          suggestions={labelSuggestions}
+          onChange={(labels) => set('labels', labels)}
+        />
+      </Field>
       <div className="modal-actions">
         <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={busy}>
           Отмена

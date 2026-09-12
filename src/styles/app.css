@@ -542,3 +542,127 @@ code {
     animation: none;
   }
 }
+
+/* Лента изменений в карточке задачи: те же метаданные, что у комментария, без плашки. */
+.activity {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.activity-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: var(--s-2) 0;
+  border-top: 1px solid var(--border);
+}
+.activity-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.activity-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  overflow-wrap: anywhere;
+}
+
+/* Чек-лист в карточке задачи: тонкий прогресс и строки с галочкой, без плашек. */
+.progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.checklist-label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.checklist-item.is-done .checklist-label span {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+/* Метки задачи: чипы на карточке и поле ввода с чипами в форме. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 100%;
+  height: 22px;
+  padding: 0 var(--s-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: var(--t-xs);
+  white-space: nowrap;
+}
+.chip-remove {
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+.chip-remove:hover,
+.chip-remove:focus-visible {
+  color: var(--text);
+}
+.task-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}
+.labels-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1);
+  min-height: 36px;
+  padding: var(--s-1) var(--s-2);
+  border: 1px solid var(--border-control);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+.labels-input:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.labels-input-field {
+  flex: 1;
+  min-width: 120px;
+  padding: var(--s-1) 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}

@@ -13,6 +13,7 @@ import {
   type TaskFilters,
 } from '../../shared/lib/filters';
 import { GAP } from '../../shared/lib/ordering';
+import { collectLabels } from '../../shared/lib/taskLabels';
 import { DONE_VISIBLE_DAYS, hideStaleDone } from '../../shared/lib/tasks';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Modal } from '../../shared/ui/Modal';
@@ -76,6 +77,7 @@ export function BoardPage() {
   const fresh = useMemo(() => hideStaleDone(filtered, today), [filtered, today]);
   const visibleTasks = filters.allDone ? filtered : fresh;
   const hiddenDone = filtered.length - fresh.length;
+  const allLabels = useMemo(() => collectLabels(tasks.data ?? []), [tasks.data]);
 
   const firstStage = stages.data?.[0];
   const newTaskInitial: TaskFormValues | null = firstStage
@@ -87,6 +89,7 @@ export function BoardPage() {
         client_id: filters.client,
         priority: 'normal',
         due_date: null,
+        labels: filters.label ? [filters.label] : [],
       }
     : null;
 
@@ -102,6 +105,7 @@ export function BoardPage() {
         client_id: values.client_id,
         priority: values.priority,
         due_date: values.due_date,
+        labels: values.labels,
         position: maxPos + GAP,
         created_by: me.id,
       },
@@ -131,6 +135,7 @@ export function BoardPage() {
         filters={filters}
         profiles={profiles.data ?? []}
         clients={clients.data ?? []}
+        labels={allLabels}
         hiddenDone={hiddenDone}
         onChange={setFilters}
       />
@@ -172,6 +177,7 @@ export function BoardPage() {
             stages={stages.data ?? []}
             profiles={profiles.data ?? []}
             clients={clients.data ?? []}
+            labelSuggestions={allLabels}
             submitLabel="Создать"
             busy={create.isPending}
             onSubmit={submitNew}
@@ -187,6 +193,7 @@ export function BoardPage() {
           stages={stages.data ?? []}
           profiles={profiles.data ?? []}
           clients={clients.data ?? []}
+          labelSuggestions={allLabels}
           today={today}
           onClose={() => openTask(null)}
         />
