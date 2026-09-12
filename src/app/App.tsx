@@ -1,7 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
+import { ConfirmProvider } from '../shared/ui/ConfirmProvider';
 import { ToastProvider } from '../shared/ui/ToastProvider';
 import { AuthProvider } from './auth/AuthProvider';
+import { ErrorBoundary } from './ErrorBoundary';
 import { AppRoutes } from './routes';
 
 const queryClient = new QueryClient({
@@ -15,14 +17,18 @@ const BASENAME = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 export function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <AuthProvider>
-          <BrowserRouter basename={BASENAME}>
-            <AppRoutes />
-          </BrowserRouter>
-        </AuthProvider>
-      </ToastProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <ConfirmProvider>
+            <AuthProvider>
+              <BrowserRouter basename={BASENAME}>
+                <AppRoutes />
+              </BrowserRouter>
+            </AuthProvider>
+          </ConfirmProvider>
+        </ToastProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
