@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import { BoardPage } from '../pages/board/BoardPage';
 import { ClientPage } from '../pages/clients/ClientPage';
 import { ClientsPage } from '../pages/clients/ClientsPage';
+import { DealsPage } from '../pages/deals/DealsPage';
 import { IdeasPage } from '../pages/ideas/IdeasPage';
 import { LoginPage } from '../pages/login/LoginPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
@@ -23,6 +24,7 @@ export function AppRoutes() {
           <Route path="board" element={<BoardPage />} />
           <Route path="clients" element={<ClientsPage />} />
           <Route path="clients/:id" element={<ClientPage />} />
+          <Route path="deals" element={<DealsPage />} />
           <Route path="ideas" element={<IdeasPage />} />
           <Route path="team" element={<TeamPage />} />
           <Route element={<RequireAdmin />}>

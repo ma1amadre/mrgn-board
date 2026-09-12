@@ -2,13 +2,17 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../app/auth/authContext';
 import { useClientMutations, useClients } from '../../shared/api/clients';
+import { useDeals } from '../../shared/api/deals';
 import { useStages } from '../../shared/api/stages';
 import { useTasks } from '../../shared/api/tasks';
 import { formatDate, today } from '../../shared/lib/dates';
+import { formatMoney } from '../../shared/lib/deals';
 import {
   CLIENT_DIRECTION_LABEL,
   CLIENT_STATUS_BADGE,
   CLIENT_STATUS_LABEL,
+  DEAL_STAGE_BADGE,
+  DEAL_STAGE_LABEL,
   PRIORITY_BADGE,
   PRIORITY_LABEL,
 } from '../../shared/lib/labels';
@@ -32,6 +36,7 @@ export function ClientPage() {
   const clients = useClients();
   const tasks = useTasks();
   const stages = useStages();
+  const deals = useDeals();
   const { update, remove } = useClientMutations();
   const [editing, setEditing] = useState(false);
 
@@ -54,6 +59,7 @@ export function ClientPage() {
   const clientTasks = sortByPosition((tasks.data ?? []).filter((t) => t.client_id === client.id));
   const open = clientTasks.filter(isOpen);
   const done = clientTasks.filter((t) => !isOpen(t));
+  const clientDeals = (deals.data ?? []).filter((d) => d.client_id === client.id);
   const todayIso = today();
 
   const save = (values: ClientFormValues) => {
@@ -170,6 +176,31 @@ export function ClientPage() {
           </>
         )}
       </div>
+      <section className="stack">
+        <div className="row">
+          <h2>Сделки ({clientDeals.length})</h2>
+          <Link className="btn btn-secondary btn-sm" to={`/deals?client=${client.id}&new=1`}>
+            Новая сделка
+          </Link>
+        </div>
+        {clientDeals.length === 0 ? (
+          <p className="muted">Сделок пока нет.</p>
+        ) : (
+          clientDeals.map((d) => (
+            <Link key={d.id} className="card card-interactive task" to={`/deals?deal=${d.id}`}>
+              <div className="task-title">{d.title}</div>
+              <div className="task-meta">
+                <span className={DEAL_STAGE_BADGE[d.stage]}>{DEAL_STAGE_LABEL[d.stage]}</span>
+                {d.amount !== null ? <strong>{formatMoney(d.amount)}</strong> : null}
+                {d.expected_close ? (
+                  <span className="muted">до {formatDate(d.expected_close)}</span>
+                ) : null}
+                {d.owner ? <Avatar name={d.owner.name} color={d.owner.color} /> : null}
+              </div>
+            </Link>
+          ))
+        )}
+      </section>
       <section className="stack">
         <h2>Открытые задачи ({open.length})</h2>
         {open.length === 0 ? <p className="muted">Нет открытых задач.</p> : open.map(taskRow)}

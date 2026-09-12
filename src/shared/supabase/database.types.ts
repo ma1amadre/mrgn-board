@@ -150,6 +150,73 @@ export type Database = {
           },
         ];
       };
+      deals: {
+        Row: {
+          amount: number | null;
+          client_id: string;
+          closed_at: string | null;
+          created_at: string;
+          created_by: string;
+          expected_close: string | null;
+          id: string;
+          notes: string | null;
+          owner_id: string | null;
+          stage: Database['public']['Enums']['deal_stage'];
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          amount?: number | null;
+          client_id: string;
+          closed_at?: string | null;
+          created_at?: string;
+          created_by: string;
+          expected_close?: string | null;
+          id?: string;
+          notes?: string | null;
+          owner_id?: string | null;
+          stage?: Database['public']['Enums']['deal_stage'];
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          amount?: number | null;
+          client_id?: string;
+          closed_at?: string | null;
+          created_at?: string;
+          created_by?: string;
+          expected_close?: string | null;
+          id?: string;
+          notes?: string | null;
+          owner_id?: string | null;
+          stage?: Database['public']['Enums']['deal_stage'];
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'deals_client_id_fkey';
+            columns: ['client_id'];
+            isOneToOne: false;
+            referencedRelation: 'clients';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'deals_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'deals_owner_id_fkey';
+            columns: ['owner_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       idea_votes: {
         Row: {
           created_at: string;
@@ -549,6 +616,7 @@ export type Database = {
     Enums: {
       client_direction: 'cdn' | 'site' | 'bot' | 'app' | 'other';
       client_status: 'lead' | 'active' | 'support' | 'closed';
+      deal_stage: 'new' | 'contact' | 'proposal' | 'negotiation' | 'won' | 'lost';
       idea_status: 'new' | 'discussing' | 'accepted' | 'rejected';
       profile_role: 'admin' | 'member';
       task_priority: 'low' | 'normal' | 'high' | 'urgent';
@@ -678,6 +746,7 @@ export const Constants = {
     Enums: {
       client_direction: ['cdn', 'site', 'bot', 'app', 'other'],
       client_status: ['lead', 'active', 'support', 'closed'],
+      deal_stage: ['new', 'contact', 'proposal', 'negotiation', 'won', 'lost'],
       idea_status: ['new', 'discussing', 'accepted', 'rejected'],
       profile_role: ['admin', 'member'],
       task_priority: ['low', 'normal', 'high', 'urgent'],

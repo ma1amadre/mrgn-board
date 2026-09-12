@@ -38,6 +38,7 @@ export function useClientMutations() {
     void qc.invalidateQueries({ queryKey: keys.clients.all });
     // У задач подтянуто имя клиента — после правки/удаления оно устарело.
     void qc.invalidateQueries({ queryKey: keys.tasks.all });
+    void qc.invalidateQueries({ queryKey: keys.deals.all });
   };
   return {
     create: useMutation({ mutationFn: createClient, onSettled: invalidate }),

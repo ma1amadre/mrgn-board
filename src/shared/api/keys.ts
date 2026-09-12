@@ -8,6 +8,7 @@ export const keys = {
   stages: { all: ['stages'] as const },
   tasks: { all: ['tasks'] as const },
   ideas: { all: ['ideas'] as const },
+  deals: { all: ['deals'] as const },
   comments: {
     all: ['comments'] as const,
     byTask: (taskId: string) => ['comments', taskId] as const,

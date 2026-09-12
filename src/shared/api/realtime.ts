@@ -7,6 +7,7 @@ import { keys } from './keys';
 const TABLE_KEYS: Record<string, readonly string[]> = {
   tasks: keys.tasks.all,
   ideas: keys.ideas.all,
+  deals: keys.deals.all,
   idea_votes: keys.ideas.all,
   comments: keys.comments.all,
   task_activity: keys.activity.all,

@@ -14,6 +14,7 @@ export type Idea = Tables<'ideas'>;
 export type Comment = Tables<'comments'>;
 export type ChecklistItem = Tables<'task_checklist_items'>;
 export type Attachment = Tables<'task_attachments'>;
+export type Deal = Tables<'deals'>;
 export type Activity = Tables<'task_activity'>;
 
 export type ProfileRef = Pick<Profile, 'id' | 'name' | 'color'>;
@@ -34,3 +35,4 @@ export type IdeaWithRefs = Idea & {
 };
 export type CommentWithAuthor = Comment & { author: ProfileRef | null };
 export type ActivityWithActor = Activity & { actor: ProfileRef | null };
+export type DealWithRefs = Deal & { client: ClientRef | null; owner: ProfileRef | null };

@@ -8,6 +8,7 @@ const NAV = [
   { to: '/', label: 'Обзор', end: true },
   { to: '/board', label: 'Доска' },
   { to: '/clients', label: 'Клиенты' },
+  { to: '/deals', label: 'Сделки' },
   { to: '/ideas', label: 'Идеи' },
   { to: '/team', label: 'Команда' },
 ];

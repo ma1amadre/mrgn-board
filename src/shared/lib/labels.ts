@@ -5,6 +5,7 @@ export type ClientDirection = 'cdn' | 'site' | 'bot' | 'app' | 'other';
 export type ClientStatus = 'lead' | 'active' | 'support' | 'closed';
 export type IdeaStatus = 'new' | 'discussing' | 'accepted' | 'rejected';
 export type ProfileRole = 'admin' | 'member';
+export type DealStage = 'new' | 'contact' | 'proposal' | 'negotiation' | 'won' | 'lost';
 
 export const PRIORITIES: Priority[] = ['urgent', 'high', 'normal', 'low'];
 export const PRIORITY_LABEL: Record<Priority, string> = {
@@ -59,3 +60,29 @@ export const IDEA_STATUS_BADGE: Record<IdeaStatus, string> = {
 };
 
 export const ROLE_LABEL: Record<ProfileRole, string> = { admin: 'Админ', member: 'Участник' };
+
+/** Воронка: порядок колонок на странице сделок. */
+export const DEAL_STAGES: DealStage[] = [
+  'new',
+  'contact',
+  'proposal',
+  'negotiation',
+  'won',
+  'lost',
+];
+export const DEAL_STAGE_LABEL: Record<DealStage, string> = {
+  new: 'Новая',
+  contact: 'Контакт',
+  proposal: 'КП отправлено',
+  negotiation: 'Переговоры',
+  won: 'Выиграна',
+  lost: 'Проиграна',
+};
+export const DEAL_STAGE_BADGE: Record<DealStage, string> = {
+  new: 'badge badge-info',
+  contact: 'badge badge-info',
+  proposal: 'badge badge-warning',
+  negotiation: 'badge badge-accent',
+  won: 'badge badge-success',
+  lost: 'badge',
+};
