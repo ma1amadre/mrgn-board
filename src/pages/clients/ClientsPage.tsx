@@ -3,6 +3,9 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useProfile } from '../../app/auth/authContext';
 import { useClientMutations, useClients } from '../../shared/api/clients';
 import { useTasks } from '../../shared/api/tasks';
+import { csvFilename, toCsv } from '../../shared/lib/csv';
+import { today } from '../../shared/lib/dates';
+import { downloadTextFile } from '../../shared/lib/download';
 import {
   CLIENT_DIRECTION_LABEL,
   CLIENT_STATUSES,
@@ -85,6 +88,35 @@ export function ClientsPage() {
   const hiddenClosed =
     status === 'open' ? (clients.data ?? []).filter((c) => c.status === 'closed').length : 0;
 
+  const exportCsv = () => {
+    const out = rows.map((c) => [
+      c.name,
+      CLIENT_DIRECTION_LABEL[c.direction],
+      CLIENT_STATUS_LABEL[c.status],
+      c.contact_name ?? '',
+      c.contact ?? '',
+      openByClient.get(c.id) ?? 0,
+      c.notes ?? '',
+      c.created_at.slice(0, 10),
+    ]);
+    downloadTextFile(
+      csvFilename('clients', today()),
+      toCsv(
+        [
+          'Название',
+          'Направление',
+          'Статус',
+          'Контакт',
+          'Как связаться',
+          'Открытых задач',
+          'Заметки',
+          'Добавлен',
+        ],
+        out,
+      ),
+    );
+  };
+
   const submitNew = (values: ClientFormValues) => {
     create.mutate(
       {
@@ -111,9 +143,20 @@ export function ClientsPage() {
       <PageHead
         title="Клиенты"
         actions={
-          <button type="button" className="btn btn-primary" onClick={() => setCreating(true)}>
-            Новый клиент
-          </button>
+          <>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={exportCsv}
+              disabled={!clients.data}
+              title="Скачать список в CSV"
+            >
+              CSV
+            </button>
+            <button type="button" className="btn btn-primary" onClick={() => setCreating(true)}>
+              Новый клиент
+            </button>
+          </>
         }
       />
       <div className="toolbar">

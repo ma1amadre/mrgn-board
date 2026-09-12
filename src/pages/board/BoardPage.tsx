@@ -5,13 +5,16 @@ import { useClients } from '../../shared/api/clients';
 import { useProfiles } from '../../shared/api/profiles';
 import { useStages } from '../../shared/api/stages';
 import { useTaskMutations, useTasks } from '../../shared/api/tasks';
+import { csvFilename, toCsv } from '../../shared/lib/csv';
 import { today as todayIso } from '../../shared/lib/dates';
+import { downloadTextFile } from '../../shared/lib/download';
 import {
   applyTaskFilters,
   parseFilters,
   serializeFilters,
   type TaskFilters,
 } from '../../shared/lib/filters';
+import { PRIORITY_LABEL } from '../../shared/lib/labels';
 import { GAP } from '../../shared/lib/ordering';
 import { collectLabels } from '../../shared/lib/taskLabels';
 import { DONE_VISIBLE_DAYS, hideStaleDone } from '../../shared/lib/tasks';
@@ -79,6 +82,41 @@ export function BoardPage() {
   const hiddenDone = filtered.length - fresh.length;
   const allLabels = useMemo(() => collectLabels(tasks.data ?? []), [tasks.data]);
 
+  // Экспорт ровно того, что сейчас на доске: фильтры и режим показа закрытых учтены.
+  const exportCsv = () => {
+    const stageName = new Map((stages.data ?? []).map((s) => [s.id, s.name]));
+    const rows = visibleTasks.map((t) => [
+      t.title,
+      stageName.get(t.stage_id) ?? '',
+      t.assignee?.name ?? '',
+      t.client?.name ?? '',
+      PRIORITY_LABEL[t.priority],
+      t.due_date ?? '',
+      t.labels.join(', '),
+      t.created_at.slice(0, 10),
+      t.done_at?.slice(0, 10) ?? '',
+      `${window.location.origin}${import.meta.env.BASE_URL}board?task=${t.id}`,
+    ]);
+    downloadTextFile(
+      csvFilename('tasks', today),
+      toCsv(
+        [
+          'Название',
+          'Стадия',
+          'Исполнитель',
+          'Клиент',
+          'Приоритет',
+          'Срок',
+          'Метки',
+          'Создана',
+          'Закрыта',
+          'Ссылка',
+        ],
+        rows,
+      ),
+    );
+  };
+
   const firstStage = stages.data?.[0];
   const newTaskInitial: TaskFormValues | null = firstStage
     ? {
@@ -121,14 +159,25 @@ export function BoardPage() {
       <PageHead
         title="Доска"
         actions={
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setCreating(true)}
-            disabled={!newTaskInitial}
-          >
-            Новая задача
-          </button>
+          <>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={exportCsv}
+              disabled={!tasks.data}
+              title="Скачать видимые задачи в CSV"
+            >
+              CSV
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setCreating(true)}
+              disabled={!newTaskInitial}
+            >
+              Новая задача
+            </button>
+          </>
         }
       />
       <BoardFilters

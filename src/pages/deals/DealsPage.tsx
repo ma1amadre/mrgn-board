@@ -5,6 +5,7 @@ import { useClients } from '../../shared/api/clients';
 import { useDealMutations, useDeals } from '../../shared/api/deals';
 import { useProfiles } from '../../shared/api/profiles';
 import type { DealWithRefs } from '../../shared/api/types';
+import { csvFilename, toCsv } from '../../shared/lib/csv';
 import { formatDate, today as todayIso } from '../../shared/lib/dates';
 import {
   dealQuickActions,
@@ -14,6 +15,7 @@ import {
   parseAmount,
   sortDeals,
 } from '../../shared/lib/deals';
+import { downloadTextFile } from '../../shared/lib/download';
 import { DEAL_STAGES, DEAL_STAGE_LABEL, type DealStage } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
 import { EmptyState } from '../../shared/ui/EmptyState';
@@ -86,6 +88,35 @@ export function DealsPage() {
   }, [visible]);
   const totals = useMemo(() => funnel(visible), [visible]);
 
+  const exportCsv = () => {
+    const rows = visible.map((d) => [
+      d.title,
+      d.client?.name ?? '',
+      DEAL_STAGE_LABEL[d.stage],
+      d.amount ?? '',
+      d.owner?.name ?? '',
+      d.expected_close ?? '',
+      d.created_at.slice(0, 10),
+      d.closed_at?.slice(0, 10) ?? '',
+    ]);
+    downloadTextFile(
+      csvFilename('deals', today),
+      toCsv(
+        [
+          'Название',
+          'Клиент',
+          'Стадия',
+          'Сумма',
+          'Ответственный',
+          'Ожидаемое закрытие',
+          'Создана',
+          'Закрыта',
+        ],
+        rows,
+      ),
+    );
+  };
+
   const newDealInitial: DealFormValues = {
     title: '',
     client_id: clientFilter ?? '',
@@ -129,9 +160,20 @@ export function DealsPage() {
       <PageHead
         title="Сделки"
         actions={
-          <button type="button" className="btn btn-primary" onClick={() => setCreating(true)}>
-            Новая сделка
-          </button>
+          <>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={exportCsv}
+              disabled={!deals.data}
+              title="Скачать видимые сделки в CSV"
+            >
+              CSV
+            </button>
+            <button type="button" className="btn btn-primary" onClick={() => setCreating(true)}>
+              Новая сделка
+            </button>
+          </>
         }
       />
       <div className="toolbar" role="search">
