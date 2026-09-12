@@ -72,7 +72,8 @@ docker exec -i supabase_db_mrgn-board psql -U postgres -d postgres \
 ## Уведомления в Telegram
 
 База сама шлёт сообщения через Bot API (`pg_net`): назначение задачи, комментарий к вашей
-задаче, утренняя сводка по срокам (`pg_cron`, будни 09:00 МСК). Настройка один раз, админом:
+задаче или с упоминанием `@Имя`, утренняя сводка по срокам (`pg_cron`, будни 09:00 МСК).
+Настройка один раз, админом:
 
 1. @BotFather → `/newbot`, получить токен.
 2. SQL Editor: `select vault.create_secret('<токен>', 'telegram_bot_token');` — токен живёт

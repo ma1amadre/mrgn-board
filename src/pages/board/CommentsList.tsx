@@ -1,12 +1,14 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 import { useAuth, useProfile } from '../../app/auth/authContext';
 import { useCommentMutations, useComments } from '../../shared/api/comments';
 import { keys } from '../../shared/api/keys';
+import { useProfiles } from '../../shared/api/profiles';
 import type { CommentWithAuthor } from '../../shared/api/types';
 import { formatDateTime } from '../../shared/lib/dates';
 import { Avatar } from '../../shared/ui/Avatar';
 import { Linkify } from '../../shared/ui/Linkify';
+import { MentionTextarea } from '../../shared/ui/MentionTextarea';
 import { useToast } from '../../shared/ui/toastContext';
 import { useUndoable } from '../../shared/ui/useUndoable';
 
@@ -17,6 +19,13 @@ export function CommentsList({ taskId }: { taskId: string }) {
   const qc = useQueryClient();
   const undoable = useUndoable();
   const comments = useComments(taskId);
+  const profiles = useProfiles();
+  const names = useMemo(() => (profiles.data ?? []).map((p) => p.name), [profiles.data]);
+  // Себя упоминать незачем; выключенных — тоже, уведомление им всё равно не уйдёт.
+  const mentionable = useMemo(
+    () => (profiles.data ?? []).filter((p) => p.is_active && p.id !== me.id),
+    [profiles.data, me.id],
+  );
   const { add, remove } = useCommentMutations(taskId);
   const [body, setBody] = useState('');
 
@@ -64,16 +73,16 @@ export function CommentsList({ taskId }: { taskId: string }) {
             ) : null}
           </div>
           <div className="prewrap">
-            <Linkify text={c.body} />
+            <Linkify text={c.body} mentions={names} />
           </div>
         </div>
       ))}
       <form className="stack" onSubmit={submit}>
-        <textarea
-          className="textarea"
-          placeholder="Написать комментарий…"
+        <MentionTextarea
           value={body}
-          onChange={(e) => setBody(e.target.value)}
+          onChange={setBody}
+          profiles={mentionable}
+          placeholder="Написать комментарий… @имя — упомянуть"
         />
         <div className="row">
           <button

@@ -666,3 +666,40 @@ code {
   font: inherit;
   outline: none;
 }
+
+/* Упоминания: подсветка в тексте и список участников под textarea. */
+.mention {
+  color: var(--accent);
+  font-weight: 500;
+}
+.mention-wrap {
+  position: relative;
+}
+.mention-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 220px;
+  margin: var(--s-1) 0 0;
+  padding: var(--s-1);
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--sh-2);
+}
+.mention-option {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-1) var(--s-2);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.mention-option.is-active,
+.mention-option:hover {
+  background: var(--surface-2);
+}
