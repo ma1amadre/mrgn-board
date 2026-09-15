@@ -1169,3 +1169,40 @@ kbd {
   padding: var(--s-2) var(--s-3);
   border-top: 1px solid var(--border);
 }
+
+/* Отчёты: строки-полосы без графической библиотеки. */
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) 2fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  font-size: var(--t-sm);
+}
+.bar-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bar-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.bar-track i {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-md);
+  background: var(--accent);
+  transition: width var(--dur-2) var(--ease);
+}
+.bar-value {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}

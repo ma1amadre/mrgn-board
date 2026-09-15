@@ -9,6 +9,7 @@ export const GO_TARGETS: ReadonlyArray<{ key: string; to: string; label: string 
   { key: 'c', to: '/clients', label: 'Клиенты' },
   { key: 'd', to: '/deals', label: 'Сделки' },
   { key: 'i', to: '/ideas', label: 'Идеи' },
+  { key: 'r', to: '/reports', label: 'Отчёты' },
   { key: 't', to: '/team', label: 'Команда' },
 ];
 

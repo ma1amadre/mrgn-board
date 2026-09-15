@@ -27,6 +27,9 @@ const DealsPage = lazy(() =>
 const IdeasPage = lazy(() =>
   import('../pages/ideas/IdeasPage').then((m) => ({ default: m.IdeasPage })),
 );
+const ReportsPage = lazy(() =>
+  import('../pages/reports/ReportsPage').then((m) => ({ default: m.ReportsPage })),
+);
 const TeamPage = lazy(() =>
   import('../pages/team/TeamPage').then((m) => ({ default: m.TeamPage })),
 );
@@ -78,6 +81,7 @@ export function AppRoutes() {
             <Route path="deals" element={<DealsPage />} />
             <Route path="ideas" element={<IdeasPage />} />
             <Route path="team" element={<TeamPage />} />
+            <Route path="reports" element={<ReportsPage />} />
             <Route path="settings/templates" element={<TemplatesPage />} />
             <Route path="settings/recurring" element={<RecurringPage />} />
             <Route element={<RequireAdmin />}>

@@ -19,6 +19,7 @@ const NAV: NavItem[] = [
   { to: '/clients', label: 'Клиенты' },
   { to: '/deals', label: 'Сделки' },
   { to: '/ideas', label: 'Идеи' },
+  { to: '/reports', label: 'Отчёты' },
   { to: '/team', label: 'Команда' },
   { to: '/settings/templates', label: 'Шаблоны' },
 ];
