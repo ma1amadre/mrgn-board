@@ -26,6 +26,7 @@ export const EXPECTED_MIGRATIONS = [
   '020_activity_checklist_attachments',
   '021_board_views',
   '022_archive',
+  '023_client_errors',
 ] as const;
 
 export async function fetchAppliedMigrations(): Promise<string[]> {

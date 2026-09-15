@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { reportClientError } from '../shared/api/clientErrors';
 
 type State = { error: Error | null };
 
@@ -12,6 +13,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
 
   override componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error('Ошибка рендера', error, info.componentStack);
+    reportClientError(error, 'render');
   }
 
   override render(): ReactNode {

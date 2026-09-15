@@ -27,6 +27,7 @@ const NAV: NavItem[] = [
 const ADMIN_NAV: NavItem[] = [
   { to: '/settings/stages', label: 'Стадии' },
   { to: '/settings/notifications', label: 'Уведомления' },
+  { to: '/settings/errors', label: 'Ошибки' },
 ];
 
 /** Нижняя панель на телефоне: четыре самых частых раздела, остальное — в «Ещё». */

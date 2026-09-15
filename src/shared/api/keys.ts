@@ -27,6 +27,7 @@ export const keys = {
   templates: ['templates'] as const,
   recurrences: ['recurrences'] as const,
   boardViews: ['board-views'] as const,
+  clientErrors: ['client-errors'] as const,
   notifyStatus: ['notify-status'] as const,
   notifications: ['notifications'] as const,
   migrations: ['migrations'] as const,

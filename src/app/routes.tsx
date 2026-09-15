@@ -42,6 +42,9 @@ const StagesPage = lazy(() =>
 const NotificationsPage = lazy(() =>
   import('../pages/settings/NotificationsPage').then((m) => ({ default: m.NotificationsPage })),
 );
+const ErrorsPage = lazy(() =>
+  import('../pages/settings/ErrorsPage').then((m) => ({ default: m.ErrorsPage })),
+);
 const TemplatesPage = lazy(() =>
   import('../pages/settings/TemplatesPage').then((m) => ({ default: m.TemplatesPage })),
 );
@@ -91,6 +94,7 @@ export function AppRoutes() {
             <Route element={<RequireAdmin />}>
               <Route path="settings/stages" element={<StagesPage />} />
               <Route path="settings/notifications" element={<NotificationsPage />} />
+              <Route path="settings/errors" element={<ErrorsPage />} />
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Route>

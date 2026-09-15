@@ -153,6 +153,44 @@ export type Database = {
           },
         ];
       };
+      client_errors: {
+        Row: {
+          created_at: string;
+          id: string;
+          message: string;
+          profile_id: string | null;
+          stack: string | null;
+          url: string | null;
+          user_agent: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          message: string;
+          profile_id?: string | null;
+          stack?: string | null;
+          url?: string | null;
+          user_agent?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          message?: string;
+          profile_id?: string | null;
+          stack?: string | null;
+          url?: string | null;
+          user_agent?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'client_errors_profile_id_fkey';
+            columns: ['profile_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       clients: {
         Row: {
           archived_at: string | null;
@@ -951,6 +989,15 @@ export type Database = {
       };
       is_admin: { Args: never; Returns: boolean };
       is_member: { Args: never; Returns: boolean };
+      log_client_error: {
+        Args: {
+          p_message: string;
+          p_stack: string;
+          p_url: string;
+          p_user_agent: string;
+        };
+        Returns: undefined;
+      };
       notify: {
         Args: {
           p_body: string;

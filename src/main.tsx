@@ -8,6 +8,7 @@ import '@fontsource/onest/700.css';
 import './styles/tokens.css';
 import './styles/components.css';
 import './styles/app.css';
+import { installErrorReporting } from './shared/api/clientErrors';
 import { envError } from './shared/supabase/env';
 
 const root = createRoot(document.getElementById('root')!);
@@ -23,6 +24,7 @@ if (envError) {
   );
 } else {
   // Клиент Supabase создаётся при импорте — грузим приложение только с валидным окружением.
+  installErrorReporting();
   const { App } = await import('./app/App');
   root.render(
     <StrictMode>
