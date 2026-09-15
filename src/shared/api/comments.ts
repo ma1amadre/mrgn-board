@@ -16,6 +16,22 @@ export async function fetchComments(taskId: string): Promise<CommentWithAuthor[]
   return data as CommentWithAuthor[];
 }
 
+/** Для ленты клиента: комментарии ко всем его задачам, свежие сверху. */
+export async function fetchCommentsForTasks(
+  taskIds: string[],
+  limit = 50,
+): Promise<CommentWithAuthor[]> {
+  if (taskIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from('comments')
+    .select(COMMENT_SELECT)
+    .in('task_id', taskIds)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return data as CommentWithAuthor[];
+}
+
 export function useComments(taskId: string | null) {
   return useQuery({
     queryKey: keys.comments.byTask(taskId ?? ''),

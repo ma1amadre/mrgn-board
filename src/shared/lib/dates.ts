@@ -49,6 +49,20 @@ export function formatDateTime(iso: string): string {
   return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}, ${hh}:${mm}`;
 }
 
+/** «сегодня», «вчера», «5 дн. назад», «3 нед. назад», дальше — дата: для списка клиентов. */
+export function formatAgo(iso: string, todayIso: string): string {
+  const day = toIsoDate(new Date(iso));
+  const days = Math.round(
+    (new Date(`${todayIso}T00:00:00`).getTime() - new Date(`${day}T00:00:00`).getTime()) /
+      86_400_000,
+  );
+  if (days <= 0) return 'сегодня';
+  if (days === 1) return 'вчера';
+  if (days < 7) return `${days} дн. назад`;
+  if (days < 30) return `${Math.floor(days / 7)} нед. назад`;
+  return formatDate(day, new Date(`${todayIso}T00:00:00`));
+}
+
 /** «только что», «5 мин назад», «2 ч назад», дальше — обычная дата: для ленты уведомлений. */
 export function formatRelative(iso: string, now: Date = new Date()): string {
   const diff = Math.max(0, now.getTime() - new Date(iso).getTime());

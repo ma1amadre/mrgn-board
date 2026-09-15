@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../app/auth/authContext';
 import { useArchivedClients, useClientMutations, useClients } from '../../shared/api/clients';
 import { useDeals } from '../../shared/api/deals';
+import { useClientFeed } from '../../shared/api/feed';
 import { useStages } from '../../shared/api/stages';
 import { useTasks } from '../../shared/api/tasks';
 import { formatDate, formatDateTime, today } from '../../shared/lib/dates';
@@ -26,6 +27,7 @@ import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { dueBadgeClass } from '../board/dueBadge';
 import { ClientContacts } from './ClientContacts';
+import { ClientFeed } from './ClientFeed';
 import { ClientForm, type ClientFormValues } from './ClientForm';
 
 export function ClientPage() {
@@ -40,6 +42,22 @@ export function ClientPage() {
   const deals = useDeals();
   const { update, remove } = useClientMutations();
   const [editing, setEditing] = useState(false);
+
+  // Лента собирается по id задач и сделок клиента; хук стоит до ранних выходов ниже.
+  const taskIds = useMemo(
+    () => (tasks.data ?? []).filter((t) => t.client_id === id).map((t) => t.id),
+    [tasks.data, id],
+  );
+  const dealIds = useMemo(
+    () => (deals.data ?? []).filter((d) => d.client_id === id).map((d) => d.id),
+    [deals.data, id],
+  );
+  const feed = useClientFeed(
+    id ?? '',
+    taskIds,
+    dealIds,
+    id !== undefined && tasks.data !== undefined && deals.data !== undefined,
+  );
 
   const found = clients.data?.find((c) => c.id === id);
   // Среди активных нет — ищем в архиве: ссылки из задач и сделок ведут и на архивных клиентов.
@@ -264,6 +282,13 @@ export function ClientPage() {
           {done.map(taskRow)}
         </section>
       ) : null}
+      <ClientFeed
+        data={feed.data}
+        pending={feed.isPending}
+        error={feed.isError}
+        tasks={clientTasks}
+        deals={clientDeals}
+      />
     </>
   );
 }

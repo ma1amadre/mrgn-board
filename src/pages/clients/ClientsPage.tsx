@@ -2,10 +2,12 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useProfile } from '../../app/auth/authContext';
 import { useClientMutations, useClients } from '../../shared/api/clients';
+import { useDeals } from '../../shared/api/deals';
 import { useTasks } from '../../shared/api/tasks';
 import { contactLine, contactWays, primaryContact } from '../../shared/lib/clients';
 import { csvFilename, toCsv } from '../../shared/lib/csv';
-import { today } from '../../shared/lib/dates';
+import { formatAgo, today } from '../../shared/lib/dates';
+import { lastActivityByClient } from '../../shared/lib/feed';
 import { downloadTextFile } from '../../shared/lib/download';
 import {
   CLIENT_DIRECTION_LABEL,
@@ -32,7 +34,7 @@ const EMPTY_CLIENT: ClientFormValues = {
 
 /** Фильтр по статусу: по умолчанию всё, кроме закрытых, — они копятся и мешают. */
 type StatusFilter = 'open' | 'all' | ClientStatus;
-type Sort = 'name' | 'tasks' | 'status';
+type Sort = 'name' | 'tasks' | 'status' | 'activity';
 
 const STATUS_ORDER: Record<ClientStatus, number> = { lead: 0, active: 1, support: 2, closed: 3 };
 
@@ -43,6 +45,7 @@ export function ClientsPage() {
   const [sp, setSp] = useSearchParams();
   const clients = useClients();
   const tasks = useTasks();
+  const deals = useDeals();
   const { create } = useClientMutations();
   const [creating, setCreating] = useState(false);
   const [draftDirty, setDraftDirty] = useState(false);
@@ -54,7 +57,10 @@ export function ClientsPage() {
       ? (statusParam as StatusFilter)
       : 'open';
   const sortParam = sp.get('sort');
-  const sort: Sort = sortParam === 'tasks' || sortParam === 'status' ? sortParam : 'name';
+  const sort: Sort =
+    sortParam === 'tasks' || sortParam === 'status' || sortParam === 'activity'
+      ? sortParam
+      : 'name';
   const setParam = (key: string, value: string | null) => {
     const next = new URLSearchParams(sp);
     if (value) next.set(key, value);
@@ -70,6 +76,13 @@ export function ClientsPage() {
     return map;
   }, [tasks.data]);
 
+  // Последняя активность — грубо, по updated_at клиента, его задач и сделок.
+  const lastActivity = useMemo(
+    () => lastActivityByClient(clients.data ?? [], tasks.data ?? [], deals.data ?? []),
+    [clients.data, tasks.data, deals.data],
+  );
+  const todayIso = today();
+
   const rows = useMemo(() => {
     const list = (clients.data ?? []).filter((c) =>
       status === 'all' ? true : status === 'open' ? c.status !== 'closed' : c.status === status,
@@ -80,9 +93,14 @@ export function ClientsPage() {
         return (openByClient.get(b.id) ?? 0) - (openByClient.get(a.id) ?? 0) || byName(a, b);
       }
       if (sort === 'status') return STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || byName(a, b);
+      if (sort === 'activity') {
+        return (
+          (lastActivity.get(b.id) ?? '').localeCompare(lastActivity.get(a.id) ?? '') || byName(a, b)
+        );
+      }
       return byName(a, b);
     });
-  }, [clients.data, status, sort, openByClient]);
+  }, [clients.data, status, sort, openByClient, lastActivity]);
 
   const hiddenClosed =
     status === 'open' ? (clients.data ?? []).filter((c) => c.status === 'closed').length : 0;
@@ -184,6 +202,7 @@ export function ClientsPage() {
           <option value="name">По названию</option>
           <option value="tasks">По открытым задачам</option>
           <option value="status">По статусу</option>
+          <option value="activity">По активности</option>
         </select>
         {hiddenClosed > 0 ? (
           <span className="small muted">Скрыто закрытых: {hiddenClosed}</span>
@@ -208,6 +227,11 @@ export function ClientsPage() {
                 {openByClient.get(c.id) ? (
                   <span className="badge">задач: {openByClient.get(c.id)}</span>
                 ) : null}
+                {lastActivity.get(c.id) ? (
+                  <span className="muted small">
+                    {formatAgo(lastActivity.get(c.id) as string, todayIso)}
+                  </span>
+                ) : null}
               </div>
               {contactLine(primaryContact(c.contacts)) ? (
                 <div className="small muted">{contactLine(primaryContact(c.contacts))}</div>
@@ -226,6 +250,7 @@ export function ClientsPage() {
                 <th>Статус</th>
                 <th>Контакт</th>
                 <th className="num">Открытых задач</th>
+                <th>Активность</th>
               </tr>
             </thead>
             <tbody>
@@ -244,6 +269,11 @@ export function ClientsPage() {
                   </td>
                   <td className="muted">{contactLine(primaryContact(c.contacts)) || '—'}</td>
                   <td className="num">{openByClient.get(c.id) ?? 0}</td>
+                  <td className="muted">
+                    {lastActivity.get(c.id)
+                      ? formatAgo(lastActivity.get(c.id) as string, todayIso)
+                      : '—'}
+                  </td>
                 </tr>
               ))}
             </tbody>

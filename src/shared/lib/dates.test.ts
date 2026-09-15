@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addDays, formatDate, formatRelative, toIsoDate } from './dates';
+import { addDays, formatAgo, formatDate, formatRelative, toIsoDate } from './dates';
 
 describe('даты', () => {
   it('addDays через границу месяца и года', () => {
@@ -14,6 +14,17 @@ describe('даты', () => {
   });
   it('toIsoDate — локальная дата без сдвига через UTC', () => {
     expect(toIsoDate(new Date(2026, 8, 16, 23, 59))).toBe('2026-09-16');
+  });
+});
+
+describe('formatAgo', () => {
+  it('дни словами, недели округлением вниз, дальше дата', () => {
+    expect(formatAgo('2026-09-16T09:00:00', '2026-09-16')).toBe('сегодня');
+    expect(formatAgo('2026-09-15T23:00:00', '2026-09-16')).toBe('вчера');
+    expect(formatAgo('2026-09-11T09:00:00', '2026-09-16')).toBe('5 дн. назад');
+    expect(formatAgo('2026-08-30T09:00:00', '2026-09-16')).toBe('2 нед. назад');
+    expect(formatAgo('2026-07-01T09:00:00', '2026-09-16')).toBe('1 июл');
+    expect(formatAgo('2026-09-17T09:00:00', '2026-09-16')).toBe('сегодня');
   });
 });
 
