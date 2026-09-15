@@ -1,19 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   useMarkAllRead,
   useMarkRead,
-  useNotifications,
+  useRecentNotifications,
+  useUnreadCount,
   type Notification,
 } from '../shared/api/notifications';
 import { formatRelative } from '../shared/lib/dates';
 import { useToast } from '../shared/ui/toastContext';
 
-/** Колокольчик с непрочитанными; список — последние уведомления, клик открывает объект. */
+/** Колокольчик с непрочитанными; список — последние уведомления, клик открывает объект.
+ *  Счётчик — отдельный count по базе: список обрезан лимитом, и по нему считать нельзя. */
 export function NotificationsBell() {
   const navigate = useNavigate();
   const toast = useToast();
-  const list = useNotifications();
+  const list = useRecentNotifications();
+  const unreadCount = useUnreadCount();
   const markRead = useMarkRead();
   const markAll = useMarkAllRead();
   const [open, setOpen] = useState(false);
@@ -36,7 +39,7 @@ export function NotificationsBell() {
   }, [open]);
 
   const items = list.data ?? [];
-  const unread = items.filter((n) => n.read_at === null).length;
+  const unread = unreadCount.data ?? 0;
 
   const openItem = (n: Notification) => {
     setOpen(false);
@@ -69,15 +72,20 @@ export function NotificationsBell() {
         <div className="popover notif-list" role="dialog" aria-label="Уведомления">
           <div className="notif-head">
             <strong>Уведомления</strong>
-            {unread > 0 ? (
-              <button
-                type="button"
-                className="link-button"
-                onClick={() => markAll.mutate(undefined, { onError: (err) => toast.error(err) })}
-              >
-                Прочитать все
-              </button>
-            ) : null}
+            <span className="row">
+              {unread > 0 ? (
+                <button
+                  type="button"
+                  className="link-button"
+                  onClick={() => markAll.mutate(undefined, { onError: (err) => toast.error(err) })}
+                >
+                  Прочитать все
+                </button>
+              ) : null}
+              <Link className="link small" to="/notifications" onClick={() => setOpen(false)}>
+                Все
+              </Link>
+            </span>
           </div>
           {list.isPending ? <p className="muted small">Загрузка…</p> : null}
           {items.length === 0 && !list.isPending ? (

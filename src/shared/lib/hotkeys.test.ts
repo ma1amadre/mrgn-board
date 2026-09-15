@@ -12,8 +12,12 @@ describe('resolveHotkey', () => {
     expect(resolveHotkey(null, 'g')).toEqual({ action: null, prefix: 'g' });
     expect(resolveHotkey('g', 'b')).toEqual({ action: { type: 'go', to: '/board' }, prefix: null });
     expect(resolveHotkey('g', 'z')).toEqual({ action: null, prefix: null });
-    // «g n» — не «новая задача»: после префикса одиночные клавиши не срабатывают.
-    expect(resolveHotkey('g', 'n')).toEqual({ action: null, prefix: null });
+    // «g n» — переход к уведомлениям, а не «новая задача»: после префикса одиночные не срабатывают.
+    expect(resolveHotkey('g', 'n')).toEqual({
+      action: { type: 'go', to: '/notifications' },
+      prefix: null,
+    });
+    expect(resolveHotkey('g', '/')).toEqual({ action: null, prefix: null });
   });
 });
 

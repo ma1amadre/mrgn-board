@@ -11,6 +11,7 @@ export const GO_TARGETS: ReadonlyArray<{ key: string; to: string; label: string 
   { key: 'i', to: '/ideas', label: 'Идеи' },
   { key: 'r', to: '/reports', label: 'Отчёты' },
   { key: 't', to: '/team', label: 'Команда' },
+  { key: 'n', to: '/notifications', label: 'Уведомления' },
 ];
 
 export const SINGLE_KEYS: ReadonlyArray<{ key: string; label: string }> = [

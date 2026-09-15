@@ -1107,6 +1107,42 @@ kbd {
     width: auto;
   }
 }
+/* На десктопе колокольчик стоит внизу сайдбара: список раскрывается вверх и вправо, иначе он
+   уходил за левый и нижний края экрана. */
+@media (min-width: 801px) {
+  .notif-list {
+    top: auto;
+    right: auto;
+    bottom: calc(100% + var(--s-1));
+    left: 0;
+    margin-top: 0;
+  }
+}
+
+/* Страница уведомлений: те же строки, что в поповере, плюс кнопка «прочитано» справа. */
+.notif-page {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+.notif-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  padding-right: var(--s-2);
+}
+.notif-row:first-child .notif-item {
+  border-top: 0;
+}
+.notif-row .notif-item {
+  flex: 1;
+  min-width: 0;
+}
+.notif-row > .btn {
+  margin-top: var(--s-2);
+}
 
 /* Палитра поиска: поле сверху, результаты группами, подсказка по клавишам снизу. */
 .palette-backdrop {

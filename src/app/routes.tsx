@@ -27,6 +27,11 @@ const DealsPage = lazy(() =>
 const IdeasPage = lazy(() =>
   import('../pages/ideas/IdeasPage').then((m) => ({ default: m.IdeasPage })),
 );
+const NotificationsFeedPage = lazy(() =>
+  import('../pages/notifications/NotificationsFeedPage').then((m) => ({
+    default: m.NotificationsFeedPage,
+  })),
+);
 const ArchivePage = lazy(() =>
   import('../pages/archive/ArchivePage').then((m) => ({ default: m.ArchivePage })),
 );
@@ -89,6 +94,7 @@ export function AppRoutes() {
             <Route path="team" element={<TeamPage />} />
             <Route path="reports" element={<ReportsPage />} />
             <Route path="archive" element={<ArchivePage />} />
+            <Route path="notifications" element={<NotificationsFeedPage />} />
             <Route path="settings/templates" element={<TemplatesPage />} />
             <Route path="settings/recurring" element={<RecurringPage />} />
             <Route element={<RequireAdmin />}>

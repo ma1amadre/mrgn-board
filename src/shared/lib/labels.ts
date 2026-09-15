@@ -61,6 +61,14 @@ export const IDEA_STATUS_BADGE: Record<IdeaStatus, string> = {
 
 export const ROLE_LABEL: Record<ProfileRole, string> = { admin: 'Админ', member: 'Участник' };
 
+/** Виды уведомлений (CHECK в 015); неизвестный вид показываем как есть. */
+export const NOTIFICATION_KIND_LABEL: Record<string, string> = {
+  assigned: 'Назначение',
+  comment: 'Комментарий',
+  mention: 'Упоминание',
+  idea_comment: 'Идея',
+};
+
 /** Воронка: порядок колонок на странице сделок. */
 export const DEAL_STAGES: DealStage[] = [
   'new',

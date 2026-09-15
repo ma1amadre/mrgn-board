@@ -22,7 +22,7 @@ const TABLE_KEYS: Record<string, readonly string[]> = {
   invites: keys.invites,
   task_templates: keys.templates,
   task_recurrences: keys.recurrences,
-  notifications: keys.notifications,
+  notifications: keys.notifications.all,
 };
 
 /** Один канал на приложение; монтируется в Layout, живёт пока пользователь внутри. */

@@ -29,6 +29,11 @@ export const keys = {
   boardViews: ['board-views'] as const,
   clientErrors: ['client-errors'] as const,
   notifyStatus: ['notify-status'] as const,
-  notifications: ['notifications'] as const,
+  notifications: {
+    all: ['notifications'] as const,
+    recent: ['notifications', 'recent'] as const,
+    unread: ['notifications', 'unread'] as const,
+    history: (onlyUnread: boolean) => ['notifications', 'history', onlyUnread] as const,
+  },
   migrations: ['migrations'] as const,
 };
