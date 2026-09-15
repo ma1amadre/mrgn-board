@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useProfile } from '../../app/auth/authContext';
+import { useDeals } from '../../shared/api/deals';
 import { useProfiles } from '../../shared/api/profiles';
 import { useStages } from '../../shared/api/stages';
 import { useTasks } from '../../shared/api/tasks';
-import { today as todayIso } from '../../shared/lib/dates';
+import { formatDate, today as todayIso } from '../../shared/lib/dates';
+import { formatMoney, isDealOverdue, isOpenDeal, sortDeals } from '../../shared/lib/deals';
 import { UNASSIGNED } from '../../shared/lib/filters';
 import {
   countByStage,
@@ -29,6 +31,17 @@ export function OverviewPage() {
   const profiles = useProfiles();
   const today = todayIso();
   useDocumentTitle('Обзор');
+
+  // Сделки на обзоре: открытые, их сумма и ближайшие закрытия; загрузка не блокирует остальное.
+  const deals = useDeals();
+  const pipeline = useMemo(() => {
+    const open = (deals.data ?? []).filter(isOpenDeal);
+    return {
+      count: open.length,
+      amount: open.reduce((s, d) => s + (d.amount ?? 0), 0),
+      soon: sortDeals(open.filter((d) => d.expected_close !== null)).slice(0, 3),
+    };
+  }, [deals.data]);
 
   const stats = useMemo(() => {
     const all = tasks.data ?? [];
@@ -100,6 +113,39 @@ export function OverviewPage() {
           hint={`из ${stats.open.length} ${plural(stats.open.length, ['открытой', 'открытых', 'открытых'])}`}
           to="/board"
         />
+        <StatTile
+          label="Сделки"
+          value={pipeline.count}
+          hint={
+            pipeline.amount > 0
+              ? `в работе на ${formatMoney(pipeline.amount)}`
+              : 'открытых сделок нет'
+          }
+          to="/deals"
+        >
+          {pipeline.soon.length > 0 ? (
+            <div className="tile-rows">
+              {pipeline.soon.map((d) => (
+                <div key={d.id} className="tile-row">
+                  <span
+                    className="grow"
+                    style={{
+                      minWidth: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {d.title}
+                  </span>
+                  <span className={isDealOverdue(d, today) ? 'badge badge-danger' : 'badge'}>
+                    {formatDate(d.expected_close as string)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </StatTile>
         <StatTile label="По стадиям">
           <div className="tile-rows">
             {(stages.data ?? []).map((s) => (
