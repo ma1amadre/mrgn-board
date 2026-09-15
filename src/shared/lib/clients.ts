@@ -23,3 +23,17 @@ export function contactLine(c: ContactLike | undefined): string {
     .filter((s): s is string => Boolean(s))
     .join(' · ');
 }
+
+/** Список для селекта: текущий клиент задачи или сделки мог уйти в архив и выпасть из общего списка —
+ *  оставляем его отдельным пунктом, иначе форма молча отвяжет клиента. */
+export function withCurrentClient<T extends { id: string; name: string }>(
+  clients: readonly T[],
+  current: { id: string; name: string } | null,
+): Array<T | { id: string; name: string }> {
+  if (!current || clients.some((c) => c.id === current.id)) return [...clients];
+  // Имени может не быть: фильтр из ссылки на клиента, у которого все задачи тоже в архиве.
+  return [
+    ...clients,
+    { id: current.id, name: current.name ? `${current.name} (в архиве)` : 'Клиент из архива' },
+  ];
+}

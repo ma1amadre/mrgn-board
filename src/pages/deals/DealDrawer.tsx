@@ -4,6 +4,7 @@ import { useAuth, useProfile } from '../../app/auth/authContext';
 import { useDealMutations } from '../../shared/api/deals';
 import { useTasks } from '../../shared/api/tasks';
 import type { Client, DealWithRefs, Profile } from '../../shared/api/types';
+import { withCurrentClient } from '../../shared/lib/clients';
 import { formatDate, formatDateTime } from '../../shared/lib/dates';
 import { formatMoney, isDealOverdue, parseAmount } from '../../shared/lib/deals';
 import { DEAL_STAGE_BADGE, DEAL_STAGE_LABEL } from '../../shared/lib/labels';
@@ -95,7 +96,7 @@ export function DealDrawer({
       {editing ? (
         <DealForm
           initial={initial}
-          clients={clients}
+          clients={withCurrentClient(clients, deal.client)}
           profiles={profiles}
           submitLabel="Сохранить"
           busy={update.isPending}

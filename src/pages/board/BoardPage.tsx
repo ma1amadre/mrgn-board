@@ -5,8 +5,9 @@ import { addChecklistItem } from '../../shared/api/checklist';
 import { useClients } from '../../shared/api/clients';
 import { useProfiles } from '../../shared/api/profiles';
 import { useStages } from '../../shared/api/stages';
-import { useTaskMutations, useTasks } from '../../shared/api/tasks';
+import { useArchivedTasks, useTaskMutations, useTasks } from '../../shared/api/tasks';
 import { useTemplates } from '../../shared/api/templates';
+import { withCurrentClient } from '../../shared/lib/clients';
 import { csvFilename, toCsv } from '../../shared/lib/csv';
 import { today as todayIso } from '../../shared/lib/dates';
 import { downloadTextFile } from '../../shared/lib/download';
@@ -66,6 +67,15 @@ export function BoardPage() {
     [sp, setSp],
   );
   const selectedId = sp.get('task');
+  const selected = selectedId ? tasks.data?.find((t) => t.id === selectedId) : undefined;
+  // Задачи нет на доске — возможно, она в архиве: ссылка из уведомления или CSV должна её открыть.
+  const archivedTasks = useArchivedTasks(
+    selectedId !== null && tasks.data !== undefined && selected === undefined,
+  );
+  const selectedTask = selected ?? archivedTasks.data?.find((t) => t.id === selectedId);
+  const selectedLoading =
+    tasks.isPending ||
+    (selected === undefined && archivedTasks.data === undefined && !archivedTasks.isError);
   const openTask = useCallback(
     (id: string | null) => {
       const next = new URLSearchParams(sp);
@@ -99,6 +109,20 @@ export function BoardPage() {
   const visibleTasks = filters.allDone ? filtered : fresh;
   const hiddenDone = filtered.length - fresh.length;
   const allLabels = useMemo(() => collectLabels(tasks.data ?? []), [tasks.data]);
+  // Фильтр по клиенту из ссылки может указывать на архивного: в списке его нет, имя берём из задач.
+  const filterClients = useMemo(
+    () =>
+      withCurrentClient(
+        clients.data ?? [],
+        filters.client
+          ? ((tasks.data ?? []).find((t) => t.client_id === filters.client)?.client ?? {
+              id: filters.client,
+              name: '',
+            })
+          : null,
+      ),
+    [clients.data, tasks.data, filters.client],
+  );
 
   // Экспорт ровно того, что сейчас на доске: фильтры и режим показа закрытых учтены.
   const exportCsv = () => {
@@ -228,7 +252,7 @@ export function BoardPage() {
       <BoardFilters
         filters={filters}
         profiles={profiles.data ?? []}
-        clients={clients.data ?? []}
+        clients={filterClients}
         labels={allLabels}
         hiddenDone={hiddenDone}
         onChange={setFilters}
@@ -308,7 +332,8 @@ export function BoardPage() {
 
       {selectedId ? (
         <TaskDrawer
-          task={tasks.data?.find((t) => t.id === selectedId)}
+          task={selectedTask}
+          loading={selectedLoading}
           stages={stages.data ?? []}
           profiles={profiles.data ?? []}
           clients={clients.data ?? []}

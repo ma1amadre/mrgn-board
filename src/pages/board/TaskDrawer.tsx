@@ -5,6 +5,7 @@ import { useActivity } from '../../shared/api/activity';
 import { useComments } from '../../shared/api/comments';
 import { useTaskMutations, useTasks } from '../../shared/api/tasks';
 import type { Client, Profile, Stage, TaskWithRefs } from '../../shared/api/types';
+import { withCurrentClient } from '../../shared/lib/clients';
 import { formatDate, formatDateTime } from '../../shared/lib/dates';
 import { PRIORITY_BADGE, PRIORITY_LABEL } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
@@ -30,6 +31,7 @@ export function TaskDrawer({
   clients,
   today,
   labelSuggestions,
+  loading = false,
   onClose,
 }: {
   task: TaskWithRefs | undefined;
@@ -38,6 +40,8 @@ export function TaskDrawer({
   clients: Client[];
   today: string;
   labelSuggestions: string[];
+  /** Задачи нет на доске, и архив ещё грузится — не спешим объявлять её удалённой. */
+  loading?: boolean;
   onClose: () => void;
 }) {
   const toast = useToast();
@@ -57,13 +61,20 @@ export function TaskDrawer({
 
   if (!task) {
     return (
-      <Drawer title={<h2>Задача не найдена</h2>} onClose={onClose}>
-        <p className="muted">Возможно, её удалили.</p>
+      <Drawer title={<h2>{loading ? 'Загрузка…' : 'Задача не найдена'}</h2>} onClose={onClose}>
+        {loading ? null : <p className="muted">Возможно, её удалили.</p>}
       </Drawer>
     );
   }
 
   const stage = stages.find((s) => s.id === task.stage_id);
+  // Архивную открывают по старой ссылке: показываем как есть, без правок, с кнопкой «Восстановить».
+  const archived = task.archived_at !== null;
+  const restore = () =>
+    update.mutate(
+      { id: task.id, patch: { archived_at: null } },
+      { onError: (err) => toast.error(err) },
+    );
   const initial: TaskFormValues = {
     title: task.title,
     description: task.description ?? '',
@@ -119,18 +130,33 @@ export function TaskDrawer({
       title={
         <div className="row" style={{ flexWrap: 'nowrap' }}>
           <h2 className="grow">{task.title}</h2>
-          {editing ? null : <Menu label="Быстрые действия" items={actionsFor(task)} />}
+          {editing || archived ? null : <Menu label="Быстрые действия" items={actionsFor(task)} />}
         </div>
       }
       onClose={onClose}
       dirty={editing && dirty}
     >
+      {archived ? (
+        <div className="alert alert-warning" role="status">
+          <p className="grow">
+            В архиве с {formatDateTime(task.archived_at as string)}: на доске и в отчётах её нет.
+          </p>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={restore}
+            disabled={update.isPending}
+          >
+            Восстановить
+          </button>
+        </div>
+      ) : null}
       {editing ? (
         <TaskForm
           initial={initial}
           stages={stages}
           profiles={profiles}
-          clients={clients}
+          clients={withCurrentClient(clients, task.client)}
           labelSuggestions={labelSuggestions}
           submitLabel="Сохранить"
           busy={update.isPending}
@@ -189,29 +215,33 @@ export function TaskDrawer({
             <p className="muted">Без описания.</p>
           )}
           <div className="row">
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={() => setEditing(true)}
-            >
-              Редактировать
-            </button>
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              onClick={() => setSavingTemplate(true)}
-              title="Сохранить как шаблон для новых задач"
-            >
-              В шаблон
-            </button>
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              onClick={archive}
-              disabled={update.isPending}
-            >
-              В архив
-            </button>
+            {archived ? null : (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => setEditing(true)}
+                >
+                  Редактировать
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setSavingTemplate(true)}
+                  title="Сохранить как шаблон для новых задач"
+                >
+                  В шаблон
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={archive}
+                  disabled={update.isPending}
+                >
+                  В архив
+                </button>
+              </>
+            )}
             {isAdmin ? (
               <button
                 type="button"

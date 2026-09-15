@@ -29,8 +29,9 @@ export async function fetchArchivedTasks(): Promise<TaskWithRefs[]> {
   return data as TaskWithRefs[];
 }
 
-export function useArchivedTasks() {
-  return useQuery({ queryKey: keys.tasks.archived, queryFn: fetchArchivedTasks });
+/** enabled=false — не грузить, пока не понадобится (карточка задачи ищет в архиве только после промаха). */
+export function useArchivedTasks(enabled = true) {
+  return useQuery({ queryKey: keys.tasks.archived, queryFn: fetchArchivedTasks, enabled });
 }
 
 /** Один кеш на доску, обзор и карточку клиента; фильтры считаются на клиенте. */

@@ -5,6 +5,7 @@ import { useClients } from '../../shared/api/clients';
 import { useDealMutations, useDeals } from '../../shared/api/deals';
 import { useProfiles } from '../../shared/api/profiles';
 import type { DealWithRefs } from '../../shared/api/types';
+import { withCurrentClient } from '../../shared/lib/clients';
 import { csvFilename, toCsv } from '../../shared/lib/csv';
 import { formatDate, today as todayIso } from '../../shared/lib/dates';
 import {
@@ -87,6 +88,20 @@ export function DealsPage() {
     return map;
   }, [visible]);
   const totals = useMemo(() => funnel(visible), [visible]);
+  // Фильтр по клиенту из ссылки может указывать на архивного: в списке его нет, имя берём из сделок.
+  const filterClients = useMemo(
+    () =>
+      withCurrentClient(
+        clients.data ?? [],
+        clientFilter
+          ? ((deals.data ?? []).find((d) => d.client_id === clientFilter)?.client ?? {
+              id: clientFilter,
+              name: '',
+            })
+          : null,
+      ),
+    [clients.data, deals.data, clientFilter],
+  );
 
   const exportCsv = () => {
     const rows = visible.map((d) => [
@@ -192,7 +207,7 @@ export function DealsPage() {
           onChange={(e) => setParam('client', e.target.value || null)}
         >
           <option value="">Все клиенты</option>
-          {(clients.data ?? []).map((c) => (
+          {filterClients.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
             </option>

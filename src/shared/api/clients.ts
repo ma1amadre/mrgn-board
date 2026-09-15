@@ -26,8 +26,8 @@ export async function fetchArchivedClients(): Promise<ClientWithContacts[]> {
   return data as ClientWithContacts[];
 }
 
-export function useArchivedClients() {
-  return useQuery({ queryKey: keys.clients.archived, queryFn: fetchArchivedClients });
+export function useArchivedClients(enabled = true) {
+  return useQuery({ queryKey: keys.clients.archived, queryFn: fetchArchivedClients, enabled });
 }
 
 export function useClients() {

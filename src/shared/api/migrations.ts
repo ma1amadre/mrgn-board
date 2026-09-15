@@ -27,6 +27,7 @@ export const EXPECTED_MIGRATIONS = [
   '021_board_views',
   '022_archive',
   '023_client_errors',
+  '024_archive_awareness',
 ] as const;
 
 export async function fetchAppliedMigrations(): Promise<string[]> {

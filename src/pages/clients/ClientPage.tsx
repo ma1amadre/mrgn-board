@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../app/auth/authContext';
-import { useClientMutations, useClients } from '../../shared/api/clients';
+import { useArchivedClients, useClientMutations, useClients } from '../../shared/api/clients';
 import { useDeals } from '../../shared/api/deals';
 import { useStages } from '../../shared/api/stages';
 import { useTasks } from '../../shared/api/tasks';
-import { formatDate, today } from '../../shared/lib/dates';
+import { formatDate, formatDateTime, today } from '../../shared/lib/dates';
 import { formatMoney } from '../../shared/lib/deals';
 import {
   CLIENT_DIRECTION_LABEL,
@@ -41,10 +41,19 @@ export function ClientPage() {
   const { update, remove } = useClientMutations();
   const [editing, setEditing] = useState(false);
 
-  const client = clients.data?.find((c) => c.id === id);
+  const found = clients.data?.find((c) => c.id === id);
+  // Среди активных нет — ищем в архиве: ссылки из задач и сделок ведут и на архивных клиентов.
+  const archived = useArchivedClients(clients.data !== undefined && found === undefined);
+  const client = found ?? archived.data?.find((c) => c.id === id);
+  const isArchived = client !== undefined && client.archived_at !== null;
   useDocumentTitle(client?.name ?? 'Клиент');
-  if (clients.isPending) return <EmptyState>Загрузка…</EmptyState>;
-  if (clients.isError) return <EmptyState>Не удалось загрузить клиента.</EmptyState>;
+  const loading =
+    clients.isPending ||
+    (found === undefined && archived.data === undefined && !archived.isError && !clients.isError);
+  if (loading) return <EmptyState>Загрузка…</EmptyState>;
+  if (clients.isError || archived.isError) {
+    return <EmptyState>Не удалось загрузить клиента.</EmptyState>;
+  }
   if (!client) {
     return (
       <>
@@ -84,6 +93,11 @@ export function ClientPage() {
       { onSuccess: () => navigate('/clients'), onError: (err) => toast.error(err) },
     );
   };
+  const restore = () =>
+    update.mutate(
+      { id: client.id, patch: { archived_at: null } },
+      { onError: (err) => toast.error(err) },
+    );
 
   const del = async () => {
     const ok = await confirm({
@@ -122,23 +136,42 @@ export function ClientPage() {
         title={client.name}
         actions={
           <>
-            <Link className="btn btn-primary" to={`/board?client=${client.id}&new=1`}>
-              Новая задача
-            </Link>
+            {isArchived ? null : (
+              <Link className="btn btn-primary" to={`/board?client=${client.id}&new=1`}>
+                Новая задача
+              </Link>
+            )}
             <Link className="btn btn-secondary" to={`/board?client=${client.id}`}>
               На доске
             </Link>
-            <button type="button" className="btn btn-secondary" onClick={() => setEditing(true)}>
-              Редактировать
-            </button>
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={archive}
-              disabled={update.isPending}
-            >
-              В архив
-            </button>
+            {isArchived ? (
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={restore}
+                disabled={update.isPending}
+              >
+                Восстановить
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setEditing(true)}
+                >
+                  Редактировать
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={archive}
+                  disabled={update.isPending}
+                >
+                  В архив
+                </button>
+              </>
+            )}
             {isAdmin ? (
               <button
                 type="button"
@@ -152,6 +185,14 @@ export function ClientPage() {
           </>
         }
       />
+      {isArchived ? (
+        <div className="alert alert-warning" role="status">
+          <p>
+            Клиент в архиве с {formatDateTime(client.archived_at as string)}: в списках и фильтрах
+            его нет, новые задачи и сделки по нему не создаются.
+          </p>
+        </div>
+      ) : null}
       <div className="card">
         {editing ? (
           <ClientForm
@@ -189,9 +230,11 @@ export function ClientPage() {
       <section className="stack">
         <div className="row">
           <h2>Сделки ({clientDeals.length})</h2>
-          <Link className="btn btn-secondary btn-sm" to={`/deals?client=${client.id}&new=1`}>
-            Новая сделка
-          </Link>
+          {isArchived ? null : (
+            <Link className="btn btn-secondary btn-sm" to={`/deals?client=${client.id}&new=1`}>
+              Новая сделка
+            </Link>
+          )}
         </div>
         {clientDeals.length === 0 ? (
           <p className="muted">Сделок пока нет.</p>

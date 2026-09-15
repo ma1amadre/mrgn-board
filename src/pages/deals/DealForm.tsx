@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import type { Client, Profile } from '../../shared/api/types';
+import type { ClientRef, Profile } from '../../shared/api/types';
 import { parseAmount } from '../../shared/lib/deals';
 import { DEAL_STAGES, DEAL_STAGE_LABEL, type DealStage } from '../../shared/lib/labels';
 import { Field } from '../../shared/ui/Field';
@@ -27,7 +27,7 @@ export function DealForm({
   onDirtyChange,
 }: {
   initial: DealFormValues;
-  clients: Client[];
+  clients: ClientRef[];
   profiles: Profile[];
   submitLabel: string;
   busy: boolean;

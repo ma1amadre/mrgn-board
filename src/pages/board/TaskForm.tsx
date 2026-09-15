@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import type { Client, Profile, Stage } from '../../shared/api/types';
+import type { ClientRef, Profile, Stage } from '../../shared/api/types';
 import { PRIORITIES, PRIORITY_LABEL, type Priority } from '../../shared/lib/labels';
 import { Field } from '../../shared/ui/Field';
 import { useDirty } from '../../shared/ui/useDirty';
@@ -31,7 +31,7 @@ export function TaskForm({
   initial: TaskFormValues;
   stages: Stage[];
   profiles: Profile[];
-  clients: Client[];
+  clients: ClientRef[];
   /** Метки, уже встречающиеся в задачах, — подсказки в поле. */
   labelSuggestions: string[];
   submitLabel: string;

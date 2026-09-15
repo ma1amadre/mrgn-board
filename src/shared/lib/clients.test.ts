@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { contactLine, primaryContact } from './clients';
+import { contactLine, primaryContact, withCurrentClient } from './clients';
 
 const c = (over: Partial<Parameters<typeof contactLine>[0] & object> & { name: string }) => ({
   role: null,
@@ -28,5 +28,18 @@ describe('contactLine', () => {
     );
     expect(contactLine(c({ name: 'Дмитрий' }))).toBe('Дмитрий');
     expect(contactLine(undefined)).toBe('');
+  });
+});
+
+describe('withCurrentClient', () => {
+  const list = [{ id: 'a', name: 'Альфа' }];
+  it('текущего клиента из списка не дублирует, архивного добавляет с пометкой', () => {
+    expect(withCurrentClient(list, { id: 'a', name: 'Альфа' })).toEqual(list);
+    expect(withCurrentClient(list, null)).toEqual(list);
+    expect(withCurrentClient(list, { id: 'z', name: 'Старый' })).toEqual([
+      ...list,
+      { id: 'z', name: 'Старый (в архиве)' },
+    ]);
+    expect(withCurrentClient(list, { id: 'z', name: '' })[1]?.name).toBe('Клиент из архива');
   });
 });

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Client, Profile } from '../../shared/api/types';
+import type { ClientRef, Profile } from '../../shared/api/types';
 import {
   EMPTY_FILTERS,
   UNASSIGNED,
@@ -22,7 +22,7 @@ export function BoardFilters({
 }: {
   filters: TaskFilters;
   profiles: Profile[];
-  clients: Client[];
+  clients: ClientRef[];
   /** Метки, встречающиеся в задачах, — варианты фильтра. */
   labels: string[];
   /** Сколько давно закрытых задач скрыто с доски. */
