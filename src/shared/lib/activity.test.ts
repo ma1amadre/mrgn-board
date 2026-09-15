@@ -46,6 +46,14 @@ describe('describeActivity', () => {
       'Метки: — → cdn, срочно',
     );
   });
+  it('чек-лист и вложения', () => {
+    expect(describeActivity({ kind: 'checklist_done', from_value: null, to_value: 'DNS' })).toBe(
+      'Пункт выполнен: DNS',
+    );
+    expect(
+      describeActivity({ kind: 'attachment_remove', from_value: 'прайс.txt', to_value: null }),
+    ).toBe('Файл удалён: прайс.txt');
+  });
   it('неизвестный kind не роняет ленту', () => {
     expect(describeActivity({ kind: 'weird', from_value: null, to_value: null })).toBe(
       'Изменение: weird',

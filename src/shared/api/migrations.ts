@@ -23,6 +23,7 @@ export const EXPECTED_MIGRATIONS = [
   '017_digest_deals',
   '018_client_contacts',
   '019_recurring_tasks',
+  '020_activity_checklist_attachments',
 ] as const;
 
 export async function fetchAppliedMigrations(): Promise<string[]> {

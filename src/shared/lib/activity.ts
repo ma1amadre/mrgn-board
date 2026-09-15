@@ -42,6 +42,18 @@ export function describeActivity(
       return `Название: «${from ?? ''}» → «${to ?? ''}»`;
     case 'description':
       return 'Описание изменено';
+    case 'checklist_add':
+      return `Пункт добавлен: ${to ?? ''}`;
+    case 'checklist_done':
+      return `Пункт выполнен: ${to ?? ''}`;
+    case 'checklist_undone':
+      return `Пункт снова открыт: ${to ?? ''}`;
+    case 'checklist_remove':
+      return `Пункт удалён: ${from ?? ''}`;
+    case 'attachment_add':
+      return `Файл добавлен: ${to ?? ''}`;
+    case 'attachment_remove':
+      return `Файл удалён: ${from ?? ''}`;
     case 'labels':
       return `Метки: ${from || NONE} → ${to || NONE}`;
     default:
