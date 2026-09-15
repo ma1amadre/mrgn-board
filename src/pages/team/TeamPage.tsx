@@ -39,6 +39,10 @@ export function TeamPage() {
       telegram: values.telegram || null,
       telegram_chat_id: values.telegram_chat_id ? Number(values.telegram_chat_id) : null,
       color: values.color,
+      notify_assigned: values.notify_assigned,
+      notify_comments: values.notify_comments,
+      notify_mentions: values.notify_mentions,
+      notify_digest: values.notify_digest,
       // role/is_active в форме есть только у админа; участник их не отправляет.
       ...(isAdmin ? { role: values.role, is_active: values.is_active } : {}),
     };

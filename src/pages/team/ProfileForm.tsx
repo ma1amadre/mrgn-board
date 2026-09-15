@@ -12,7 +12,21 @@ export type ProfileFormValues = {
   color: string;
   role: ProfileRole;
   is_active: boolean;
+  notify_assigned: boolean;
+  notify_comments: boolean;
+  notify_mentions: boolean;
+  notify_digest: boolean;
 };
+
+const NOTIFY_FIELDS: Array<{
+  key: 'notify_assigned' | 'notify_comments' | 'notify_mentions' | 'notify_digest';
+  label: string;
+}> = [
+  { key: 'notify_assigned', label: 'Мне назначили задачу' },
+  { key: 'notify_comments', label: 'Комментарий к моей задаче или идее' },
+  { key: 'notify_mentions', label: 'Меня упомянули' },
+  { key: 'notify_digest', label: 'Утренняя сводка по срокам (только Telegram)' },
+];
 
 export function ProfileForm({
   profile,
@@ -39,6 +53,10 @@ export function ProfileForm({
     color: profile.color,
     role: profile.role,
     is_active: profile.is_active,
+    notify_assigned: profile.notify_assigned,
+    notify_comments: profile.notify_comments,
+    notify_mentions: profile.notify_mentions,
+    notify_digest: profile.notify_digest,
   };
   const [values, setValues] = useState<ProfileFormValues>(initial);
   useDirty(values, initial, onDirtyChange);
@@ -106,6 +124,23 @@ export function ProfileForm({
           onChange={(e) => set('telegram_chat_id', e.target.value.trim())}
         />
       </Field>
+      {/* Тумблеры — сами label, поэтому не внутри Field. */}
+      <div className="field">
+        <span className="field-label">Уведомления</span>
+        <div className="stack small">
+          {NOTIFY_FIELDS.map((f) => (
+            <label key={f.key} className="switch">
+              <input
+                type="checkbox"
+                checked={values[f.key]}
+                onChange={(e) => set(f.key, e.target.checked)}
+              />
+              <span className="switch-track" />
+              {f.label}
+            </label>
+          ))}
+        </div>
+      </div>
       {adminFields ? (
         <div className="form-row">
           <Field label="Роль">

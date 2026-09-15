@@ -21,7 +21,16 @@ export function useProfiles() {
 
 export type ProfilePatch = Pick<
   Updates<'profiles'>,
-  'name' | 'telegram' | 'telegram_chat_id' | 'color' | 'role' | 'is_active'
+  | 'name'
+  | 'telegram'
+  | 'telegram_chat_id'
+  | 'color'
+  | 'role'
+  | 'is_active'
+  | 'notify_assigned'
+  | 'notify_comments'
+  | 'notify_mentions'
+  | 'notify_digest'
 >;
 
 /** RLS молча отфильтровывает чужие строки: без select() UPDATE «успешен» с нулём строк. */

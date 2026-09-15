@@ -411,6 +411,10 @@ export type Database = {
           id: string;
           is_active: boolean;
           name: string;
+          notify_assigned: boolean;
+          notify_comments: boolean;
+          notify_digest: boolean;
+          notify_mentions: boolean;
           role: Database['public']['Enums']['profile_role'];
           telegram: string | null;
           telegram_chat_id: number | null;
@@ -423,6 +427,10 @@ export type Database = {
           id: string;
           is_active?: boolean;
           name: string;
+          notify_assigned?: boolean;
+          notify_comments?: boolean;
+          notify_digest?: boolean;
+          notify_mentions?: boolean;
           role?: Database['public']['Enums']['profile_role'];
           telegram?: string | null;
           telegram_chat_id?: number | null;
@@ -435,6 +443,10 @@ export type Database = {
           id?: string;
           is_active?: boolean;
           name?: string;
+          notify_assigned?: boolean;
+          notify_comments?: boolean;
+          notify_digest?: boolean;
+          notify_mentions?: boolean;
           role?: Database['public']['Enums']['profile_role'];
           telegram?: string | null;
           telegram_chat_id?: number | null;
