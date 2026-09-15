@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth, useProfile } from '../../app/auth/authContext';
 import { useDealMutations } from '../../shared/api/deals';
+import { useTasks } from '../../shared/api/tasks';
 import type { Client, DealWithRefs, Profile } from '../../shared/api/types';
 import { formatDate, formatDateTime } from '../../shared/lib/dates';
 import { formatMoney, isDealOverdue, parseAmount } from '../../shared/lib/deals';
 import { DEAL_STAGE_BADGE, DEAL_STAGE_LABEL } from '../../shared/lib/labels';
+import { isOpen } from '../../shared/lib/tasks';
 import { Avatar } from '../../shared/ui/Avatar';
 import { useConfirm } from '../../shared/ui/confirmContext';
 import { Drawer } from '../../shared/ui/Drawer';
@@ -35,6 +37,11 @@ export function DealDrawer({
   const [editing, setEditing] = useState(false);
   const [dirty, setDirty] = useState(false);
   useDocumentTitle(deal?.title ?? null);
+  // Задачи клиента сделки: работа по ней живёт на доске, здесь только ссылки.
+  const tasks = useTasks();
+  const clientTasks = (tasks.data ?? []).filter(
+    (t) => deal !== undefined && t.client_id === deal.client_id && isOpen(t),
+  );
 
   if (!deal) {
     return (
@@ -134,6 +141,24 @@ export function DealDrawer({
             </div>
           </div>
           {deal.notes ? <Markdown text={deal.notes} /> : <p className="muted">Без заметок.</p>}
+          <div className="stack small">
+            <div className="row">
+              <span className="muted">Задачи клиента: {clientTasks.length}</span>
+              <Link className="link" to={`/board?client=${deal.client_id}&new=1`}>
+                Новая задача
+              </Link>
+            </div>
+            {clientTasks.slice(0, 5).map((t) => (
+              <Link key={t.id} className="link" to={`/board?task=${t.id}`}>
+                {t.title}
+              </Link>
+            ))}
+            {clientTasks.length > 5 ? (
+              <Link className="link muted" to={`/board?client=${deal.client_id}`}>
+                Все на доске
+              </Link>
+            ) : null}
+          </div>
           <div className="row">
             <button
               type="button"
