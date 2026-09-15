@@ -18,6 +18,8 @@ const tasks = [
     client: { name: 'Интернет-магазин «Сезон»' },
     priority: 'high',
     labels: ['cdn', 'срочно'],
+    due_date: '2026-09-10',
+    done_at: null,
   },
   {
     id: '2',
@@ -28,6 +30,8 @@ const tasks = [
     client: { name: 'Автосервис' },
     priority: 'normal',
     labels: [],
+    due_date: '2026-09-16',
+    done_at: null,
   },
   {
     id: '3',
@@ -38,8 +42,23 @@ const tasks = [
     client: { name: 'Интернет-магазин «Сезон»' },
     priority: 'urgent',
     labels: ['бот'],
+    due_date: null,
+    done_at: null,
+  },
+  {
+    id: '4',
+    title: 'Закрытая просроченная',
+    description: null,
+    assignee_id: 'a',
+    client_id: null,
+    client: null,
+    priority: 'normal',
+    labels: [],
+    due_date: '2026-09-01',
+    done_at: '2026-09-02T00:00:00Z',
   },
 ];
+const TODAY = '2026-09-16';
 
 describe('parseFilters', () => {
   it('пустой URL → пустые фильтры', () => {
@@ -54,14 +73,17 @@ describe('parseFilters', () => {
       client: 'c1',
       priority: 'high',
       label: null,
+      due: null,
       q: ' cdn ',
       allDone: true,
     });
   });
-  it('неизвестный приоритет и чужое значение done отбрасываются', () => {
-    const f = parseFilters(new URLSearchParams('priority=asap&done=yes'));
+  it('неизвестный приоритет, срок и чужое значение done отбрасываются', () => {
+    const f = parseFilters(new URLSearchParams('priority=asap&done=yes&due=soon'));
     expect(f.priority).toBeNull();
+    expect(f.due).toBeNull();
     expect(f.allDone).toBe(false);
+    expect(parseFilters(new URLSearchParams('due=overdue')).due).toBe('overdue');
   });
 });
 
@@ -80,6 +102,7 @@ describe('serializeFilters', () => {
       client: 'c1',
       priority: 'low' as const,
       label: 'cdn',
+      due: 'week' as const,
       q: 'поднять ',
       allDone: true,
     };
@@ -89,19 +112,29 @@ describe('serializeFilters', () => {
 
 describe('applyTaskFilters', () => {
   it('без фильтров возвращает всё', () => {
-    expect(applyTaskFilters(tasks, EMPTY_FILTERS)).toHaveLength(3);
+    expect(applyTaskFilters(tasks, EMPTY_FILTERS)).toHaveLength(4);
     expect(isFilterActive(EMPTY_FILTERS)).toBe(false);
+  });
+  it('по сроку: просроченные только открытые, неделя включает сегодня, без срока', () => {
+    const ids = (due: 'overdue' | 'today' | 'week' | 'none') =>
+      applyTaskFilters(tasks, { ...EMPTY_FILTERS, due }, TODAY).map((t) => t.id);
+    expect(ids('overdue')).toEqual(['1']);
+    expect(ids('today')).toEqual(['2']);
+    expect(ids('week')).toEqual(['2']);
+    expect(ids('none')).toEqual(['3']);
+    expect(isFilterActive({ ...EMPTY_FILTERS, due: 'today' })).toBe(true);
   });
   it('режим «все закрытые» не считается фильтром', () => {
     expect(isFilterActive({ ...EMPTY_FILTERS, allDone: true })).toBe(false);
   });
   it('одни пробелы в поиске — фильтр не активен и ничего не режет', () => {
     expect(isFilterActive({ ...EMPTY_FILTERS, q: '   ' })).toBe(false);
-    expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, q: '   ' })).toHaveLength(3);
+    expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, q: '   ' })).toHaveLength(4);
   });
   it('по исполнителю', () => {
     expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, assignee: 'a' }).map((t) => t.id)).toEqual([
       '1',
+      '4',
     ]);
   });
   it('без исполнителя', () => {

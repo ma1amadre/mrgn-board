@@ -16,7 +16,18 @@ export type SearchSources = {
     client: { name: string } | null;
     done_at: string | null;
   }>;
-  clients: ReadonlyArray<{ id: string; name: string; status: string }>;
+  clients: ReadonlyArray<{
+    id: string;
+    name: string;
+    status: string;
+    contacts?: ReadonlyArray<{
+      name: string;
+      role: string | null;
+      phone: string | null;
+      email: string | null;
+      telegram: string | null;
+    }>;
+  }>;
   deals: ReadonlyArray<{
     id: string;
     title: string;
@@ -32,6 +43,20 @@ export const SEARCH_KIND_LABEL: Record<SearchHit['kind'], string> = {
   deal: 'Сделки',
   idea: 'Идеи',
 };
+
+/** Телефон сравниваем по цифрам: «+7 900 000-00-01» находится и по «9000000», и по «+7 900». */
+function contactMatches(
+  needle: string,
+  c: { name: string; phone: string | null; email: string | null; telegram: string | null },
+): boolean {
+  const digits = needle.replace(/\D/g, '');
+  return (
+    c.name.toLowerCase().includes(needle) ||
+    (c.email ?? '').toLowerCase().includes(needle) ||
+    (c.telegram ?? '').toLowerCase().includes(needle.replace(/^@/, '')) ||
+    (digits.length >= 3 && (c.phone ?? '').replace(/\D/g, '').includes(digits))
+  );
+}
 
 function rankOf(needle: string, title: string, hint: string): number | null {
   const t = title.toLowerCase();
@@ -74,10 +99,17 @@ export function searchAll(
     }
   }
   for (const c of src.clients) {
-    const hint = labels.clientStatus(c.status);
     const rank = rankOf(needle, c.name, '');
     if (rank !== null) {
+      const hint = labels.clientStatus(c.status);
       hits.push({ kind: 'client', id: c.id, title: c.name, hint, to: `/clients/${c.id}`, rank });
+      continue;
+    }
+    // Клиент находится по человеку: имени, телефону, почте или Telegram контакта.
+    const contact = (c.contacts ?? []).find((k) => contactMatches(needle, k));
+    if (contact) {
+      const hint = `контакт: ${contact.name}${contact.role ? `, ${contact.role}` : ''}`;
+      hits.push({ kind: 'client', id: c.id, title: c.name, hint, to: `/clients/${c.id}`, rank: 2 });
     }
   }
   for (const d of src.deals) {

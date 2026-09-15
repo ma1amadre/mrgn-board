@@ -41,6 +41,33 @@ describe('searchAll', () => {
     expect(hits.map((h) => h.to)).toEqual(['/board?task=t1', '/deals?deal=d1']);
     expect(hits[1]?.hint).toBe('Сезон · stage:won');
   });
+  it('клиент находится по контакту: имя, телефон по цифрам, telegram без @', () => {
+    const withContacts = {
+      ...src,
+      clients: [
+        {
+          id: 'c1',
+          name: 'Сезон',
+          status: 'active',
+          contacts: [
+            {
+              name: 'Ирина',
+              role: 'директор',
+              phone: '+7 900 000-00-01',
+              email: null,
+              telegram: 'irina_s',
+            },
+          ],
+        },
+      ],
+    };
+    const byName = searchAll('ирина', withContacts, labels);
+    expect(byName.map((h) => `${h.kind}:${h.id}`)).toEqual(['client:c1']);
+    expect(byName[0]?.hint).toBe('контакт: Ирина, директор');
+    expect(searchAll('900 000', withContacts, labels)).toHaveLength(1);
+    expect(searchAll('@irina', withContacts, labels)).toHaveLength(1);
+    expect(searchAll('олег', withContacts, labels)).toHaveLength(0);
+  });
   it('лимит на вид', () => {
     const many = {
       ...src,

@@ -29,6 +29,7 @@ export const EXPECTED_MIGRATIONS = [
   '023_client_errors',
   '024_archive_awareness',
   '025_retention',
+  '026_recurrence_skip_if_open',
 ] as const;
 
 export async function fetchAppliedMigrations(): Promise<string[]> {

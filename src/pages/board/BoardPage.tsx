@@ -102,8 +102,8 @@ export function BoardPage() {
 
   const today = todayIso();
   const filtered = useMemo(
-    () => applyTaskFilters(tasks.data ?? [], filters),
-    [tasks.data, filters],
+    () => applyTaskFilters(tasks.data ?? [], filters, today),
+    [tasks.data, filters, today],
   );
   const fresh = useMemo(() => hideStaleDone(filtered, today), [filtered, today]);
   const visibleTasks = filters.allDone ? filtered : fresh;

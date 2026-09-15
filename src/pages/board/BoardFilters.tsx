@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import type { ClientRef, Profile } from '../../shared/api/types';
 import {
+  DUE_FILTERS,
+  DUE_FILTER_LABEL,
   EMPTY_FILTERS,
   UNASSIGNED,
   isFilterActive,
+  type DueFilter,
   type TaskFilters,
 } from '../../shared/lib/filters';
 import { PRIORITIES, PRIORITY_LABEL, type Priority } from '../../shared/lib/labels';
@@ -37,9 +40,13 @@ export function BoardFilters({
   // Метка из ссылки могла уже исчезнуть из задач — оставляем её в списке, чтобы фильтр было видно.
   const labelOptions =
     filters.label && !labels.includes(filters.label) ? [filters.label, ...labels] : labels;
-  const activeCount = [filters.assignee, filters.client, filters.priority, filters.label].filter(
-    Boolean,
-  ).length;
+  const activeCount = [
+    filters.assignee,
+    filters.client,
+    filters.priority,
+    filters.label,
+    filters.due,
+  ].filter(Boolean).length;
 
   return (
     <div className="toolbar" role="search">
@@ -100,6 +107,21 @@ export function BoardFilters({
           {PRIORITIES.map((p) => (
             <option key={p} value={p}>
               {PRIORITY_LABEL[p]}
+            </option>
+          ))}
+        </select>
+        <select
+          className="select"
+          aria-label="Срок"
+          value={filters.due ?? ''}
+          onChange={(e) =>
+            onChange({ ...filters, due: (e.target.value || null) as DueFilter | null })
+          }
+        >
+          <option value="">Любой срок</option>
+          {DUE_FILTERS.map((d) => (
+            <option key={d} value={d}>
+              {DUE_FILTER_LABEL[d]}
             </option>
           ))}
         </select>

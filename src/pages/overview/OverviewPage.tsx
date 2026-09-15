@@ -111,7 +111,7 @@ export function OverviewPage() {
           label="Просрочено"
           value={stats.overdue}
           hint={`из ${stats.open.length} ${plural(stats.open.length, ['открытой', 'открытых', 'открытых'])}`}
-          to="/board"
+          to="/board?due=overdue"
         />
         <StatTile
           label="Сделки"

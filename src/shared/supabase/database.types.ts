@@ -765,6 +765,7 @@ export type Database = {
           period: Database['public']['Enums']['recurrence_period'];
           priority: Database['public']['Enums']['task_priority'];
           run_day: number;
+          skip_if_open: boolean;
           title: string;
           updated_at: string;
         };
@@ -783,6 +784,7 @@ export type Database = {
           period: Database['public']['Enums']['recurrence_period'];
           priority?: Database['public']['Enums']['task_priority'];
           run_day: number;
+          skip_if_open?: boolean;
           title: string;
           updated_at?: string;
         };
@@ -801,6 +803,7 @@ export type Database = {
           period?: Database['public']['Enums']['recurrence_period'];
           priority?: Database['public']['Enums']['task_priority'];
           run_day?: number;
+          skip_if_open?: boolean;
           title?: string;
           updated_at?: string;
         };
@@ -890,6 +893,7 @@ export type Database = {
           labels: string[];
           position: number;
           priority: Database['public']['Enums']['task_priority'];
+          recurrence_id: string | null;
           stage_id: string;
           title: string;
           updated_at: string;
@@ -908,6 +912,7 @@ export type Database = {
           labels?: string[];
           position?: number;
           priority?: Database['public']['Enums']['task_priority'];
+          recurrence_id?: string | null;
           stage_id: string;
           title: string;
           updated_at?: string;
@@ -926,6 +931,7 @@ export type Database = {
           labels?: string[];
           position?: number;
           priority?: Database['public']['Enums']['task_priority'];
+          recurrence_id?: string | null;
           stage_id?: string;
           title?: string;
           updated_at?: string;
@@ -960,6 +966,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'tasks_recurrence_id_fkey';
+            columns: ['recurrence_id'];
+            isOneToOne: false;
+            referencedRelation: 'task_recurrences';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'tasks_stage_id_fkey';
             columns: ['stage_id'];
             isOneToOne: false;
@@ -977,6 +990,7 @@ export type Database = {
         Args: { p_id: string; p_name: string };
         Returns: string;
       };
+      cleanup_logs: { Args: never; Returns: number };
       convert_idea_to_task: { Args: { p_idea_id: string }; Returns: string };
       html_escape: { Args: { p: string }; Returns: string };
       idea_link: { Args: { p_idea_id: string }; Returns: string };
