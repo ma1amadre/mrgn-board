@@ -11,6 +11,7 @@ import {
   countByWeek,
   dealConversion,
   formatDays,
+  lostReasons,
   weekBuckets,
 } from '../../shared/lib/reports';
 import { isOpen } from '../../shared/lib/tasks';
@@ -85,6 +86,7 @@ export function ReportsPage() {
       byAssignee,
       funnel: funnel(allDeals),
       conversion: dealConversion(allDeals),
+      lostReasons: lostReasons(allDeals),
       wonAmount: wonInPeriod.reduce((s, d) => s + (d.amount ?? 0), 0),
       wonCount: wonInPeriod.length,
       dealCycle: avgDays(
@@ -209,6 +211,14 @@ export function ReportsPage() {
               ({report.conversion.won} выиграно, {report.conversion.lost} проиграно)
             </span>
           </p>
+          {report.lostReasons.length > 0 ? (
+            <>
+              <h4 className="small muted" style={{ margin: 0 }}>
+                Почему проигрываем
+              </h4>
+              <Bars rows={report.lostReasons} />
+            </>
+          ) : null}
           <p className="small">
             Выиграно за период: <strong>{report.wonCount}</strong>
             {report.wonAmount > 0 ? <> на {formatMoney(report.wonAmount)}</> : null} · средний срок

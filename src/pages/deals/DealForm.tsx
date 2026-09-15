@@ -14,6 +14,8 @@ export type DealFormValues = {
   owner_id: string | null;
   expected_close: string | null;
   notes: string;
+  /** Почему проиграли; в форме показывается только при стадии «Проиграно». */
+  lost_reason: string;
 };
 
 export function DealForm({
@@ -51,7 +53,12 @@ export function DealForm({
       return;
     }
     setAmountError(null);
-    onSubmit({ ...values, title, notes: values.notes.trim() });
+    onSubmit({
+      ...values,
+      title,
+      notes: values.notes.trim(),
+      lost_reason: values.stage === 'lost' ? values.lost_reason.trim() : '',
+    });
   };
 
   return (
@@ -135,6 +142,19 @@ export function DealForm({
           />
         </Field>
       </div>
+      {values.stage === 'lost' ? (
+        <Field
+          label="Причина проигрыша"
+          hint="Коротко: дорого, ушли к другим, отложили. Попадает в отчёт."
+        >
+          <input
+            className="input"
+            maxLength={300}
+            value={values.lost_reason}
+            onChange={(e) => set('lost_reason', e.target.value)}
+          />
+        </Field>
+      ) : null}
       <Field label="Заметки">
         <textarea
           className="textarea"

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { avgDays, countByWeek, dealConversion, formatDays, weekBuckets } from './reports';
+import {
+  avgDays,
+  countByWeek,
+  dealConversion,
+  formatDays,
+  lostReasons,
+  weekBuckets,
+} from './reports';
 
 // 16.09.2026 — среда; неделя 14–20.
 describe('weekBuckets', () => {
@@ -21,6 +28,21 @@ describe('countByWeek', () => {
       { d: null },
     ];
     expect(countByWeek(items, (i) => i.d, b)).toEqual([1, 2]);
+  });
+});
+
+describe('lostReasons', () => {
+  it('считает только проигранные, склеивает регистр, пустую причину подписывает', () => {
+    const rows = lostReasons([
+      { stage: 'lost', lost_reason: 'Дорого' },
+      { stage: 'lost', lost_reason: 'дорого ' },
+      { stage: 'lost', lost_reason: null },
+      { stage: 'won', lost_reason: 'Дорого' },
+    ]);
+    expect(rows).toEqual([
+      { label: 'Дорого', value: 2 },
+      { label: 'не указана', value: 1 },
+    ]);
   });
 });
 

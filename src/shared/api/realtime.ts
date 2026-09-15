@@ -12,6 +12,7 @@ const TABLE_KEYS: Record<string, readonly string[]> = {
   comments: keys.comments.all,
   idea_comments: keys.ideaComments.all,
   task_activity: keys.activity.all,
+  deal_activity: keys.dealActivity.all,
   // Пункты чек-листа приезжают вложенными в задачи — сбрасываем кеш задач.
   task_checklist_items: keys.tasks.all,
   task_attachments: keys.tasks.all,

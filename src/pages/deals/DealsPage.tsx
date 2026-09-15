@@ -144,6 +144,7 @@ export function DealsPage() {
     owner_id: me.id,
     expected_close: null,
     notes: '',
+    lost_reason: '',
   };
 
   const submitNew = (values: DealFormValues) => {
@@ -156,6 +157,7 @@ export function DealsPage() {
         owner_id: values.owner_id,
         expected_close: values.expected_close,
         notes: values.notes || null,
+        lost_reason: values.lost_reason || null,
         created_by: me.id,
       },
       { onSuccess: () => setCreating(false), onError: (err) => toast.error(err) },

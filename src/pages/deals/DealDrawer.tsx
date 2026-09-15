@@ -15,6 +15,7 @@ import { Drawer } from '../../shared/ui/Drawer';
 import { Markdown } from '../../shared/ui/Markdown';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
+import { DealActivityList } from './DealActivityList';
 import { DealForm, type DealFormValues } from './DealForm';
 
 export function DealDrawer({
@@ -60,6 +61,7 @@ export function DealDrawer({
     owner_id: deal.owner_id,
     expected_close: deal.expected_close,
     notes: deal.notes ?? '',
+    lost_reason: deal.lost_reason ?? '',
   };
 
   const save = (values: DealFormValues) => {
@@ -74,6 +76,7 @@ export function DealDrawer({
           owner_id: values.owner_id,
           expected_close: values.expected_close,
           notes: values.notes || null,
+          lost_reason: values.lost_reason || null,
         },
       },
       { onSuccess: () => setEditing(false), onError: (err) => toast.error(err) },
@@ -140,6 +143,18 @@ export function DealDrawer({
               <span>Создана {formatDateTime(deal.created_at)}</span>
               {deal.closed_at ? <span>· закрыта {formatDateTime(deal.closed_at)}</span> : null}
             </div>
+            {deal.stage === 'lost' ? (
+              <div className="row">
+                <span className="muted">Причина проигрыша:</span>
+                {deal.lost_reason ? (
+                  <span>{deal.lost_reason}</span>
+                ) : (
+                  <button type="button" className="link-button" onClick={() => setEditing(true)}>
+                    не указана — указать
+                  </button>
+                )}
+              </div>
+            ) : null}
           </div>
           {deal.notes ? <Markdown text={deal.notes} /> : <p className="muted">Без заметок.</p>}
           <div className="stack small">
@@ -181,6 +196,10 @@ export function DealDrawer({
           </div>
         </>
       )}
+      <details className="drawer-section">
+        <summary>История</summary>
+        <DealActivityList dealId={deal.id} />
+      </details>
     </Drawer>
   );
 }

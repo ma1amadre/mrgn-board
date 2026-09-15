@@ -21,6 +21,10 @@ export const keys = {
     all: ['activity'] as const,
     byTask: (taskId: string) => ['activity', taskId] as const,
   },
+  dealActivity: {
+    all: ['deal-activity'] as const,
+    byDeal: (dealId: string) => ['deal-activity', dealId] as const,
+  },
   attachmentUrls: (taskId: string, ids: string) => ['attachment-urls', taskId, ids] as const,
   settings: ['settings'] as const,
   invites: ['invites'] as const,

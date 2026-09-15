@@ -277,6 +277,51 @@ export type Database = {
           },
         ];
       };
+      deal_activity: {
+        Row: {
+          actor_id: string | null;
+          created_at: string;
+          deal_id: string;
+          from_value: string | null;
+          id: string;
+          kind: string;
+          to_value: string | null;
+        };
+        Insert: {
+          actor_id?: string | null;
+          created_at?: string;
+          deal_id: string;
+          from_value?: string | null;
+          id?: string;
+          kind: string;
+          to_value?: string | null;
+        };
+        Update: {
+          actor_id?: string | null;
+          created_at?: string;
+          deal_id?: string;
+          from_value?: string | null;
+          id?: string;
+          kind?: string;
+          to_value?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'deal_activity_actor_id_fkey';
+            columns: ['actor_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'deal_activity_deal_id_fkey';
+            columns: ['deal_id'];
+            isOneToOne: false;
+            referencedRelation: 'deals';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       deals: {
         Row: {
           amount: number | null;
@@ -286,6 +331,7 @@ export type Database = {
           created_by: string;
           expected_close: string | null;
           id: string;
+          lost_reason: string | null;
           notes: string | null;
           owner_id: string | null;
           stage: Database['public']['Enums']['deal_stage'];
@@ -300,6 +346,7 @@ export type Database = {
           created_by: string;
           expected_close?: string | null;
           id?: string;
+          lost_reason?: string | null;
           notes?: string | null;
           owner_id?: string | null;
           stage?: Database['public']['Enums']['deal_stage'];
@@ -314,6 +361,7 @@ export type Database = {
           created_by?: string;
           expected_close?: string | null;
           id?: string;
+          lost_reason?: string | null;
           notes?: string | null;
           owner_id?: string | null;
           stage?: Database['public']['Enums']['deal_stage'];

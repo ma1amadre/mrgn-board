@@ -50,6 +50,25 @@ export function dealConversion(deals: ReadonlyArray<{ stage: string }>): {
   return { won, lost, rate: won + lost > 0 ? Math.round((won / (won + lost)) * 100) : null };
 }
 
+/** Причины проигрыша по числу сделок; сравнение без регистра и пробелов, показывается первое написание. */
+export function lostReasons(
+  deals: ReadonlyArray<{ stage: string; lost_reason: string | null }>,
+  none = 'не указана',
+): Array<{ label: string; value: number }> {
+  const map = new Map<string, { label: string; value: number }>();
+  for (const d of deals) {
+    if (d.stage !== 'lost') continue;
+    const raw = d.lost_reason?.trim() || none;
+    const key = raw.toLowerCase();
+    const row = map.get(key) ?? { label: raw, value: 0 };
+    row.value += 1;
+    map.set(key, row);
+  }
+  return [...map.values()].sort(
+    (a, b) => b.value - a.value || a.label.localeCompare(b.label, 'ru'),
+  );
+}
+
 /** «3 дня», «1,5 дня» — для среднего срока; дробное число всегда «дня». */
 export function formatDays(days: number | null): string {
   if (days === null) return '—';
