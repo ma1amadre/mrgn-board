@@ -9,6 +9,7 @@ import { withCurrentClient } from '../../shared/lib/clients';
 import { csvFilename, toCsv } from '../../shared/lib/csv';
 import { formatDate, today as todayIso } from '../../shared/lib/dates';
 import {
+  OPEN_DEAL_STAGES,
   dealQuickActions,
   formatMoney,
   funnel,
@@ -51,6 +52,9 @@ export function DealsPage() {
 
   const q = sp.get('q') ?? '';
   const clientFilter = sp.get('client');
+  // Выигранные и проигранные копятся и не помещаются в ширину экрана — по умолчанию свёрнуты.
+  const showClosed = sp.get('closed') === '1';
+  const shownStages = showClosed ? DEAL_STAGES : OPEN_DEAL_STAGES;
   const selectedId = sp.get('deal');
   const today = todayIso();
 
@@ -227,6 +231,15 @@ export function DealsPage() {
             Сбросить
           </button>
         ) : null}
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm"
+          style={{ marginLeft: 'auto' }}
+          aria-pressed={showClosed}
+          onClick={() => setParam('closed', showClosed ? null : '1')}
+        >
+          {showClosed ? 'Скрыть закрытые' : `Закрытые · ${totals.won.count + totals.lost.count}`}
+        </button>
       </div>
 
       {loading ? (
@@ -241,7 +254,7 @@ export function DealsPage() {
       {failed ? <EmptyState>Не удалось загрузить сделки.</EmptyState> : null}
       {deals.data ? (
         <div className="board">
-          {DEAL_STAGES.map((stage) => {
+          {shownStages.map((stage) => {
             const list = byStage.get(stage) ?? [];
             const total = totals[stage];
             return (

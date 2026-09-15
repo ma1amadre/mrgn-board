@@ -62,6 +62,7 @@ function StageRow({
           className="input"
           value={name}
           maxLength={60}
+          aria-label={`Название стадии «${stage.name}»`}
           onChange={(e) => setName(e.target.value)}
         />
       </td>
@@ -82,6 +83,7 @@ function StageRow({
             style={{ width: 110 }}
             placeholder="#1b5fa6"
             value={color}
+            aria-label={`Цвет стадии «${stage.name}», hex`}
             aria-invalid={!colorValid}
             onChange={(e) => setColor(e.target.value.trim())}
           />

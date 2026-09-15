@@ -196,7 +196,28 @@ export function ClientsPage() {
         <EmptyState>Под этот фильтр никто не попал.</EmptyState>
       ) : null}
       {rows.length > 0 ? (
-        <div className="table-wrap">
+        <div className="client-cards">
+          {rows.map((c) => (
+            <Link key={c.id} className="card card-interactive task" to={`/clients/${c.id}`}>
+              <div className="task-title">{c.name}</div>
+              <div className="task-meta">
+                <span className={CLIENT_STATUS_BADGE[c.status]}>
+                  {CLIENT_STATUS_LABEL[c.status]}
+                </span>
+                <span className="muted">{CLIENT_DIRECTION_LABEL[c.direction]}</span>
+                {openByClient.get(c.id) ? (
+                  <span className="badge">задач: {openByClient.get(c.id)}</span>
+                ) : null}
+              </div>
+              {contactLine(primaryContact(c.contacts)) ? (
+                <div className="small muted">{contactLine(primaryContact(c.contacts))}</div>
+              ) : null}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+      {rows.length > 0 ? (
+        <div className="table-wrap clients-table">
           <table className="table">
             <thead>
               <tr>

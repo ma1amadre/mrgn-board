@@ -22,51 +22,50 @@ const LABELS = {
 
 /** Поиск по всему из любого места: Ctrl+K или кнопка в шапке. Ищет по кешу, без запросов. */
 export function CommandPalette() {
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener('open-palette', onOpen);
+    return () => window.removeEventListener('open-palette', onOpen);
+  }, []);
+
+  // Хуки данных живут в открытой палитре: закрытая не должна тянуть задачи и сделки на каждой странице.
+  return open ? <PaletteDialog onClose={() => setOpen(false)} /> : null;
+}
+
+function PaletteDialog({ onClose }: { onClose: () => void }) {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  // Данные подтягиваются только когда палитра открыта — обычно они уже в кеше.
   const tasks = useTasks();
   const clients = useClients();
   const deals = useDeals();
   const ideas = useIdeas();
 
   useEffect(() => {
-    const onOpen = () => {
-      setOpen(true);
-      setQuery('');
-      setActive(0);
-    };
-    window.addEventListener('open-palette', onOpen);
-    return () => window.removeEventListener('open-palette', onOpen);
+    inputRef.current?.focus();
   }, []);
-
-  useEffect(() => {
-    if (open) inputRef.current?.focus();
-  }, [open]);
 
   const hits = useMemo(
     () =>
-      open
-        ? searchAll(
-            query,
-            {
-              tasks: tasks.data ?? [],
-              clients: clients.data ?? [],
-              deals: deals.data ?? [],
-              ideas: ideas.data ?? [],
-            },
-            LABELS,
-          )
-        : [],
-    [open, query, tasks.data, clients.data, deals.data, ideas.data],
+      searchAll(
+        query,
+        {
+          tasks: tasks.data ?? [],
+          clients: clients.data ?? [],
+          deals: deals.data ?? [],
+          ideas: ideas.data ?? [],
+        },
+        LABELS,
+      ),
+    [query, tasks.data, clients.data, deals.data, ideas.data],
   );
   const current = Math.min(active, Math.max(hits.length - 1, 0));
 
   const go = (hit: SearchHit) => {
-    setOpen(false);
+    onClose();
     navigate(hit.to);
   };
 
@@ -83,14 +82,12 @@ export function CommandPalette() {
     } else if (e.key === 'Escape') {
       e.preventDefault();
       e.stopPropagation();
-      setOpen(false);
+      onClose();
     }
   };
 
-  if (!open) return null;
-
   return (
-    <div className="backdrop backdrop-center palette-backdrop" onMouseDown={() => setOpen(false)}>
+    <div className="backdrop backdrop-center palette-backdrop" onMouseDown={onClose}>
       <div
         className="palette"
         role="dialog"

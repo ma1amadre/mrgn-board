@@ -102,7 +102,7 @@ export function searchAll(
   }
 
   const perKind = new Map<SearchHit['kind'], number>();
-  return hits
+  const ranked = hits
     .sort((a, b) => a.rank - b.rank || a.title.localeCompare(b.title, 'ru'))
     .filter((h) => {
       const n = perKind.get(h.kind) ?? 0;
@@ -110,4 +110,7 @@ export function searchAll(
       perKind.set(h.kind, n + 1);
       return true;
     });
+  // Группы по виду, порядок групп — по лучшему совпадению: иначе заголовок «Задачи» появлялся дважды.
+  const order = [...new Set(ranked.map((h) => h.kind))];
+  return order.flatMap((kind) => ranked.filter((h) => h.kind === kind));
 }

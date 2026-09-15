@@ -27,6 +27,15 @@ describe('searchAll', () => {
     const ids = searchAll('cdn', src, labels).map((h) => `${h.kind}:${h.id}`);
     expect(ids).toEqual(['client:c1', 'idea:i1', 'task:t1', 'task:t2', 'task:t3']);
   });
+  it('результаты одного вида идут подряд, группы — по лучшему совпадению', () => {
+    const mixed = {
+      ...src,
+      deals: [{ id: 'd2', title: 'cdn для всех', client: null, stage: 'new' }],
+      clients: [{ id: 'c2', name: 'Партнёр по cdn', status: 'active' }],
+    };
+    const kinds = searchAll('cdn', mixed, labels).map((h) => h.kind);
+    expect(kinds).toEqual(['deal', 'idea', 'client', 'task', 'task', 'task']);
+  });
   it('сделка находится по клиенту, ссылки ведут в нужный раздел', () => {
     const hits = searchAll('сезон', src, labels);
     expect(hits.map((h) => h.to)).toEqual(['/board?task=t1', '/deals?deal=d1']);
