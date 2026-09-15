@@ -6,6 +6,7 @@ import { Avatar } from '../shared/ui/Avatar';
 import { useToast } from '../shared/ui/toastContext';
 import { useAuth, useProfile } from './auth/authContext';
 import { Hotkeys } from './Hotkeys';
+import { NotificationsBell } from './NotificationsBell';
 import { THEME_LABEL, nextTheme, useTheme, type Theme } from './theme';
 
 type NavItem = { to: string; label: string; end?: boolean };
@@ -129,6 +130,7 @@ export function Layout() {
           <span className="name grow" title={profile.email}>
             {profile.name}
           </span>
+          <NotificationsBell />
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => void signOut()}>
             Выйти
           </button>

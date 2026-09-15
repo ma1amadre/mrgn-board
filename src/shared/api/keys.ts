@@ -26,5 +26,6 @@ export const keys = {
   invites: ['invites'] as const,
   templates: ['templates'] as const,
   notifyStatus: ['notify-status'] as const,
+  notifications: ['notifications'] as const,
   migrations: ['migrations'] as const,
 };

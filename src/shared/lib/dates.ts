@@ -48,3 +48,14 @@ export function formatDateTime(iso: string): string {
   const mm = String(d.getMinutes()).padStart(2, '0');
   return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}, ${hh}:${mm}`;
 }
+
+/** «только что», «5 мин назад», «2 ч назад», дальше — обычная дата: для ленты уведомлений. */
+export function formatRelative(iso: string, now: Date = new Date()): string {
+  const diff = Math.max(0, now.getTime() - new Date(iso).getTime());
+  const min = Math.floor(diff / 60_000);
+  if (min < 1) return 'только что';
+  if (min < 60) return `${min} мин назад`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h} ч назад`;
+  return formatDateTime(iso);
+}

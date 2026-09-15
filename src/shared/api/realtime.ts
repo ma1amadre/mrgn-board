@@ -21,6 +21,7 @@ const TABLE_KEYS: Record<string, readonly string[]> = {
   app_settings: keys.settings,
   invites: keys.invites,
   task_templates: keys.templates,
+  notifications: keys.notifications,
 };
 
 /** Один канал на приложение; монтируется в Layout, живёт пока пользователь внутри. */

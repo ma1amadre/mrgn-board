@@ -362,6 +362,47 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          body: string | null;
+          created_at: string;
+          id: string;
+          kind: string;
+          link: string | null;
+          profile_id: string;
+          read_at: string | null;
+          title: string;
+        };
+        Insert: {
+          body?: string | null;
+          created_at?: string;
+          id?: string;
+          kind: string;
+          link?: string | null;
+          profile_id: string;
+          read_at?: string | null;
+          title: string;
+        };
+        Update: {
+          body?: string | null;
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          link?: string | null;
+          profile_id?: string;
+          read_at?: string | null;
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_profile_id_fkey';
+            columns: ['profile_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
           color: string;
@@ -727,6 +768,16 @@ export type Database = {
       };
       is_admin: { Args: never; Returns: boolean };
       is_member: { Args: never; Returns: boolean };
+      notify: {
+        Args: {
+          p_body: string;
+          p_kind: string;
+          p_link: string;
+          p_profile: string;
+          p_title: string;
+        };
+        Returns: undefined;
+      };
       notify_due_digest: { Args: never; Returns: number };
       notify_status: { Args: never; Returns: Json };
       notify_test: { Args: never; Returns: string };

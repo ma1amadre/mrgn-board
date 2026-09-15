@@ -1025,3 +1025,85 @@ kbd {
   bottom: 100%;
   margin: 0 0 var(--s-1);
 }
+
+/* Колокольчик уведомлений: счётчик поверх кнопки, список — поповер под ней. */
+.bell {
+  position: relative;
+  flex: 0 0 auto;
+}
+.bell-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--r-full);
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+}
+.notif-list {
+  width: min(360px, calc(100vw - var(--s-6)));
+  max-height: min(480px, 70vh);
+  overflow-y: auto;
+}
+.notif-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding: var(--s-1) var(--s-2) var(--s-2);
+}
+.notif-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--s-2);
+  border: 0;
+  border-top: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.notif-item:hover,
+.notif-item:focus-visible {
+  background: var(--surface-2);
+  outline: none;
+}
+.notif-item.is-unread .notif-title {
+  font-weight: 600;
+}
+.notif-item.is-unread .notif-title::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: var(--s-2);
+  border-radius: var(--r-full);
+  background: var(--accent);
+  vertical-align: middle;
+}
+.notif-body {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--t-sm);
+}
+@media (max-width: 800px) {
+  .notif-list {
+    position: fixed;
+    top: 60px;
+    right: var(--s-3);
+    left: var(--s-3);
+    width: auto;
+  }
+}
