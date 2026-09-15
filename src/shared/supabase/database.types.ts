@@ -61,10 +61,68 @@ export type Database = {
         };
         Relationships: [];
       };
+      client_contacts: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          created_by: string;
+          email: string | null;
+          id: string;
+          is_primary: boolean;
+          name: string;
+          notes: string | null;
+          phone: string | null;
+          role: string | null;
+          telegram: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          created_by: string;
+          email?: string | null;
+          id?: string;
+          is_primary?: boolean;
+          name: string;
+          notes?: string | null;
+          phone?: string | null;
+          role?: string | null;
+          telegram?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          created_by?: string;
+          email?: string | null;
+          id?: string;
+          is_primary?: boolean;
+          name?: string;
+          notes?: string | null;
+          phone?: string | null;
+          role?: string | null;
+          telegram?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'client_contacts_client_id_fkey';
+            columns: ['client_id'];
+            isOneToOne: false;
+            referencedRelation: 'clients';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'client_contacts_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       clients: {
         Row: {
-          contact: string | null;
-          contact_name: string | null;
           created_at: string;
           created_by: string;
           direction: Database['public']['Enums']['client_direction'];
@@ -75,8 +133,6 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
-          contact?: string | null;
-          contact_name?: string | null;
           created_at?: string;
           created_by: string;
           direction?: Database['public']['Enums']['client_direction'];
@@ -87,8 +143,6 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
-          contact?: string | null;
-          contact_name?: string | null;
           created_at?: string;
           created_by?: string;
           direction?: Database['public']['Enums']['client_direction'];

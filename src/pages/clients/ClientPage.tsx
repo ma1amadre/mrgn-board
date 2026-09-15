@@ -25,6 +25,7 @@ import { PageHead } from '../../shared/ui/PageHead';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 import { dueBadgeClass } from '../board/dueBadge';
+import { ClientContacts } from './ClientContacts';
 import { ClientForm, type ClientFormValues } from './ClientForm';
 
 export function ClientPage() {
@@ -70,8 +71,6 @@ export function ClientPage() {
           name: values.name,
           direction: values.direction,
           status: values.status,
-          contact_name: values.contact_name || null,
-          contact: values.contact || null,
           notes: values.notes || null,
         },
       },
@@ -145,8 +144,6 @@ export function ClientPage() {
               name: client.name,
               direction: client.direction,
               status: client.status,
-              contact_name: client.contact_name ?? '',
-              contact: client.contact ?? '',
               notes: client.notes ?? '',
             }}
             submitLabel="Сохранить"
@@ -163,10 +160,6 @@ export function ClientPage() {
               <span className="badge">{CLIENT_DIRECTION_LABEL[client.direction]}</span>
             </div>
             <div className="stack small">
-              <div>
-                <span className="muted">Контакт: </span>
-                {[client.contact_name, client.contact].filter(Boolean).join(' · ') || '—'}
-              </div>
               <div className="muted">Добавлен {formatDate(client.created_at)}</div>
             </div>
             {client.notes ? (
@@ -177,6 +170,7 @@ export function ClientPage() {
           </>
         )}
       </div>
+      <ClientContacts clientId={client.id} contacts={client.contacts} />
       <section className="stack">
         <div className="row">
           <h2>Сделки ({clientDeals.length})</h2>

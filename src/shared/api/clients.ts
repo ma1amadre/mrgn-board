@@ -2,22 +2,28 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabase/client';
 import { assertAffected } from './assert';
 import { keys } from './keys';
-import type { Client, Inserts, Updates } from './types';
+import type { ClientWithContacts, Inserts, Updates } from './types';
 
-export async function fetchClients(): Promise<Client[]> {
-  const { data, error } = await supabase.from('clients').select('*').order('name');
+const CLIENT_SELECT = '*, contacts:client_contacts(*)';
+
+export async function fetchClients(): Promise<ClientWithContacts[]> {
+  const { data, error } = await supabase.from('clients').select(CLIENT_SELECT).order('name');
   if (error) throw error;
-  return data;
+  return data as ClientWithContacts[];
 }
 
 export function useClients() {
   return useQuery({ queryKey: keys.clients.all, queryFn: fetchClients });
 }
 
-export async function createClient(input: Inserts<'clients'>): Promise<Client> {
-  const { data, error } = await supabase.from('clients').insert(input).select('*').single();
+export async function createClient(input: Inserts<'clients'>): Promise<ClientWithContacts> {
+  const { data, error } = await supabase
+    .from('clients')
+    .insert(input)
+    .select(CLIENT_SELECT)
+    .single();
   if (error) throw error;
-  return data;
+  return data as ClientWithContacts;
 }
 
 export async function updateClient(id: string, patch: Updates<'clients'>): Promise<void> {

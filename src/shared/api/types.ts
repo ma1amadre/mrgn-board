@@ -8,6 +8,7 @@ export type Updates<T extends keyof PublicTables> = PublicTables[T]['Update'];
 
 export type Profile = Tables<'profiles'>;
 export type Client = Tables<'clients'>;
+export type ClientContact = Tables<'client_contacts'>;
 export type Stage = Tables<'stages'>;
 export type Task = Tables<'tasks'>;
 export type Idea = Tables<'ideas'>;
@@ -20,6 +21,8 @@ export type Activity = Tables<'task_activity'>;
 
 export type ProfileRef = Pick<Profile, 'id' | 'name' | 'color'>;
 export type ClientRef = Pick<Client, 'id' | 'name'>;
+/** Клиент с контактами — то, что лежит в кеше ['clients']. */
+export type ClientWithContacts = Client & { contacts: ClientContact[] };
 
 /** Задача с подтянутыми исполнителем и клиентом — то, что лежит в кеше ['tasks']. */
 export type TaskWithRefs = Task & {

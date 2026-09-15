@@ -14,11 +14,10 @@ export type ClientFormValues = {
   name: string;
   direction: ClientDirection;
   status: ClientStatus;
-  contact_name: string;
-  contact: string;
   notes: string;
 };
 
+/** Контакты живут отдельным списком на странице клиента (client_contacts), не в этой форме. */
 export function ClientForm({
   initial,
   submitLabel,
@@ -43,13 +42,7 @@ export function ClientForm({
     e.preventDefault();
     const name = values.name.trim();
     if (!name) return;
-    onSubmit({
-      ...values,
-      name,
-      contact_name: values.contact_name.trim(),
-      contact: values.contact.trim(),
-      notes: values.notes.trim(),
-    });
+    onSubmit({ ...values, name, notes: values.notes.trim() });
   };
 
   return (
@@ -92,23 +85,7 @@ export function ClientForm({
           </select>
         </Field>
       </div>
-      <div className="form-row">
-        <Field label="Контактное лицо">
-          <input
-            className="input"
-            value={values.contact_name}
-            onChange={(e) => set('contact_name', e.target.value)}
-          />
-        </Field>
-        <Field label="Контакт" hint="Telegram, телефон или email">
-          <input
-            className="input"
-            value={values.contact}
-            onChange={(e) => set('contact', e.target.value)}
-          />
-        </Field>
-      </div>
-      <Field label="Заметки">
+      <Field label="Заметки" hint="Можно markdown: **жирный**, *курсив*, `код`, списки через «- ».">
         <textarea
           className="textarea"
           value={values.notes}

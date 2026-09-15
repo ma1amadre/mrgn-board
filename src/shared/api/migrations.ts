@@ -21,6 +21,7 @@ export const EXPECTED_MIGRATIONS = [
   '015_notifications_center',
   '016_notification_prefs',
   '017_digest_deals',
+  '018_client_contacts',
 ] as const;
 
 export async function fetchAppliedMigrations(): Promise<string[]> {

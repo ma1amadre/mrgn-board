@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useProfile } from '../../app/auth/authContext';
 import { useClientMutations, useClients } from '../../shared/api/clients';
 import { useTasks } from '../../shared/api/tasks';
+import { contactLine, primaryContact } from '../../shared/lib/clients';
 import { csvFilename, toCsv } from '../../shared/lib/csv';
 import { today } from '../../shared/lib/dates';
 import { downloadTextFile } from '../../shared/lib/download';
@@ -26,8 +27,6 @@ const EMPTY_CLIENT: ClientFormValues = {
   name: '',
   direction: 'other',
   status: 'lead',
-  contact_name: '',
-  contact: '',
   notes: '',
 };
 
@@ -93,8 +92,7 @@ export function ClientsPage() {
       c.name,
       CLIENT_DIRECTION_LABEL[c.direction],
       CLIENT_STATUS_LABEL[c.status],
-      c.contact_name ?? '',
-      c.contact ?? '',
+      contactLine(primaryContact(c.contacts)),
       openByClient.get(c.id) ?? 0,
       c.notes ?? '',
       c.created_at.slice(0, 10),
@@ -123,8 +121,6 @@ export function ClientsPage() {
         name: values.name,
         direction: values.direction,
         status: values.status,
-        contact_name: values.contact_name || null,
-        contact: values.contact || null,
         notes: values.notes || null,
         created_by: me.id,
       },
@@ -220,9 +216,7 @@ export function ClientsPage() {
                       {CLIENT_STATUS_LABEL[c.status]}
                     </span>
                   </td>
-                  <td className="muted">
-                    {[c.contact_name, c.contact].filter(Boolean).join(' · ') || '—'}
-                  </td>
+                  <td className="muted">{contactLine(primaryContact(c.contacts)) || '—'}</td>
                   <td className="num">{openByClient.get(c.id) ?? 0}</td>
                 </tr>
               ))}
