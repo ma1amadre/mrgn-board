@@ -43,6 +43,8 @@ type Values = {
   period: RecurrencePeriod;
   run_day: number;
   due_offset_days: number;
+  /** Не создавать новую, пока предыдущая задача по правилу открыта. */
+  skip_if_open: boolean;
 };
 
 const EMPTY: Values = {
@@ -56,6 +58,7 @@ const EMPTY: Values = {
   period: 'week',
   run_day: 1,
   due_offset_days: 0,
+  skip_if_open: false,
 };
 
 function toValues(r: RecurrenceWithRefs): Values {
@@ -70,6 +73,7 @@ function toValues(r: RecurrenceWithRefs): Values {
     period: r.period,
     run_day: r.run_day,
     due_offset_days: r.due_offset_days,
+    skip_if_open: r.skip_if_open,
   };
 }
 
@@ -173,6 +177,15 @@ function RecurrenceForm({
       <p className="muted small">
         Ближайший запуск: {formatDate(preview)}, в 07:00 по Москве; задача встанет в первую стадию.
       </p>
+      <label className="switch">
+        <input
+          type="checkbox"
+          checked={values.skip_if_open}
+          onChange={(e) => set('skip_if_open', e.target.checked)}
+        />
+        <span className="switch-track" />
+        Не создавать, пока предыдущая задача по правилу открыта
+      </label>
       <div className="form-row">
         <Field label="Клиент / проект">
           <select
@@ -280,6 +293,7 @@ export function RecurringPage() {
       period: values.period,
       run_day: values.run_day,
       due_offset_days: values.due_offset_days,
+      skip_if_open: values.skip_if_open,
     };
     const onError = (err: unknown) => toast.error(err);
     if (editing === 'new') {
@@ -367,7 +381,12 @@ export function RecurringPage() {
                       <span className="muted small"> · чек-лист {r.checklist.length}</span>
                     ) : null}
                   </td>
-                  <td>{describeRecurrence(r.period, r.run_day)}</td>
+                  <td>
+                    {describeRecurrence(r.period, r.run_day)}
+                    {r.skip_if_open ? (
+                      <span className="muted small"> · ждёт закрытия предыдущей</span>
+                    ) : null}
+                  </td>
                   <td>{formatDate(r.next_run)}</td>
                   <td>
                     {r.assignee ? (
