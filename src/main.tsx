@@ -34,6 +34,11 @@ if (envError) {
 // Service worker только в проде: в dev он мешает HMR. Scope — базовый путь (на Pages /mrgn-board/).
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    // При первой установке controllerchange тоже стреляет, но обновлять там нечего.
+    const hadController = navigator.serviceWorker.controller !== null;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadController) window.dispatchEvent(new Event('sw-updated'));
+    });
     navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => undefined);
   });
 }

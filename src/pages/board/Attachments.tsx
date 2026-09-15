@@ -45,10 +45,6 @@ export function Attachments({ taskId, items }: { taskId: string; items: Attachme
 
   return (
     <section className="stack">
-      <div className="row">
-        <h3>Вложения</h3>
-        {sorted.length > 0 ? <span className="muted small">{sorted.length}</span> : null}
-      </div>
       {sorted.length > 0 ? (
         <ul className="attachments">
           {sorted.map((a) => (

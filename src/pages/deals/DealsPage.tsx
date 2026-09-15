@@ -180,6 +180,7 @@ export function DealsPage() {
         <input
           className="input toolbar-search"
           data-hotkey="search"
+          aria-label="Поиск по сделкам"
           placeholder="Поиск: название, клиент, заметки"
           value={q}
           onChange={(e) => setParam('q', e.target.value || null)}

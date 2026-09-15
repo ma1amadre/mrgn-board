@@ -25,14 +25,6 @@ export function Checklist({ taskId, items }: { taskId: string; items: ChecklistI
 
   return (
     <section className="stack">
-      <div className="row">
-        <h3>Чек-лист</h3>
-        {sorted.length > 0 ? (
-          <span className="muted small">
-            {done}/{sorted.length}
-          </span>
-        ) : null}
-      </div>
       {sorted.length > 0 ? (
         <div
           className="progress"

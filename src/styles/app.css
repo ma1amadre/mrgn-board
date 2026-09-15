@@ -231,7 +231,8 @@ a.tile-row {
 .board {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(260px, 320px);
+  /* 240px: четыре колонки помещаются в 1366px без горизонтального скролла. */
+  grid-auto-columns: minmax(240px, 360px);
   gap: var(--s-4);
   align-items: start;
   overflow-x: auto;
@@ -908,4 +909,119 @@ kbd {
 .md pre code {
   padding: 0;
   background: none;
+}
+
+/* Нижняя панель разделов на телефоне; на десктопе её нет, там боковая навигация. */
+.tabbar {
+  display: none;
+}
+@media (max-width: 800px) {
+  .shell-aside .nav,
+  .shell-hint {
+    display: none;
+  }
+  .shell-main {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+  .tabbar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid var(--border-strong);
+    background: var(--surface);
+  }
+  .tabbar-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    padding: 0 var(--s-1);
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    font: 500 var(--t-xs) / 1.2 var(--font-ui);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .tabbar-item.active {
+    color: var(--accent);
+  }
+  .tabbar-more {
+    position: relative;
+  }
+  .tabbar-popover {
+    top: auto;
+    right: var(--s-2);
+    bottom: calc(100% + var(--s-1));
+    min-width: 180px;
+  }
+  .tabbar-popover .popover-item {
+    text-decoration: none;
+  }
+  .tabbar-popover .popover-item.active {
+    color: var(--accent);
+  }
+}
+
+/* Фильтры доски: на десктопе стоят в один ряд, на телефоне свёрнуты за кнопкой. */
+.toolbar-toggle {
+  display: none;
+}
+.toolbar-filters {
+  display: contents;
+}
+@media (max-width: 800px) {
+  .toolbar-toggle {
+    display: inline-flex;
+  }
+  .toolbar-filters {
+    display: none;
+    flex: 1 0 100%;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .toolbar-filters.is-open {
+    display: flex;
+  }
+}
+
+/* Секции карточки задачи сворачиваются: на телефоне четыре подряд давали два экрана прокрутки. */
+.drawer-section > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  list-style: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+.drawer-section > summary::-webkit-details-marker {
+  display: none;
+}
+.drawer-section > summary::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: rotate(-45deg);
+  transition: transform var(--dur-1) var(--ease);
+}
+.drawer-section[open] > summary::before {
+  transform: rotate(45deg);
+}
+.drawer-section > summary + * {
+  margin-top: var(--s-3);
+}
+
+/* Список участников после «@» — над полем, чтобы не закрывать кнопку «Отправить». */
+.mention-menu {
+  top: auto;
+  bottom: 100%;
+  margin: 0 0 var(--s-1);
 }

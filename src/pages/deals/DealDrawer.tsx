@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth, useProfile } from '../../app/auth/authContext';
 import { useDealMutations } from '../../shared/api/deals';
 import type { Client, DealWithRefs, Profile } from '../../shared/api/types';
 import { formatDate, formatDateTime } from '../../shared/lib/dates';
@@ -26,6 +27,8 @@ export function DealDrawer({
   today: string;
   onClose: () => void;
 }) {
+  const me = useProfile();
+  const { isAdmin } = useAuth();
   const toast = useToast();
   const confirm = useConfirm();
   const { update, remove } = useDealMutations();
@@ -139,14 +142,16 @@ export function DealDrawer({
             >
               Редактировать
             </button>
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              onClick={() => void del()}
-              disabled={remove.isPending}
-            >
-              Удалить
-            </button>
+            {isAdmin || deal.created_by === me.id ? (
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => void del()}
+                disabled={remove.isPending}
+              >
+                Удалить
+              </button>
+            ) : null}
           </div>
         </>
       )}

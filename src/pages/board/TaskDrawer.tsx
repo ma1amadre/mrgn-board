@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useActivity } from '../../shared/api/activity';
+import { useComments } from '../../shared/api/comments';
 import { useTaskMutations } from '../../shared/api/tasks';
 import type { Client, Profile, Stage, TaskWithRefs } from '../../shared/api/types';
 import { formatDate, formatDateTime } from '../../shared/lib/dates';
@@ -42,6 +44,9 @@ export function TaskDrawer({
   const [dirty, setDirty] = useState(false);
   const [savingTemplate, setSavingTemplate] = useState(false);
   useDocumentTitle(task?.title ?? null);
+  // Счётчики для заголовков секций; сами списки грузят те же запросы из кеша.
+  const comments = useComments(task?.id ?? null);
+  const activity = useActivity(task?.id ?? '', task !== undefined);
 
   if (!task) {
     return (
@@ -85,10 +90,13 @@ export function TaskDrawer({
   const del = async () => {
     const ok = await confirm({
       title: `Удалить задачу «${task.title}»?`,
-      text: 'Комментарии к ней тоже пропадут. Это действие нельзя отменить.',
+      text: 'Комментарии и файлы к ней тоже пропадут. Это действие нельзя отменить.',
     });
     if (!ok) return;
-    remove.mutate(task.id, { onSuccess: onClose, onError: (err) => toast.error(err) });
+    remove.mutate(
+      { id: task.id, attachmentPaths: task.attachments.map((a) => a.path) },
+      { onSuccess: onClose, onError: (err) => toast.error(err) },
+    );
   };
 
   return (
@@ -183,10 +191,44 @@ export function TaskDrawer({
           </div>
         </>
       )}
-      <Checklist taskId={task.id} items={task.checklist} />
-      <Attachments taskId={task.id} items={task.attachments} />
-      <CommentsList taskId={task.id} />
-      <ActivityList taskId={task.id} />
+      <details className="drawer-section" open={task.checklist.length > 0}>
+        <summary>
+          Чек-лист
+          {task.checklist.length > 0 ? (
+            <span className="badge">
+              {task.checklist.filter((i) => i.is_done).length}/{task.checklist.length}
+            </span>
+          ) : null}
+        </summary>
+        <Checklist taskId={task.id} items={task.checklist} />
+      </details>
+      <details className="drawer-section" open={task.attachments.length > 0}>
+        <summary>
+          Вложения
+          {task.attachments.length > 0 ? (
+            <span className="badge">{task.attachments.length}</span>
+          ) : null}
+        </summary>
+        <Attachments taskId={task.id} items={task.attachments} />
+      </details>
+      <details className="drawer-section" open>
+        <summary>
+          Комментарии
+          {comments.data && comments.data.length > 0 ? (
+            <span className="badge">{comments.data.length}</span>
+          ) : null}
+        </summary>
+        <CommentsList taskId={task.id} />
+      </details>
+      <details className="drawer-section">
+        <summary>
+          История
+          {activity.data && activity.data.length > 0 ? (
+            <span className="badge">{activity.data.length}</span>
+          ) : null}
+        </summary>
+        <ActivityList taskId={task.id} />
+      </details>
       {savingTemplate ? (
         <SaveTemplateModal task={task} onClose={() => setSavingTemplate(false)} />
       ) : null}

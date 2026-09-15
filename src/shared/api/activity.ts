@@ -14,9 +14,10 @@ export async function fetchActivity(taskId: string): Promise<ActivityWithActor[]
   return data as ActivityWithActor[];
 }
 
-export function useActivity(taskId: string) {
+export function useActivity(taskId: string, enabled = true) {
   return useQuery({
     queryKey: keys.activity.byTask(taskId),
     queryFn: () => fetchActivity(taskId),
+    enabled,
   });
 }

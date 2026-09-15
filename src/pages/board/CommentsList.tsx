@@ -51,7 +51,6 @@ export function CommentsList({ taskId }: { taskId: string }) {
 
   return (
     <section className="stack">
-      <h3>Комментарии</h3>
       {comments.isPending ? <p className="muted small">Загрузка…</p> : null}
       {comments.data?.length === 0 ? <p className="muted small">Пока пусто.</p> : null}
       {comments.data?.map((c) => (

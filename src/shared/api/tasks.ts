@@ -31,7 +31,13 @@ export async function updateTask(id: string, patch: Updates<'tasks'>): Promise<v
   assertAffected(data);
 }
 
-export async function deleteTask(id: string): Promise<void> {
+export async function deleteTask(id: string, attachmentPaths: string[] = []): Promise<void> {
+  // Файлы в бакете не удаляются каскадом со строками — снимаем их до удаления задачи;
+  // если хранилище не ответило, задача остаётся, чтобы не плодить сирот.
+  if (attachmentPaths.length > 0) {
+    const { error } = await supabase.storage.from('attachments').remove(attachmentPaths);
+    if (error) throw error;
+  }
   const { data, error } = await supabase.from('tasks').delete().eq('id', id).select('id');
   if (error) throw error;
   assertAffected(data);
@@ -51,7 +57,11 @@ export function useTaskMutations() {
       mutationFn: ({ id, patch }: { id: string; patch: Updates<'tasks'> }) => updateTask(id, patch),
       onSettled: invalidate,
     }),
-    remove: useMutation({ mutationFn: deleteTask, onSettled: invalidate }),
+    remove: useMutation({
+      mutationFn: ({ id, attachmentPaths }: { id: string; attachmentPaths?: string[] }) =>
+        deleteTask(id, attachmentPaths),
+      onSettled: invalidate,
+    }),
   };
 }
 

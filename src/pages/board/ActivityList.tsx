@@ -15,7 +15,6 @@ export function ActivityList({ taskId }: { taskId: string }) {
 
   return (
     <section className="stack">
-      <h3>История</h3>
       {activity.isPending ? <p className="muted small">Загрузка…</p> : null}
       {activity.isError ? <p className="muted small">Не удалось загрузить историю.</p> : null}
       {activity.data?.length === 0 ? <p className="muted small">Пока пусто.</p> : null}

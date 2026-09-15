@@ -11,13 +11,13 @@ function isTyping(target: EventTarget | null): boolean {
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
 }
 
-/** Поле поиска на текущей странице; после перехода на доску оно появляется не сразу. */
+/** Поле поиска на текущей странице; после перехода на доску её чанк ещё грузится, ждём до секунды. */
 function focusSearch(attempt = 0) {
   const el = document.querySelector<HTMLInputElement>('input[data-hotkey="search"]');
   if (el) {
     el.focus();
     el.select();
-  } else if (attempt < 20) {
+  } else if (attempt < 60) {
     requestAnimationFrame(() => focusSearch(attempt + 1));
   }
 }

@@ -82,7 +82,10 @@ export function ClientPage() {
   const del = async () => {
     const ok = await confirm({
       title: `Удалить клиента «${client.name}»?`,
-      text: 'Задачи останутся на доске без привязки к клиенту.',
+      text:
+        clientDeals.length > 0
+          ? `Вместе с клиентом удалятся его сделки (${clientDeals.length}). Задачи останутся на доске без привязки.`
+          : 'Задачи останутся на доске без привязки к клиенту.',
     });
     if (!ok) return;
     remove.mutate(client.id, {
