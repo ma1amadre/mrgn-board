@@ -5,6 +5,7 @@ import { useRealtimeInvalidation } from '../shared/api/realtime';
 import { Avatar } from '../shared/ui/Avatar';
 import { useToast } from '../shared/ui/toastContext';
 import { useAuth, useProfile } from './auth/authContext';
+import { CommandPalette } from './CommandPalette';
 import { Hotkeys } from './Hotkeys';
 import { NotificationsBell } from './NotificationsBell';
 import { THEME_LABEL, nextTheme, useTheme, type Theme } from './theme';
@@ -117,6 +118,7 @@ export function Layout() {
   return (
     <div className="shell">
       <Hotkeys />
+      <CommandPalette />
       <aside className="shell-aside">
         <div className="shell-brand">MRGN board</div>
         <nav className="nav" aria-label="Разделы">
@@ -131,6 +133,23 @@ export function Layout() {
           <span className="name grow" title={profile.email}>
             {profile.name}
           </span>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm btn-icon"
+            aria-label="Поиск по всему (Ctrl K)"
+            title="Поиск по всему · Ctrl K"
+            onClick={() => window.dispatchEvent(new Event('open-palette'))}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.8" />
+              <path
+                d="m16 16 4.5 4.5"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
           <NotificationsBell />
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => void signOut()}>
             Выйти

@@ -1107,3 +1107,65 @@ kbd {
     width: auto;
   }
 }
+
+/* Палитра поиска: поле сверху, результаты группами, подсказка по клавишам снизу. */
+.palette-backdrop {
+  align-items: flex-start;
+  padding-top: 12vh;
+}
+.palette {
+  display: flex;
+  flex-direction: column;
+  width: min(560px, 100%);
+  max-height: 70vh;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--sh-3);
+}
+.palette-input {
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  font-size: var(--t-md);
+}
+.palette-input:focus-visible {
+  outline: none;
+}
+.palette-list {
+  flex: 1;
+  min-height: 0;
+  padding: var(--s-1);
+  overflow-y: auto;
+}
+.palette-group {
+  padding: var(--s-2) var(--s-2) var(--s-1);
+  color: var(--text-muted);
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.palette-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--s-2);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.palette-item.is-active {
+  background: var(--surface-2);
+}
+.palette-empty {
+  padding: var(--s-3);
+}
+.palette-foot {
+  padding: var(--s-2) var(--s-3);
+  border-top: 1px solid var(--border);
+}

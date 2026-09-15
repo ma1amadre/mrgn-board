@@ -1,0 +1,47 @@
+import { describe, expect, it } from 'vitest';
+import { searchAll } from './search';
+
+const labels = {
+  clientStatus: (s: string) => `status:${s}`,
+  dealStage: (s: string) => `stage:${s}`,
+  ideaStatus: (s: string) => `idea:${s}`,
+};
+
+const src = {
+  tasks: [
+    { id: 't1', title: 'Подключить CDN', client: { name: 'Сезон' }, done_at: null },
+    { id: 't2', title: 'Отчёт по CDN', client: null, done_at: '2026-09-01' },
+    { id: 't3', title: 'Лендинг', client: { name: 'CDN-провайдер' }, done_at: null },
+  ],
+  clients: [{ id: 'c1', name: 'CDN Партнёр', status: 'active' }],
+  deals: [{ id: 'd1', title: 'Сделка', client: { name: 'Сезон' }, stage: 'won' }],
+  ideas: [{ id: 'i1', title: 'Идея про cdn', status: 'new' }],
+};
+
+describe('searchAll', () => {
+  it('пустой запрос — ничего', () => {
+    expect(searchAll('', src, labels)).toEqual([]);
+    expect(searchAll('   ', src, labels)).toEqual([]);
+  });
+  it('начало названия выше вхождения, вхождение выше подсказки, закрытые ниже открытых', () => {
+    const ids = searchAll('cdn', src, labels).map((h) => `${h.kind}:${h.id}`);
+    expect(ids).toEqual(['client:c1', 'idea:i1', 'task:t1', 'task:t2', 'task:t3']);
+  });
+  it('сделка находится по клиенту, ссылки ведут в нужный раздел', () => {
+    const hits = searchAll('сезон', src, labels);
+    expect(hits.map((h) => h.to)).toEqual(['/board?task=t1', '/deals?deal=d1']);
+    expect(hits[1]?.hint).toBe('Сезон · stage:won');
+  });
+  it('лимит на вид', () => {
+    const many = {
+      ...src,
+      tasks: Array.from({ length: 8 }, (_, i) => ({
+        id: `x${i}`,
+        title: `cdn ${i}`,
+        client: null,
+        done_at: null,
+      })),
+    };
+    expect(searchAll('cdn', many, labels, 3).filter((h) => h.kind === 'task')).toHaveLength(3);
+  });
+});

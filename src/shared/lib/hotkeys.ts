@@ -13,6 +13,7 @@ export const GO_TARGETS: ReadonlyArray<{ key: string; to: string; label: string 
 ];
 
 export const SINGLE_KEYS: ReadonlyArray<{ key: string; label: string }> = [
+  { key: 'Ctrl K', label: 'Поиск по задачам, клиентам, сделкам и идеям' },
   { key: 'n', label: 'Новая задача' },
   { key: '/', label: 'Поиск на доске' },
   { key: '?', label: 'Эта подсказка' },

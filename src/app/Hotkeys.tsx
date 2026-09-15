@@ -32,6 +32,12 @@ export function Hotkeys() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Ctrl+K / Cmd+K — поиск по всему; работает и из полей ввода, и поверх открытых окон.
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && e.code === 'KeyK') {
+        e.preventDefault();
+        window.dispatchEvent(new Event('open-palette'));
+        return;
+      }
       if (e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return;
       if (isTyping(e.target)) return;
       // Открытый слой (карточка, окно) сам обрабатывает клавиши; глобальные там только мешают.
