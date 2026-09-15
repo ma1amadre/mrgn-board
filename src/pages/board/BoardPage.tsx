@@ -52,6 +52,19 @@ export function BoardPage() {
     (f: TaskFilters) => setSp(serializeFilters(f, sp), { replace: true }),
     [sp, setSp],
   );
+  // Вид — только фильтры: task и new не сохраняются и при применении не трогаются.
+  const viewQuery = serializeFilters(filters).toString();
+  const applyView = useCallback(
+    (query: string) => {
+      const next = new URLSearchParams(query);
+      for (const key of ['task', 'new']) {
+        const v = sp.get(key);
+        if (v) next.set(key, v);
+      }
+      setSp(next, { replace: true });
+    },
+    [sp, setSp],
+  );
   const selectedId = sp.get('task');
   const openTask = useCallback(
     (id: string | null) => {
@@ -219,6 +232,8 @@ export function BoardPage() {
         labels={allLabels}
         hiddenDone={hiddenDone}
         onChange={setFilters}
+        viewQuery={viewQuery}
+        onApplyView={applyView}
       />
       {loading ? (
         <div className="board" aria-busy="true">

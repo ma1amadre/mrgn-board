@@ -8,6 +8,7 @@ import {
 } from '../../shared/lib/filters';
 import { PRIORITIES, PRIORITY_LABEL, type Priority } from '../../shared/lib/labels';
 import { plural } from '../../shared/lib/text';
+import { BoardViews } from './BoardViews';
 
 export function BoardFilters({
   filters,
@@ -15,7 +16,9 @@ export function BoardFilters({
   clients,
   labels,
   hiddenDone,
+  viewQuery,
   onChange,
+  onApplyView,
 }: {
   filters: TaskFilters;
   profiles: Profile[];
@@ -25,6 +28,9 @@ export function BoardFilters({
   /** Сколько давно закрытых задач скрыто с доски. */
   hiddenDone: number;
   onChange: (f: TaskFilters) => void;
+  /** Текущие фильтры строкой запроса — для сохранённых видов. */
+  viewQuery: string;
+  onApplyView: (query: string) => void;
 }) {
   // На телефоне селекты свёрнуты за кнопкой «Фильтры»: иначе они съедали полэкрана над доской.
   const [open, setOpen] = useState(false);
@@ -45,6 +51,7 @@ export function BoardFilters({
         value={filters.q}
         onChange={(e) => onChange({ ...filters, q: e.target.value })}
       />
+      <BoardViews current={viewQuery} canSave={isFilterActive(filters)} onApply={onApplyView} />
       <button
         type="button"
         className="btn btn-secondary btn-sm toolbar-toggle"

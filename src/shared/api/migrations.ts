@@ -24,6 +24,8 @@ export const EXPECTED_MIGRATIONS = [
   '018_client_contacts',
   '019_recurring_tasks',
   '020_activity_checklist_attachments',
+  '021_board_views',
+  '022_archive',
 ] as const;
 
 export async function fetchAppliedMigrations(): Promise<string[]> {
