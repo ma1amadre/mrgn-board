@@ -19,6 +19,7 @@ const NAV: NavItem[] = [
   { to: '/deals', label: 'Сделки' },
   { to: '/ideas', label: 'Идеи' },
   { to: '/team', label: 'Команда' },
+  { to: '/settings/templates', label: 'Шаблоны' },
 ];
 const ADMIN_NAV: NavItem[] = [
   { to: '/settings/stages', label: 'Стадии' },

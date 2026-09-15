@@ -676,6 +676,85 @@ export type Database = {
           },
         ];
       };
+      task_recurrences: {
+        Row: {
+          active: boolean;
+          assignee_id: string | null;
+          checklist: string[];
+          client_id: string | null;
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          due_offset_days: number;
+          id: string;
+          labels: string[];
+          next_run: string;
+          period: Database['public']['Enums']['recurrence_period'];
+          priority: Database['public']['Enums']['task_priority'];
+          run_day: number;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          active?: boolean;
+          assignee_id?: string | null;
+          checklist?: string[];
+          client_id?: string | null;
+          created_at?: string;
+          created_by: string;
+          description?: string | null;
+          due_offset_days?: number;
+          id?: string;
+          labels?: string[];
+          next_run: string;
+          period: Database['public']['Enums']['recurrence_period'];
+          priority?: Database['public']['Enums']['task_priority'];
+          run_day: number;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          active?: boolean;
+          assignee_id?: string | null;
+          checklist?: string[];
+          client_id?: string | null;
+          created_at?: string;
+          created_by?: string;
+          description?: string | null;
+          due_offset_days?: number;
+          id?: string;
+          labels?: string[];
+          next_run?: string;
+          period?: Database['public']['Enums']['recurrence_period'];
+          priority?: Database['public']['Enums']['task_priority'];
+          run_day?: number;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_recurrences_assignee_id_fkey';
+            columns: ['assignee_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'task_recurrences_client_id_fkey';
+            columns: ['client_id'];
+            isOneToOne: false;
+            referencedRelation: 'clients';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'task_recurrences_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       task_templates: {
         Row: {
           checklist: string[];
@@ -847,8 +926,17 @@ export type Database = {
       notify_due_digest: { Args: never; Returns: number };
       notify_status: { Args: never; Returns: Json };
       notify_test: { Args: never; Returns: string };
+      recurrence_next: {
+        Args: {
+          p_from: string;
+          p_period: Database['public']['Enums']['recurrence_period'];
+          p_run_day: number;
+        };
+        Returns: string;
+      };
       renumber_stage: { Args: { p_stage_id: string }; Returns: undefined };
       setting: { Args: { p_key: string }; Returns: string };
+      spawn_recurring_tasks: { Args: never; Returns: number };
       swap_stage_positions: {
         Args: { p_a: string; p_b: string };
         Returns: undefined;
@@ -865,6 +953,7 @@ export type Database = {
       deal_stage: 'new' | 'contact' | 'proposal' | 'negotiation' | 'won' | 'lost';
       idea_status: 'new' | 'discussing' | 'accepted' | 'rejected';
       profile_role: 'admin' | 'member';
+      recurrence_period: 'week' | 'month';
       task_priority: 'low' | 'normal' | 'high' | 'urgent';
     };
     CompositeTypes: {
@@ -995,6 +1084,7 @@ export const Constants = {
       deal_stage: ['new', 'contact', 'proposal', 'negotiation', 'won', 'lost'],
       idea_status: ['new', 'discussing', 'accepted', 'rejected'],
       profile_role: ['admin', 'member'],
+      recurrence_period: ['week', 'month'],
       task_priority: ['low', 'normal', 'high', 'urgent'],
     },
   },

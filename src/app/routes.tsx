@@ -39,6 +39,9 @@ const NotificationsPage = lazy(() =>
 const TemplatesPage = lazy(() =>
   import('../pages/settings/TemplatesPage').then((m) => ({ default: m.TemplatesPage })),
 );
+const RecurringPage = lazy(() =>
+  import('../pages/settings/RecurringPage').then((m) => ({ default: m.RecurringPage })),
+);
 const LoginPage = lazy(() =>
   import('../pages/login/LoginPage').then((m) => ({ default: m.LoginPage })),
 );
@@ -76,6 +79,7 @@ export function AppRoutes() {
             <Route path="ideas" element={<IdeasPage />} />
             <Route path="team" element={<TeamPage />} />
             <Route path="settings/templates" element={<TemplatesPage />} />
+            <Route path="settings/recurring" element={<RecurringPage />} />
             <Route element={<RequireAdmin />}>
               <Route path="settings/stages" element={<StagesPage />} />
               <Route path="settings/notifications" element={<NotificationsPage />} />

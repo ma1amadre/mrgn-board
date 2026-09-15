@@ -25,6 +25,7 @@ export const keys = {
   settings: ['settings'] as const,
   invites: ['invites'] as const,
   templates: ['templates'] as const,
+  recurrences: ['recurrences'] as const,
   notifyStatus: ['notify-status'] as const,
   notifications: ['notifications'] as const,
   migrations: ['migrations'] as const,

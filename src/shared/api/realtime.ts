@@ -21,6 +21,7 @@ const TABLE_KEYS: Record<string, readonly string[]> = {
   app_settings: keys.settings,
   invites: keys.invites,
   task_templates: keys.templates,
+  task_recurrences: keys.recurrences,
   notifications: keys.notifications,
 };
 

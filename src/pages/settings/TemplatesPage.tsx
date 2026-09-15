@@ -30,8 +30,8 @@ export function TemplatesPage() {
       <PageHead
         title="Шаблоны задач"
         actions={
-          <Link className="btn btn-secondary" to="/board">
-            К доске
+          <Link className="btn btn-secondary" to="/settings/recurring">
+            Повторяющиеся задачи
           </Link>
         }
       />
