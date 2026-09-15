@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useActivity } from '../../shared/api/activity';
 import { useComments } from '../../shared/api/comments';
-import { useTaskMutations } from '../../shared/api/tasks';
+import { useTaskMutations, useTasks } from '../../shared/api/tasks';
 import type { Client, Profile, Stage, TaskWithRefs } from '../../shared/api/types';
 import { formatDate, formatDateTime } from '../../shared/lib/dates';
 import { PRIORITY_BADGE, PRIORITY_LABEL } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
 import { useConfirm } from '../../shared/ui/confirmContext';
 import { Drawer } from '../../shared/ui/Drawer';
+import { Menu } from '../../shared/ui/Menu';
 import { Markdown } from '../../shared/ui/Markdown';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
@@ -16,6 +17,7 @@ import { ActivityList } from './ActivityList';
 import { Attachments } from './Attachments';
 import { Checklist } from './Checklist';
 import { SaveTemplateModal } from './SaveTemplateModal';
+import { useTaskQuickActions } from './useTaskQuickActions';
 import { CommentsList } from './CommentsList';
 import { dueBadgeClass } from './dueBadge';
 import { TaskForm, type TaskFormValues } from './TaskForm';
@@ -47,6 +49,9 @@ export function TaskDrawer({
   // Счётчики для заголовков секций; сами списки грузят те же запросы из кеша.
   const comments = useComments(task?.id ?? null);
   const activity = useActivity(task?.id ?? '', task !== undefined);
+  // Те же быстрые действия, что в меню карточки на доске: стадия, исполнитель, срок без формы.
+  const allTasks = useTasks().data ?? [];
+  const actionsFor = useTaskQuickActions(stages, allTasks, today);
 
   if (!task) {
     return (
@@ -100,7 +105,16 @@ export function TaskDrawer({
   };
 
   return (
-    <Drawer title={<h2>{task.title}</h2>} onClose={onClose} dirty={editing && dirty}>
+    <Drawer
+      title={
+        <div className="row" style={{ flexWrap: 'nowrap' }}>
+          <h2 className="grow">{task.title}</h2>
+          {editing ? null : <Menu label="Быстрые действия" items={actionsFor(task)} />}
+        </div>
+      }
+      onClose={onClose}
+      dirty={editing && dirty}
+    >
       {editing ? (
         <TaskForm
           initial={initial}
