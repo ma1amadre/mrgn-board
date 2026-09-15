@@ -121,6 +121,20 @@ docker exec -i supabase_db_mrgn-board psql -U postgres -d postgres \
 `task_id/uuid.ext`, исходное имя хранится в `task_attachments`. При удалении задачи строки уходят
 каскадом, а файлы в бакете остаются — чистить вручную в Storage, если станет жалко места.
 
+## Резервные копии
+
+На бесплатном тарифе Supabase бэкапов нет, поэтому workflow `.github/workflows/backup.yml` каждую
+ночь (05:00 МСК) снимает `supabase db dump` (схема + данные), шифрует его gpg (AES-256) и кладёт
+артефактом на 90 дней. Нужны два секрета в Settings → Secrets and variables → Actions:
+
+- `SUPABASE_DB_URL` — строка подключения с паролем (Project Settings → Database → Connection
+  string, режим Session pooler или Direct);
+- `BACKUP_PASSPHRASE` — любая длинная фраза, без неё дамп не выкладывается.
+
+Восстановление: скачать артефакт, `gpg -d mrgn-board-YYYYMMDD.tgz.gpg | tar xz`, затем на пустой
+проект `psql "$DB_URL" -f schema.sql` и `psql "$DB_URL" -f data.sql`. Файлы вложений из Storage
+в дамп не входят. Запустить вручную: Actions → «Резервная копия базы» → Run workflow.
+
 ## PWA
 
 Есть манифест и service worker (`public/sw.js`, только в проде): приложение ставится на рабочий

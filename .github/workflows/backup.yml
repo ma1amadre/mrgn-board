@@ -1,0 +1,51 @@
+# Ночная резервная копия базы: на бесплатном тарифе Supabase своих бэкапов нет.
+# Дамп шифруется симметрично (gpg, AES-256) и лежит артефактом 90 дней — репозиторий публичный,
+# артефакты в открытом виде класть нельзя. Файлы из Storage (вложения) в дамп не входят.
+name: Резервная копия базы
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # 05:00 МСК
+  workflow_dispatch:
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    if: github.repository == 'ma1amadre/mrgn-board'
+    steps:
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Дамп схемы и данных
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::Секрет SUPABASE_DB_URL не задан: Settings → Secrets → Actions"
+            exit 1
+          fi
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only -f data.sql
+          ls -la schema.sql data.sql
+
+      - name: Шифрование
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::error::Секрет BACKUP_PASSPHRASE не задан: без него дамп в открытом виде не выкладываем"
+            exit 1
+          fi
+          tar czf backup.tgz schema.sql data.sql
+          gpg --batch --yes --symmetric --cipher-algo AES256 \
+            --passphrase "$BACKUP_PASSPHRASE" -o "mrgn-board-$(date -u +%Y%m%d).tgz.gpg" backup.tgz
+          rm -f schema.sql data.sql backup.tgz
+          ls -la *.tgz.gpg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: '*.tgz.gpg'
+          retention-days: 90
+          if-no-files-found: error
