@@ -16,7 +16,15 @@ export function primaryContact<T extends ContactLike>(contacts: readonly T[]): T
   );
 }
 
-/** «Ирина · +7 900 000-00-00 · @irina» — для таблицы и CSV; пустые части не показываем. */
+/** «+7 900 000-00-00 · @irina» — только способы связи, для отдельной колонки CSV. */
+export function contactWays(c: ContactLike | undefined): string {
+  if (!c) return '';
+  return [c.phone, c.email, c.telegram ? `@${c.telegram}` : null]
+    .filter((s): s is string => Boolean(s))
+    .join(' · ');
+}
+
+/** «Ирина · +7 900 000-00-00 · @irina» — для таблицы; пустые части не показываем. */
 export function contactLine(c: ContactLike | undefined): string {
   if (!c) return '';
   return [c.name, c.phone, c.email, c.telegram ? `@${c.telegram}` : null]

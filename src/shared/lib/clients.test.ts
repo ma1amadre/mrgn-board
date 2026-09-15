@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { contactLine, primaryContact, withCurrentClient } from './clients';
+import { contactLine, contactWays, primaryContact, withCurrentClient } from './clients';
 
 const c = (over: Partial<Parameters<typeof contactLine>[0] & object> & { name: string }) => ({
   role: null,
@@ -28,6 +28,10 @@ describe('contactLine', () => {
     );
     expect(contactLine(c({ name: 'Дмитрий' }))).toBe('Дмитрий');
     expect(contactLine(undefined)).toBe('');
+    expect(contactWays(c({ name: 'Ирина', phone: '+7 900', telegram: 'irina' }))).toBe(
+      '+7 900 · @irina',
+    );
+    expect(contactWays(c({ name: 'Дмитрий' }))).toBe('');
   });
 });
 

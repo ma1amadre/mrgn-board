@@ -17,6 +17,8 @@ const TABLE_KEYS: Record<string, readonly string[]> = {
   task_attachments: keys.tasks.all,
   stages: keys.stages.all,
   clients: keys.clients.all,
+  // Контакты приезжают вложенными в клиентов.
+  client_contacts: keys.clients.all,
   profiles: keys.profiles.all,
   app_settings: keys.settings,
   invites: keys.invites,
