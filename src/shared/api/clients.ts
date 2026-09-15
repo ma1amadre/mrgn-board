@@ -7,9 +7,27 @@ import type { ClientWithContacts, Inserts, Updates } from './types';
 const CLIENT_SELECT = '*, contacts:client_contacts(*)';
 
 export async function fetchClients(): Promise<ClientWithContacts[]> {
-  const { data, error } = await supabase.from('clients').select(CLIENT_SELECT).order('name');
+  const { data, error } = await supabase
+    .from('clients')
+    .select(CLIENT_SELECT)
+    .is('archived_at', null)
+    .order('name');
   if (error) throw error;
   return data as ClientWithContacts[];
+}
+
+export async function fetchArchivedClients(): Promise<ClientWithContacts[]> {
+  const { data, error } = await supabase
+    .from('clients')
+    .select(CLIENT_SELECT)
+    .not('archived_at', 'is', null)
+    .order('archived_at', { ascending: false });
+  if (error) throw error;
+  return data as ClientWithContacts[];
+}
+
+export function useArchivedClients() {
+  return useQuery({ queryKey: keys.clients.archived, queryFn: fetchArchivedClients });
 }
 
 export function useClients() {

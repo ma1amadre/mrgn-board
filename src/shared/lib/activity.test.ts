@@ -54,6 +54,14 @@ describe('describeActivity', () => {
       describeActivity({ kind: 'attachment_remove', from_value: 'прайс.txt', to_value: null }),
     ).toBe('Файл удалён: прайс.txt');
   });
+  it('архив', () => {
+    expect(describeActivity({ kind: 'archived', from_value: null, to_value: null })).toBe(
+      'Задача в архиве',
+    );
+    expect(describeActivity({ kind: 'restored', from_value: null, to_value: null })).toBe(
+      'Задача восстановлена из архива',
+    );
+  });
   it('неизвестный kind не роняет ленту', () => {
     expect(describeActivity({ kind: 'weird', from_value: null, to_value: null })).toBe(
       'Изменение: weird',

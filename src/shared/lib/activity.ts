@@ -54,6 +54,10 @@ export function describeActivity(
       return `Файл добавлен: ${to ?? ''}`;
     case 'attachment_remove':
       return `Файл удалён: ${from ?? ''}`;
+    case 'archived':
+      return 'Задача в архиве';
+    case 'restored':
+      return 'Задача восстановлена из архива';
     case 'labels':
       return `Метки: ${from || NONE} → ${to || NONE}`;
     default:

@@ -78,6 +78,13 @@ export function ClientPage() {
     );
   };
 
+  const archive = () => {
+    update.mutate(
+      { id: client.id, patch: { archived_at: new Date().toISOString() } },
+      { onSuccess: () => navigate('/clients'), onError: (err) => toast.error(err) },
+    );
+  };
+
   const del = async () => {
     const ok = await confirm({
       title: `Удалить клиента «${client.name}»?`,
@@ -123,6 +130,14 @@ export function ClientPage() {
             </Link>
             <button type="button" className="btn btn-secondary" onClick={() => setEditing(true)}>
               Редактировать
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={archive}
+              disabled={update.isPending}
+            >
+              В архив
             </button>
             {isAdmin ? (
               <button

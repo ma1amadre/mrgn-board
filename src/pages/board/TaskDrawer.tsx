@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../app/auth/authContext';
 import { useActivity } from '../../shared/api/activity';
 import { useComments } from '../../shared/api/comments';
 import { useTaskMutations, useTasks } from '../../shared/api/tasks';
@@ -42,6 +43,7 @@ export function TaskDrawer({
   const toast = useToast();
   const confirm = useConfirm();
   const { update, remove } = useTaskMutations();
+  const { isAdmin } = useAuth();
   const [editing, setEditing] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [savingTemplate, setSavingTemplate] = useState(false);
@@ -89,6 +91,14 @@ export function TaskDrawer({
         },
       },
       { onSuccess: () => setEditing(false), onError: (err) => toast.error(err) },
+    );
+  };
+
+  // Архив вместо удаления: задача уходит с доски, но остаётся в разделе «Архив».
+  const archive = () => {
+    update.mutate(
+      { id: task.id, patch: { archived_at: new Date().toISOString() } },
+      { onSuccess: onClose, onError: (err) => toast.error(err) },
     );
   };
 
@@ -197,11 +207,21 @@ export function TaskDrawer({
             <button
               type="button"
               className="btn btn-ghost btn-sm"
-              onClick={() => void del()}
-              disabled={remove.isPending}
+              onClick={archive}
+              disabled={update.isPending}
             >
-              Удалить
+              В архив
             </button>
+            {isAdmin ? (
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => void del()}
+                disabled={remove.isPending}
+              >
+                Удалить
+              </button>
+            ) : null}
           </div>
         </>
       )}

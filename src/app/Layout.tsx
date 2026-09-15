@@ -22,6 +22,7 @@ const NAV: NavItem[] = [
   { to: '/reports', label: 'Отчёты' },
   { to: '/team', label: 'Команда' },
   { to: '/settings/templates', label: 'Шаблоны' },
+  { to: '/archive', label: 'Архив' },
 ];
 const ADMIN_NAV: NavItem[] = [
   { to: '/settings/stages', label: 'Стадии' },

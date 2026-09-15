@@ -61,6 +61,38 @@ export type Database = {
         };
         Relationships: [];
       };
+      board_views: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          profile_id: string;
+          query: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          profile_id: string;
+          query: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          profile_id?: string;
+          query?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'board_views_profile_id_fkey';
+            columns: ['profile_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       client_contacts: {
         Row: {
           client_id: string;
@@ -123,6 +155,7 @@ export type Database = {
       };
       clients: {
         Row: {
+          archived_at: string | null;
           created_at: string;
           created_by: string;
           direction: Database['public']['Enums']['client_direction'];
@@ -133,6 +166,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          archived_at?: string | null;
           created_at?: string;
           created_by: string;
           direction?: Database['public']['Enums']['client_direction'];
@@ -143,6 +177,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          archived_at?: string | null;
           created_at?: string;
           created_by?: string;
           direction?: Database['public']['Enums']['client_direction'];
@@ -804,6 +839,7 @@ export type Database = {
       };
       tasks: {
         Row: {
+          archived_at: string | null;
           assignee_id: string | null;
           client_id: string | null;
           created_at: string;
@@ -821,6 +857,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          archived_at?: string | null;
           assignee_id?: string | null;
           client_id?: string | null;
           created_at?: string;
@@ -838,6 +875,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          archived_at?: string | null;
           assignee_id?: string | null;
           client_id?: string | null;
           created_at?: string;

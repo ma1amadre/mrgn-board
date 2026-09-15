@@ -8,10 +8,29 @@ import type { Inserts, Stage, TaskWithRefs, Updates } from './types';
 const TASK_SELECT =
   '*, assignee:profiles!tasks_assignee_id_fkey(id,name,color), client:clients(id,name), checklist:task_checklist_items(*), attachments:task_attachments(*)';
 
+/** Архивные на доску не попадают — у них свой запрос. */
 export async function fetchTasks(): Promise<TaskWithRefs[]> {
-  const { data, error } = await supabase.from('tasks').select(TASK_SELECT).order('created_at');
+  const { data, error } = await supabase
+    .from('tasks')
+    .select(TASK_SELECT)
+    .is('archived_at', null)
+    .order('created_at');
   if (error) throw error;
   return data as TaskWithRefs[];
+}
+
+export async function fetchArchivedTasks(): Promise<TaskWithRefs[]> {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select(TASK_SELECT)
+    .not('archived_at', 'is', null)
+    .order('archived_at', { ascending: false });
+  if (error) throw error;
+  return data as TaskWithRefs[];
+}
+
+export function useArchivedTasks() {
+  return useQuery({ queryKey: keys.tasks.archived, queryFn: fetchArchivedTasks });
 }
 
 /** Один кеш на доску, обзор и карточку клиента; фильтры считаются на клиенте. */
