@@ -29,6 +29,16 @@ export async function addComment(input: Inserts<'comments'>): Promise<void> {
   if (error) throw error;
 }
 
+export async function updateComment(id: string, body: string): Promise<void> {
+  const { data, error } = await supabase
+    .from('comments')
+    .update({ body })
+    .eq('id', id)
+    .select('id');
+  if (error) throw error;
+  assertAffected(data);
+}
+
 export async function deleteComment(id: string): Promise<void> {
   const { data, error } = await supabase.from('comments').delete().eq('id', id).select('id');
   if (error) throw error;
@@ -40,6 +50,10 @@ export function useCommentMutations(taskId: string) {
   const invalidate = () => qc.invalidateQueries({ queryKey: keys.comments.byTask(taskId) });
   return {
     add: useMutation({ mutationFn: addComment, onSettled: invalidate }),
+    update: useMutation({
+      mutationFn: ({ id, body }: { id: string; body: string }) => updateComment(id, body),
+      onSettled: invalidate,
+    }),
     remove: useMutation({ mutationFn: deleteComment, onSettled: invalidate }),
   };
 }

@@ -5,9 +5,7 @@ import { useIdeaCommentMutations, useIdeaComments } from '../../shared/api/ideaC
 import { keys } from '../../shared/api/keys';
 import { useProfiles } from '../../shared/api/profiles';
 import type { IdeaCommentWithAuthor } from '../../shared/api/types';
-import { formatDateTime } from '../../shared/lib/dates';
-import { Avatar } from '../../shared/ui/Avatar';
-import { Markdown } from '../../shared/ui/Markdown';
+import { CommentItem } from '../../shared/ui/CommentItem';
 import { MentionTextarea } from '../../shared/ui/MentionTextarea';
 import { useToast } from '../../shared/ui/toastContext';
 import { useUndoable } from '../../shared/ui/useUndoable';
@@ -21,7 +19,7 @@ export function IdeaComments({ ideaId }: { ideaId: string }) {
   const undoable = useUndoable();
   const comments = useIdeaComments(ideaId, true);
   const profiles = useProfiles();
-  const { add, remove } = useIdeaCommentMutations(ideaId);
+  const { add, update, remove } = useIdeaCommentMutations(ideaId);
   const [body, setBody] = useState('');
 
   const names = useMemo(() => (profiles.data ?? []).map((p) => p.name), [profiles.data]);
@@ -40,6 +38,16 @@ export function IdeaComments({ ideaId }: { ideaId: string }) {
     );
   };
 
+  const save = async (id: string, text: string): Promise<boolean> => {
+    try {
+      await update.mutateAsync({ id, body: text });
+      return true;
+    } catch (err) {
+      toast.error(err);
+      return false;
+    }
+  };
+
   const del = (id: string) => {
     const key = keys.ideaComments.byIdea(ideaId);
     qc.setQueryData<IdeaCommentWithAuthor[]>(key, (xs) => xs?.filter((c) => c.id !== id));
@@ -54,25 +62,16 @@ export function IdeaComments({ ideaId }: { ideaId: string }) {
       {comments.isPending ? <p className="muted small">Загрузка…</p> : null}
       {comments.data?.length === 0 ? <p className="muted small">Пока никто не написал.</p> : null}
       {comments.data?.map((c) => (
-        <div key={c.id} className="comment">
-          <div className="comment-meta">
-            {c.author ? <Avatar name={c.author.name} color={c.author.color} /> : null}
-            <span>{c.author?.name ?? 'Удалённый пользователь'}</span>
-            <span>·</span>
-            <span>{formatDateTime(c.created_at)}</span>
-            {isAdmin || c.author_id === me.id ? (
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                style={{ marginLeft: 'auto' }}
-                onClick={() => del(c.id)}
-              >
-                Удалить
-              </button>
-            ) : null}
-          </div>
-          <Markdown text={c.body} mentions={names} />
-        </div>
+        <CommentItem
+          key={c.id}
+          comment={c}
+          names={names}
+          mentionable={mentionable}
+          canEdit={c.author_id === me.id}
+          canDelete={isAdmin || c.author_id === me.id}
+          onSave={(text) => save(c.id, text)}
+          onDelete={() => del(c.id)}
+        />
       ))}
       <form className="stack" onSubmit={submit}>
         <MentionTextarea

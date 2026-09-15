@@ -30,6 +30,16 @@ export async function addIdeaComment(input: Inserts<'idea_comments'>): Promise<v
   if (error) throw error;
 }
 
+export async function updateIdeaComment(id: string, body: string): Promise<void> {
+  const { data, error } = await supabase
+    .from('idea_comments')
+    .update({ body })
+    .eq('id', id)
+    .select('id');
+  if (error) throw error;
+  assertAffected(data);
+}
+
 export async function deleteIdeaComment(id: string): Promise<void> {
   const { data, error } = await supabase.from('idea_comments').delete().eq('id', id).select('id');
   if (error) throw error;
@@ -45,6 +55,10 @@ export function useIdeaCommentMutations(ideaId: string) {
   };
   return {
     add: useMutation({ mutationFn: addIdeaComment, onSettled: invalidate }),
+    update: useMutation({
+      mutationFn: ({ id, body }: { id: string; body: string }) => updateIdeaComment(id, body),
+      onSettled: invalidate,
+    }),
     remove: useMutation({ mutationFn: deleteIdeaComment, onSettled: invalidate }),
   };
 }
