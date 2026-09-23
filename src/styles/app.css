@@ -816,6 +816,16 @@ code {
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: var(--s-2);
 }
+/* Счётчик дня: .badge-count в ките красный (для непрочитанных), здесь ноль — нейтральный,
+   день с задачами — акцентный; иначе вся неделя горела красными нулями. */
+.day .badge-count {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+.day .badge-count.badge-accent {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
 .day {
   display: flex;
   flex-direction: column;
