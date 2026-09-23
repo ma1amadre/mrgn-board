@@ -22,6 +22,7 @@ import { Avatar } from '../../shared/ui/Avatar';
 import { useConfirm } from '../../shared/ui/confirmContext';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Markdown } from '../../shared/ui/Markdown';
+import { Menu } from '../../shared/ui/Menu';
 import { PageHead } from '../../shared/ui/PageHead';
 import { useToast } from '../../shared/ui/toastContext';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
@@ -168,34 +169,20 @@ export function ClientPage() {
                 Восстановить
               </button>
             ) : (
-              <>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setEditing(true)}
-                >
-                  Редактировать
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  onClick={archive}
-                  disabled={update.isPending}
-                >
-                  В архив
-                </button>
-              </>
-            )}
-            {isAdmin ? (
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => void del()}
-                disabled={remove.isPending}
-              >
-                Удалить
+              <button type="button" className="btn btn-secondary" onClick={() => setEditing(true)}>
+                Редактировать
               </button>
-            ) : null}
+            )}
+            {/* Архив и удаление — редкие и опасные, им место в меню, а не в ряду с основными. */}
+            <Menu
+              label="Ещё действия"
+              items={[
+                ...(isArchived ? [] : [{ key: 'archive', label: 'В архив', onSelect: archive }]),
+                ...(isAdmin
+                  ? [{ key: 'delete', label: 'Удалить…', onSelect: () => void del() }]
+                  : []),
+              ]}
+            />
           </>
         }
       />
@@ -207,84 +194,90 @@ export function ClientPage() {
           </p>
         </div>
       ) : null}
-      <div className="card">
-        {editing ? (
-          <ClientForm
-            initial={{
-              name: client.name,
-              direction: client.direction,
-              status: client.status,
-              notes: client.notes ?? '',
-            }}
-            submitLabel="Сохранить"
-            busy={update.isPending}
-            onSubmit={save}
-            onCancel={() => setEditing(false)}
-          />
-        ) : (
-          <>
-            <div className="row">
-              <span className={CLIENT_STATUS_BADGE[client.status]}>
-                {CLIENT_STATUS_LABEL[client.status]}
-              </span>
-              <span className="badge">{CLIENT_DIRECTION_LABEL[client.direction]}</span>
-            </div>
-            <div className="stack small">
-              <div className="muted">Добавлен {formatDate(client.created_at)}</div>
-            </div>
-            {client.notes ? (
-              <Markdown text={client.notes} />
+      <div className="client-layout">
+        <div className="client-main stack">
+          <div className="card">
+            {editing ? (
+              <ClientForm
+                initial={{
+                  name: client.name,
+                  direction: client.direction,
+                  status: client.status,
+                  notes: client.notes ?? '',
+                }}
+                submitLabel="Сохранить"
+                busy={update.isPending}
+                onSubmit={save}
+                onCancel={() => setEditing(false)}
+              />
             ) : (
-              <p className="muted">Без заметок.</p>
+              <>
+                <div className="row">
+                  <span className={CLIENT_STATUS_BADGE[client.status]}>
+                    {CLIENT_STATUS_LABEL[client.status]}
+                  </span>
+                  <span className="badge">{CLIENT_DIRECTION_LABEL[client.direction]}</span>
+                </div>
+                <div className="stack small">
+                  <div className="muted">Добавлен {formatDate(client.created_at)}</div>
+                </div>
+                {client.notes ? (
+                  <Markdown text={client.notes} />
+                ) : (
+                  <p className="muted">Без заметок.</p>
+                )}
+              </>
             )}
-          </>
-        )}
-      </div>
-      <ClientContacts clientId={client.id} contacts={client.contacts} />
-      <section className="stack">
-        <div className="row">
-          <h2>Сделки ({clientDeals.length})</h2>
-          {isArchived ? null : (
-            <Link className="btn btn-secondary btn-sm" to={`/deals?client=${client.id}&new=1`}>
-              Новая сделка
-            </Link>
-          )}
+          </div>
+          <ClientContacts clientId={client.id} contacts={client.contacts} />
+          <section className="stack">
+            <div className="row">
+              <h2>Сделки ({clientDeals.length})</h2>
+              {isArchived ? null : (
+                <Link className="btn btn-secondary btn-sm" to={`/deals?client=${client.id}&new=1`}>
+                  Новая сделка
+                </Link>
+              )}
+            </div>
+            {clientDeals.length === 0 ? (
+              <p className="muted">Сделок пока нет.</p>
+            ) : (
+              clientDeals.map((d) => (
+                <Link key={d.id} className="card card-interactive task" to={`/deals?deal=${d.id}`}>
+                  <div className="task-title">{d.title}</div>
+                  <div className="task-meta">
+                    <span className={DEAL_STAGE_BADGE[d.stage]}>{DEAL_STAGE_LABEL[d.stage]}</span>
+                    {d.amount !== null ? <strong>{formatMoney(d.amount)}</strong> : null}
+                    {d.expected_close ? (
+                      <span className="muted">до {formatDate(d.expected_close)}</span>
+                    ) : null}
+                    {d.owner ? <Avatar name={d.owner.name} color={d.owner.color} /> : null}
+                  </div>
+                </Link>
+              ))
+            )}
+          </section>
+          <section className="stack">
+            <h2>Открытые задачи ({open.length})</h2>
+            {open.length === 0 ? <p className="muted">Нет открытых задач.</p> : open.map(taskRow)}
+          </section>
+          {done.length > 0 ? (
+            <section className="stack">
+              <h2>Закрытые ({done.length})</h2>
+              {done.map(taskRow)}
+            </section>
+          ) : null}
         </div>
-        {clientDeals.length === 0 ? (
-          <p className="muted">Сделок пока нет.</p>
-        ) : (
-          clientDeals.map((d) => (
-            <Link key={d.id} className="card card-interactive task" to={`/deals?deal=${d.id}`}>
-              <div className="task-title">{d.title}</div>
-              <div className="task-meta">
-                <span className={DEAL_STAGE_BADGE[d.stage]}>{DEAL_STAGE_LABEL[d.stage]}</span>
-                {d.amount !== null ? <strong>{formatMoney(d.amount)}</strong> : null}
-                {d.expected_close ? (
-                  <span className="muted">до {formatDate(d.expected_close)}</span>
-                ) : null}
-                {d.owner ? <Avatar name={d.owner.name} color={d.owner.color} /> : null}
-              </div>
-            </Link>
-          ))
-        )}
-      </section>
-      <section className="stack">
-        <h2>Открытые задачи ({open.length})</h2>
-        {open.length === 0 ? <p className="muted">Нет открытых задач.</p> : open.map(taskRow)}
-      </section>
-      {done.length > 0 ? (
-        <section className="stack">
-          <h2>Закрытые ({done.length})</h2>
-          {done.map(taskRow)}
-        </section>
-      ) : null}
-      <ClientFeed
-        data={feed.data}
-        pending={feedEnabled && feed.isPending}
-        error={feed.isError || tasks.isError || deals.isError}
-        tasks={clientTasks}
-        deals={clientDeals}
-      />
+        <aside className="client-side">
+          <ClientFeed
+            data={feed.data}
+            pending={feedEnabled && feed.isPending}
+            error={feed.isError || tasks.isError || deals.isError}
+            tasks={clientTasks}
+            deals={clientDeals}
+          />
+        </aside>
+      </div>
     </>
   );
 }

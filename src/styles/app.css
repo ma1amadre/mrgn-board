@@ -157,6 +157,25 @@ textarea {
   overflow-x: auto;
 }
 
+/* Карточка клиента: на широком экране лента событий справа, а не в самом низу длинной страницы. */
+.client-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-6);
+}
+@media (min-width: 1200px) {
+  .client-layout {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    align-items: start;
+  }
+  .client-side {
+    position: sticky;
+    top: var(--s-6);
+    max-height: calc(100vh - var(--s-8));
+    overflow-y: auto;
+  }
+}
+
 /* Строка таблицы, ведущая в карточку: курсор и подсветка, чтобы кликабельность была видна. */
 .table tr.row-link {
   cursor: pointer;
