@@ -918,7 +918,8 @@ kbd {
   flex-direction: column;
   gap: var(--s-2);
   align-items: flex-start;
-  margin-top: auto;
+  /* Второй margin-top: auto делил свободную высоту пополам, и между строкой пользователя
+     и подсказкой на высоком экране появлялся пустой провал; к низу прижимает .shell-user. */
   padding-top: var(--s-4);
   color: var(--text-muted);
   font-size: var(--t-xs);
