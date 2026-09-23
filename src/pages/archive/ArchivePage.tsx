@@ -61,7 +61,7 @@ export function ArchivePage() {
         <h2>Задачи{tasks.data ? ` (${tasks.data.length})` : ''}</h2>
         {tasks.isPending ? <SkeletonRows rows={2} /> : null}
         {tasks.isError ? <EmptyState>Не удалось загрузить архив задач.</EmptyState> : null}
-        {tasks.data?.length === 0 ? <p className="muted">Архивных задач нет.</p> : null}
+        {tasks.data?.length === 0 ? <EmptyState inline>Архивных задач нет.</EmptyState> : null}
         {tasks.data?.map((t) => (
           // .card из кита — колонка, поэтому строка с действиями вложена отдельно.
           <div key={t.id} className="card">
@@ -100,7 +100,7 @@ export function ArchivePage() {
         <h2>Клиенты{clients.data ? ` (${clients.data.length})` : ''}</h2>
         {clients.isPending ? <SkeletonRows rows={2} /> : null}
         {clients.isError ? <EmptyState>Не удалось загрузить архив клиентов.</EmptyState> : null}
-        {clients.data?.length === 0 ? <p className="muted">Архивных клиентов нет.</p> : null}
+        {clients.data?.length === 0 ? <EmptyState inline>Архивных клиентов нет.</EmptyState> : null}
         {clients.data?.map((c) => (
           <div key={c.id} className="card">
             <div className="row">

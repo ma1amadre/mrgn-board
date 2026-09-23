@@ -2,13 +2,16 @@ import { Link } from 'react-router-dom';
 import type { TaskWithRefs } from '../../shared/api/types';
 import { formatDate } from '../../shared/lib/dates';
 import { Avatar } from '../../shared/ui/Avatar';
+import { EmptyState } from '../../shared/ui/EmptyState';
 import { dueBadgeClass } from '../board/dueBadge';
 
 export function DeadlinesList({ tasks, today }: { tasks: TaskWithRefs[]; today: string }) {
   return (
     <section className="card">
       <h2>Сроки: просроченные и ближайшие 7 дней</h2>
-      {tasks.length === 0 ? <p className="muted">Ничего не горит.</p> : null}
+      {tasks.length === 0 ? (
+        <EmptyState inline>Ничего не горит: просроченных и задач на неделю нет.</EmptyState>
+      ) : null}
       <div className="tile-rows">
         {tasks.map((t) => (
           <Link

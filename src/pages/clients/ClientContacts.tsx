@@ -3,6 +3,7 @@ import { useProfile } from '../../app/auth/authContext';
 import { useContactMutations } from '../../shared/api/clientContacts';
 import type { ClientContact } from '../../shared/api/types';
 import { useConfirm } from '../../shared/ui/confirmContext';
+import { EmptyState } from '../../shared/ui/EmptyState';
 import { Field } from '../../shared/ui/Field';
 import { useToast } from '../../shared/ui/toastContext';
 
@@ -220,7 +221,7 @@ export function ClientContacts({
         ) : null}
       </div>
       {sorted.length === 0 && editing !== 'new' ? (
-        <p className="muted">Контактов пока нет.</p>
+        <EmptyState inline>Контактов пока нет: с кем говорить по этому клиенту?</EmptyState>
       ) : null}
       {sorted.map((c) =>
         editing === c.id ? (

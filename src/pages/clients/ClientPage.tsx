@@ -240,7 +240,7 @@ export function ClientPage() {
               )}
             </div>
             {clientDeals.length === 0 ? (
-              <p className="muted">Сделок пока нет.</p>
+              <EmptyState inline>Сделок пока нет.</EmptyState>
             ) : (
               clientDeals.map((d) => (
                 <Link key={d.id} className="card card-interactive task" to={`/deals?deal=${d.id}`}>
@@ -259,7 +259,11 @@ export function ClientPage() {
           </section>
           <section className="stack">
             <h2>Открытые задачи ({open.length})</h2>
-            {open.length === 0 ? <p className="muted">Нет открытых задач.</p> : open.map(taskRow)}
+            {open.length === 0 ? (
+              <EmptyState inline>Открытых задач нет.</EmptyState>
+            ) : (
+              open.map(taskRow)
+            )}
           </section>
           {done.length > 0 ? (
             <section className="stack">
