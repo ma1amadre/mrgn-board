@@ -63,32 +63,35 @@ export function ArchivePage() {
         {tasks.isError ? <EmptyState>Не удалось загрузить архив задач.</EmptyState> : null}
         {tasks.data?.length === 0 ? <p className="muted">Архивных задач нет.</p> : null}
         {tasks.data?.map((t) => (
-          <div key={t.id} className="card row">
-            <div className="grow">
-              <div className="task-title">{t.title}</div>
-              <div className="small muted">
-                {t.client ? `${t.client.name} · ` : ''}
-                {t.archived_at ? `в архиве с ${formatDateTime(t.archived_at)}` : ''}
+          // .card из кита — колонка, поэтому строка с действиями вложена отдельно.
+          <div key={t.id} className="card">
+            <div className="row">
+              <div className="grow">
+                <div className="task-title">{t.title}</div>
+                <div className="small muted">
+                  {t.client ? `${t.client.name} · ` : ''}
+                  {t.archived_at ? `в архиве с ${formatDateTime(t.archived_at)}` : ''}
+                </div>
               </div>
-            </div>
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={() => restoreTask(t)}
-              disabled={taskMut.update.isPending}
-            >
-              Восстановить
-            </button>
-            {isAdmin ? (
               <button
                 type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={() => void deleteTask(t)}
-                disabled={taskMut.remove.isPending}
+                className="btn btn-secondary btn-sm"
+                onClick={() => restoreTask(t)}
+                disabled={taskMut.update.isPending}
               >
-                Удалить
+                Восстановить
               </button>
-            ) : null}
+              {isAdmin ? (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => void deleteTask(t)}
+                  disabled={taskMut.remove.isPending}
+                >
+                  Удалить
+                </button>
+              ) : null}
+            </div>
           </div>
         ))}
       </section>
@@ -99,38 +102,40 @@ export function ArchivePage() {
         {clients.isError ? <EmptyState>Не удалось загрузить архив клиентов.</EmptyState> : null}
         {clients.data?.length === 0 ? <p className="muted">Архивных клиентов нет.</p> : null}
         {clients.data?.map((c) => (
-          <div key={c.id} className="card row">
-            <div className="grow">
-              <Link className="link" to={`/clients/${c.id}`}>
-                {c.name}
-              </Link>
-              <div className="row small">
-                <span className={CLIENT_STATUS_BADGE[c.status]}>
-                  {CLIENT_STATUS_LABEL[c.status]}
-                </span>
-                <span className="muted">
-                  {c.archived_at ? `в архиве с ${formatDateTime(c.archived_at)}` : ''}
-                </span>
+          <div key={c.id} className="card">
+            <div className="row">
+              <div className="grow">
+                <Link className="link" to={`/clients/${c.id}`}>
+                  {c.name}
+                </Link>
+                <div className="row small">
+                  <span className={CLIENT_STATUS_BADGE[c.status]}>
+                    {CLIENT_STATUS_LABEL[c.status]}
+                  </span>
+                  <span className="muted">
+                    {c.archived_at ? `в архиве с ${formatDateTime(c.archived_at)}` : ''}
+                  </span>
+                </div>
               </div>
-            </div>
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={() => restoreClient(c)}
-              disabled={clientMut.update.isPending}
-            >
-              Восстановить
-            </button>
-            {isAdmin ? (
               <button
                 type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={() => void deleteClient(c)}
-                disabled={clientMut.remove.isPending}
+                className="btn btn-secondary btn-sm"
+                onClick={() => restoreClient(c)}
+                disabled={clientMut.update.isPending}
               >
-                Удалить
+                Восстановить
               </button>
-            ) : null}
+              {isAdmin ? (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => void deleteClient(c)}
+                  disabled={clientMut.remove.isPending}
+                >
+                  Удалить
+                </button>
+              ) : null}
+            </div>
           </div>
         ))}
       </section>
