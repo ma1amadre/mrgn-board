@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useProfile } from '../../app/auth/authContext';
 import { useBoardViewMutations, useBoardViews } from '../../shared/api/boardViews';
+import { IconClose } from '../../shared/ui/icons';
 import { useToast } from '../../shared/ui/toastContext';
 
 /** Сохранённые виды доски: применить, удалить, сохранить текущий набор фильтров под именем. */
@@ -96,7 +97,7 @@ export function BoardViews({
                 aria-label={`Удалить вид «${v.name}»`}
                 onClick={() => remove.mutate(v.id, { onError: (err) => toast.error(err) })}
               >
-                ×
+                <IconClose size={14} />
               </button>
             </div>
           ))}

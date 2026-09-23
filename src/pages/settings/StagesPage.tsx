@@ -5,6 +5,7 @@ import { useConfirm } from '../../shared/ui/confirmContext';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { PageHead } from '../../shared/ui/PageHead';
 import { useToast } from '../../shared/ui/toastContext';
+import { IconArrowDown, IconArrowUp } from '../../shared/ui/icons';
 import { useDocumentTitle } from '../../shared/ui/useDocumentTitle';
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -44,7 +45,7 @@ function StageRow({
             disabled={busy || isFirst}
             aria-label="Выше"
           >
-            ↑
+            <IconArrowUp />
           </button>
           <button
             type="button"
@@ -53,7 +54,7 @@ function StageRow({
             disabled={busy || isLast}
             aria-label="Ниже"
           >
-            ↓
+            <IconArrowDown />
           </button>
         </div>
       </td>

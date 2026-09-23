@@ -5,6 +5,7 @@ import type { TaskWithRefs } from '../../shared/api/types';
 import { formatDate } from '../../shared/lib/dates';
 import { PRIORITY_BADGE, PRIORITY_LABEL } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
+import { IconCheck, IconPaperclip } from '../../shared/ui/icons';
 import { Menu, type MenuItem } from '../../shared/ui/Menu';
 import { dueTone } from './dueBadge';
 
@@ -62,13 +63,15 @@ export function TaskCardView({
             })()
           : null}
         {task.checklist.length > 0 ? (
-          <span className="muted" title="Чек-лист">
-            ✓ {task.checklist.filter((i) => i.is_done).length}/{task.checklist.length}
+          <span className="muted with-icon" title="Чек-лист">
+            <IconCheck size={14} />
+            {task.checklist.filter((i) => i.is_done).length}/{task.checklist.length}
           </span>
         ) : null}
         {task.attachments.length > 0 ? (
-          <span className="muted" title="Вложения">
-            📎 {task.attachments.length}
+          <span className="muted with-icon" title="Вложения">
+            <IconPaperclip size={14} />
+            {task.attachments.length}
           </span>
         ) : null}
         {task.client ? <span className="muted">{task.client.name}</span> : null}

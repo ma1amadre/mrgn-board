@@ -9,6 +9,7 @@ import {
   type IdeaStatus,
 } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
+import { IconChevronUp, IconComment } from '../../shared/ui/icons';
 import { Markdown } from '../../shared/ui/Markdown';
 import { Menu } from '../../shared/ui/Menu';
 import { IdeaComments } from './IdeaComments';
@@ -75,7 +76,7 @@ export function IdeaCard({
           aria-pressed={hasVote}
           title={hasVote ? 'Убрать голос' : 'Поддержать'}
         >
-          ▲ {votes}
+          <IconChevronUp size={14} /> {votes}
         </button>
         <h3 className="card-title grow">{idea.title}</h3>
         {/* Статус один раз: бейдж и есть переключатель, отдельный селект в футере не нужен. */}
@@ -118,7 +119,8 @@ export function IdeaCard({
           aria-expanded={discussion}
           onClick={() => setDiscussion((v) => !v)}
         >
-          💬 {commentsCount > 0 ? `Обсуждение (${commentsCount})` : 'Обсудить'}
+          <IconComment size={14} />{' '}
+          {commentsCount > 0 ? `Обсуждение (${commentsCount})` : 'Обсудить'}
         </button>
         {task ? (
           <Link className="btn btn-ghost btn-sm" to={`/board?task=${task.id}`}>

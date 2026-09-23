@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useProfile } from '../../app/auth/authContext';
 import { useChecklistMutations } from '../../shared/api/checklist';
 import type { ChecklistItem } from '../../shared/api/types';
+import { IconClose } from '../../shared/ui/icons';
 import { useToast } from '../../shared/ui/toastContext';
 
 export function Checklist({ taskId, items }: { taskId: string; items: ChecklistItem[] }) {
@@ -62,7 +63,7 @@ export function Checklist({ taskId, items }: { taskId: string; items: ChecklistI
                 aria-label={`Удалить пункт «${item.title}»`}
                 onClick={() => remove.mutate(item.id, { onError: (err) => toast.error(err) })}
               >
-                ×
+                <IconClose size={14} />
               </button>
             </li>
           ))}

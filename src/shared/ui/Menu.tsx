@@ -7,6 +7,8 @@ import {
   type SyntheticEvent,
 } from 'react';
 
+import { IconMore } from './icons';
+
 export type MenuItem = { key: string; label: string; onSelect: () => void };
 
 /** Не даём событиям уйти в карточку: там на них висят drag (dnd-kit) и открытие задачи. */
@@ -83,7 +85,7 @@ export function Menu({
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
       >
-        {trigger ?? '⋯'}
+        {trigger ?? <IconMore />}
       </button>
       {open ? (
         <div className="popover" role="menu" aria-label={label}>

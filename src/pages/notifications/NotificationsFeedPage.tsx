@@ -9,6 +9,7 @@ import {
 import { formatRelative } from '../../shared/lib/dates';
 import { NOTIFICATION_KIND_LABEL } from '../../shared/lib/labels';
 import { EmptyState } from '../../shared/ui/EmptyState';
+import { IconCheck } from '../../shared/ui/icons';
 import { PageHead } from '../../shared/ui/PageHead';
 import { SkeletonRows } from '../../shared/ui/Skeleton';
 import { useToast } from '../../shared/ui/toastContext';
@@ -107,7 +108,7 @@ export function NotificationsFeedPage() {
                   onClick={() => markRead.mutate([n.id], { onError })}
                   disabled={markRead.isPending}
                 >
-                  ✓
+                  <IconCheck />
                 </button>
               ) : null}
             </div>

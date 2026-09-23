@@ -1,4 +1,5 @@
 import { useRef, type MouseEvent, type ReactNode } from 'react';
+import { IconClose } from './icons';
 import { useEscape } from './useEscape';
 import { useFocusTrap } from './useFocusTrap';
 
@@ -31,7 +32,7 @@ export function Modal({
             onClick={onClose}
             aria-label="Закрыть"
           >
-            ×
+            <IconClose size={18} />
           </button>
         </div>
         {children}

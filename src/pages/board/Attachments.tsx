@@ -5,6 +5,7 @@ import type { Attachment } from '../../shared/api/types';
 import { formatDateTime } from '../../shared/lib/dates';
 import { MAX_ATTACHMENT_BYTES, formatBytes, isImage } from '../../shared/lib/files';
 import { useConfirm } from '../../shared/ui/confirmContext';
+import { IconClose, IconFile, IconImage } from '../../shared/ui/icons';
 import { useToast } from '../../shared/ui/toastContext';
 
 export function Attachments({ taskId, items }: { taskId: string; items: Attachment[] }) {
@@ -49,7 +50,7 @@ export function Attachments({ taskId, items }: { taskId: string; items: Attachme
         <ul className="attachments">
           {sorted.map((a) => (
             <li key={a.id} className="attachment">
-              <span aria-hidden="true">{isImage(a.mime) ? '🖼' : '📄'}</span>
+              <span className="muted">{isImage(a.mime) ? <IconImage /> : <IconFile />}</span>
               <div className="attachment-body">
                 {urls.data?.[a.id] ? (
                   <a className="link" href={urls.data[a.id]} target="_blank" rel="noopener">
@@ -69,7 +70,7 @@ export function Attachments({ taskId, items }: { taskId: string; items: Attachme
                 onClick={() => void del(a)}
                 disabled={remove.isPending}
               >
-                ×
+                <IconClose size={14} />
               </button>
             </li>
           ))}
