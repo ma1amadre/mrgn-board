@@ -491,6 +491,17 @@ a.tile-row {
   .nav-item {
     padding: var(--s-3) var(--s-4);
   }
+  /* Пункты меню «⋯», крестик метки и поле меток тоже под палец. */
+  .popover-item {
+    min-height: 44px;
+  }
+  .chip-remove {
+    min-width: 28px;
+    min-height: 28px;
+  }
+  .labels-input {
+    min-height: 44px;
+  }
 }
 .field > .field-label {
   font: 500 var(--t-sm)/1.3 var(--font-ui);
