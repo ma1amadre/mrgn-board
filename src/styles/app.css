@@ -1153,6 +1153,8 @@ kbd {
 .notif-page {
   display: flex;
   flex-direction: column;
+  /* Лента читается как колонка, а не растянутые на весь экран строки с галочкой у правого края. */
+  max-width: 720px;
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   background: var(--surface);
