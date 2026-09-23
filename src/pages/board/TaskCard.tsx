@@ -6,9 +6,10 @@ import { formatDate } from '../../shared/lib/dates';
 import { PRIORITY_BADGE, PRIORITY_LABEL } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
 import { Menu, type MenuItem } from '../../shared/ui/Menu';
-import { dueBadgeClass } from './dueBadge';
+import { dueTone } from './dueBadge';
 
-/** Презентационная карточка: в колонке и в DragOverlay. */
+/** На карточке одна цветная вещь: срочность или горящий срок. Метки — текстом, низкий приоритет
+ *  не показывается вовсе, спокойный срок — серым; всё остальное читается в карточке задачи. */
 export function TaskCardView({
   task,
   today,
@@ -40,19 +41,26 @@ export function TaskCardView({
       {task.labels.length > 0 ? (
         <div className="task-labels">
           {task.labels.map((l) => (
-            <span key={l} className="chip">
-              {l}
+            <span key={l} className="task-label">
+              #{l}
             </span>
           ))}
         </div>
       ) : null}
       <div className="task-meta">
-        {task.priority !== 'normal' ? (
+        {task.priority === 'urgent' || task.priority === 'high' ? (
           <span className={PRIORITY_BADGE[task.priority]}>{PRIORITY_LABEL[task.priority]}</span>
         ) : null}
-        {task.due_date ? (
-          <span className={dueBadgeClass(task, today)}>{formatDate(task.due_date)}</span>
-        ) : null}
+        {task.due_date
+          ? (() => {
+              const tone = dueTone(task, today);
+              return tone ? (
+                <span className={`badge badge-${tone}`}>{formatDate(task.due_date)}</span>
+              ) : (
+                <span className="muted">{formatDate(task.due_date)}</span>
+              );
+            })()
+          : null}
         {task.checklist.length > 0 ? (
           <span className="muted" title="Чек-лист">
             ✓ {task.checklist.filter((i) => i.is_done).length}/{task.checklist.length}
