@@ -18,6 +18,7 @@ export type ChecklistItem = Tables<'task_checklist_items'>;
 export type Attachment = Tables<'task_attachments'>;
 export type Deal = Tables<'deals'>;
 export type Activity = Tables<'task_activity'>;
+export type TaskAssignee = Tables<'task_assignees'>;
 export type DealActivity = Tables<'deal_activity'>;
 
 export type ProfileRef = Pick<Profile, 'id' | 'name' | 'color'>;
@@ -25,9 +26,11 @@ export type ClientRef = Pick<Client, 'id' | 'name'>;
 /** Клиент с контактами — то, что лежит в кеше ['clients']. */
 export type ClientWithContacts = Client & { contacts: ClientContact[] };
 
-/** Задача с подтянутыми исполнителем и клиентом — то, что лежит в кеше ['tasks']. */
+/** Задача с подтянутыми исполнителями и клиентом — то, что лежит в кеше ['tasks'].
+ *  assignee_ids дублирует assignees для фильтров и сравнений без лишних map. */
 export type TaskWithRefs = Task & {
-  assignee: ProfileRef | null;
+  assignees: ProfileRef[];
+  assignee_ids: string[];
   client: ClientRef | null;
   checklist: ChecklistItem[];
   attachments: Attachment[];

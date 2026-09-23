@@ -43,7 +43,7 @@ const DUE_VALUES: ReadonlySet<string> = new Set(DUE_FILTERS);
 type FilterableTask = {
   title: string;
   description: string | null;
-  assignee_id: string | null;
+  assignee_ids: string[];
   client_id: string | null;
   client: { name: string } | null;
   priority: string;
@@ -115,8 +115,8 @@ export function applyTaskFilters<T extends FilterableTask>(
 ): T[] {
   return tasks.filter((t) => {
     if (f.assignee === UNASSIGNED) {
-      if (t.assignee_id !== null) return false;
-    } else if (f.assignee && t.assignee_id !== f.assignee) {
+      if (t.assignee_ids.length > 0) return false;
+    } else if (f.assignee && !t.assignee_ids.includes(f.assignee)) {
       return false;
     }
     if (f.client && t.client_id !== f.client) return false;

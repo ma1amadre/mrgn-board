@@ -32,6 +32,10 @@ export function describeActivity(
       return `Стадия: ${from ?? NONE} → ${to ?? NONE}`;
     case 'assignee':
       return `Исполнитель: ${from ?? 'не назначен'} → ${to ?? 'не назначен'}`;
+    case 'assignee_add':
+      return `Исполнитель добавлен: ${to ?? ''}`;
+    case 'assignee_remove':
+      return `Исполнитель снят: ${from ?? ''}`;
     case 'client':
       return `Клиент: ${from ?? NONE} → ${to ?? NONE}`;
     case 'priority':

@@ -3,7 +3,7 @@ import { addDays } from './dates';
 export type TaskLike = {
   id: string;
   stage_id: string;
-  assignee_id: string | null;
+  assignee_ids: string[];
   due_date: string | null;
   done_at: string | null;
   position: number;
@@ -43,6 +43,7 @@ export type Workload = { profileId: string | null; open: number; overdue: number
 
 /**
  * Нагрузка по исполнителям: открытые и просроченные. profileId null — без исполнителя.
+ * Задача с несколькими исполнителями считается каждому из них.
  * `profileIds` — кого показывать всегда (даже с нулём); исполнители вне списка (например,
  * деактивированные) появляются, только если у них есть открытые задачи.
  */
@@ -56,13 +57,16 @@ export function workloadByAssignee<T extends TaskLike>(
   rows.set(null, { profileId: null, open: 0, overdue: 0 });
   for (const t of tasks) {
     if (!isOpen(t)) continue;
-    let row = rows.get(t.assignee_id);
-    if (!row) {
-      row = { profileId: t.assignee_id, open: 0, overdue: 0 };
-      rows.set(t.assignee_id, row);
+    const owners: Array<string | null> = t.assignee_ids.length > 0 ? t.assignee_ids : [null];
+    for (const id of owners) {
+      let row = rows.get(id);
+      if (!row) {
+        row = { profileId: id, open: 0, overdue: 0 };
+        rows.set(id, row);
+      }
+      row.open += 1;
+      if (isOverdue(t, today)) row.overdue += 1;
     }
-    row.open += 1;
-    if (isOverdue(t, today)) row.overdue += 1;
   }
   return [...rows.values()].filter((r) => r.profileId !== null || r.open > 0);
 }

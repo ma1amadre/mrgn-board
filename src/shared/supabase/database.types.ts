@@ -704,6 +704,39 @@ export type Database = {
           },
         ];
       };
+      task_assignees: {
+        Row: {
+          created_at: string;
+          profile_id: string;
+          task_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          profile_id: string;
+          task_id: string;
+        };
+        Update: {
+          created_at?: string;
+          profile_id?: string;
+          task_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'task_assignees_profile_id_fkey';
+            columns: ['profile_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'task_assignees_task_id_fkey';
+            columns: ['task_id'];
+            isOneToOne: false;
+            referencedRelation: 'tasks';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       task_attachments: {
         Row: {
           created_at: string;
@@ -929,7 +962,6 @@ export type Database = {
       tasks: {
         Row: {
           archived_at: string | null;
-          assignee_id: string | null;
           client_id: string | null;
           created_at: string;
           created_by: string;
@@ -948,7 +980,6 @@ export type Database = {
         };
         Insert: {
           archived_at?: string | null;
-          assignee_id?: string | null;
           client_id?: string | null;
           created_at?: string;
           created_by: string;
@@ -967,7 +998,6 @@ export type Database = {
         };
         Update: {
           archived_at?: string | null;
-          assignee_id?: string | null;
           client_id?: string | null;
           created_at?: string;
           created_by?: string;
@@ -985,13 +1015,6 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [
-          {
-            foreignKeyName: 'tasks_assignee_id_fkey';
-            columns: ['assignee_id'];
-            isOneToOne: false;
-            referencedRelation: 'profiles';
-            referencedColumns: ['id'];
-          },
           {
             foreignKeyName: 'tasks_client_id_fkey';
             columns: ['client_id'];

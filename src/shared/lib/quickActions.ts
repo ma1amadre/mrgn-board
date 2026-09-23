@@ -12,15 +12,17 @@ export type QuickStage = {
 export type QuickTask = {
   id: string;
   stage_id: string;
-  assignee_id: string | null;
+  assignee_ids: string[];
   due_date: string | null;
 };
 
-/** Патч задачи для быстрого действия; stage_id всегда идёт вместе с position. */
+/** Патч задачи для быстрого действия; stage_id всегда идёт вместе с position.
+ *  assign/unassign — добавить или снять одного исполнителя (task_assignees), не патч колонки. */
 export type QuickPatch = {
   stage_id?: string;
   position?: number;
-  assignee_id?: string | null;
+  assign?: string;
+  unassign?: string;
   due_date?: string | null;
 };
 
@@ -76,10 +78,10 @@ export function quickActions(
   const out: QuickAction[] = [];
   const current = ctx.stages.find((s) => s.id === task.stage_id);
 
-  if (task.assignee_id === ctx.meId) {
-    out.push({ key: 'unassign', label: 'Снять с себя', patch: { assignee_id: null } });
+  if (task.assignee_ids.includes(ctx.meId)) {
+    out.push({ key: 'unassign', label: 'Снять с себя', patch: { unassign: ctx.meId } });
   } else {
-    out.push({ key: 'assign_me', label: 'Взять себе', patch: { assignee_id: ctx.meId } });
+    out.push({ key: 'assign_me', label: 'Взять себе', patch: { assign: ctx.meId } });
   }
 
   const toStage = (s: QuickStage): QuickPatch => ({

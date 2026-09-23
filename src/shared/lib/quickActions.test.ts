@@ -33,15 +33,26 @@ describe('стадии', () => {
 });
 
 describe('quickActions', () => {
-  const base = { id: 't', stage_id: 'work', assignee_id: null, due_date: null };
+  const base = { id: 't', stage_id: 'work', assignee_ids: [] as string[], due_date: null };
   it('открытая задача без исполнителя и срока', () => {
-    const keys = quickActions(base, ctx).map((a) => a.key);
-    expect(keys).toEqual(['assign_me', 'next_stage', 'close', 'due_tomorrow', 'due_week']);
+    const actions = quickActions(base, ctx);
+    expect(actions.map((a) => a.key)).toEqual([
+      'assign_me',
+      'next_stage',
+      'close',
+      'due_tomorrow',
+      'due_week',
+    ]);
+    expect(actions[0]?.patch).toEqual({ assign: 'me' });
   });
-  it('моя задача — «снять с себя»; срок есть — «убрать срок»; завтра уже стоит — не предлагать', () => {
-    const actions = quickActions({ ...base, assignee_id: 'me', due_date: '2026-09-13' }, ctx);
+  it('я среди исполнителей — «снять с себя»; срок есть — «убрать срок»; завтра уже стоит — не предлагать', () => {
+    const actions = quickActions(
+      { ...base, assignee_ids: ['other', 'me'], due_date: '2026-09-13' },
+      ctx,
+    );
     const keys = actions.map((a) => a.key);
     expect(keys).toContain('unassign');
+    expect(actions.find((a) => a.key === 'unassign')?.patch).toEqual({ unassign: 'me' });
     expect(keys).toContain('due_clear');
     expect(keys).not.toContain('due_tomorrow');
     expect(actions.find((a) => a.key === 'due_week')?.patch).toEqual({ due_date: '2026-09-19' });

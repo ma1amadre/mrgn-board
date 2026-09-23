@@ -13,7 +13,7 @@ const tasks = [
     id: '1',
     title: 'Поднять CDN',
     description: 'Переключить DNS на NGENIX',
-    assignee_id: 'a',
+    assignee_ids: ['a'],
     client_id: 'c1',
     client: { name: 'Интернет-магазин «Сезон»' },
     priority: 'high',
@@ -25,7 +25,7 @@ const tasks = [
     id: '2',
     title: 'Сверстать лендинг',
     description: null,
-    assignee_id: 'b',
+    assignee_ids: ['b', 'a'],
     client_id: 'c2',
     client: { name: 'Автосервис' },
     priority: 'normal',
@@ -37,7 +37,7 @@ const tasks = [
     id: '3',
     title: 'Написать бота',
     description: 'aiogram',
-    assignee_id: null,
+    assignee_ids: [],
     client_id: 'c1',
     client: { name: 'Интернет-магазин «Сезон»' },
     priority: 'urgent',
@@ -49,7 +49,7 @@ const tasks = [
     id: '4',
     title: 'Закрытая просроченная',
     description: null,
-    assignee_id: 'a',
+    assignee_ids: ['a'],
     client_id: null,
     client: null,
     priority: 'normal',
@@ -131,10 +131,14 @@ describe('applyTaskFilters', () => {
     expect(isFilterActive({ ...EMPTY_FILTERS, q: '   ' })).toBe(false);
     expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, q: '   ' })).toHaveLength(4);
   });
-  it('по исполнителю', () => {
+  it('по исполнителю: задача с несколькими исполнителями находится по каждому', () => {
     expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, assignee: 'a' }).map((t) => t.id)).toEqual([
       '1',
+      '2',
       '4',
+    ]);
+    expect(applyTaskFilters(tasks, { ...EMPTY_FILTERS, assignee: 'b' }).map((t) => t.id)).toEqual([
+      '2',
     ]);
   });
   it('без исполнителя', () => {

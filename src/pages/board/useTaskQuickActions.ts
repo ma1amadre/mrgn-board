@@ -14,13 +14,14 @@ export function useTaskQuickActions(
   const me = useProfile();
   const toast = useToast();
   const move = useMoveTask();
-  const { update } = useTaskMutations();
+  const { update, assign, unassign } = useTaskMutations();
 
   return (task) =>
     quickActions(task, { stages, tasks: allTasks, meId: me.id, today }).map((a) => ({
       key: a.key,
       label: a.label,
       onSelect: () => {
+        const onError = (err: unknown) => toast.error(err);
         if (a.patch.stage_id !== undefined) {
           move.mutate(
             {
@@ -28,10 +29,14 @@ export function useTaskQuickActions(
               stage_id: a.patch.stage_id,
               position: a.patch.position ?? task.position,
             },
-            { onError: (err) => toast.error(err) },
+            { onError },
           );
+        } else if (a.patch.assign !== undefined) {
+          assign.mutate({ id: task.id, profileId: a.patch.assign }, { onError });
+        } else if (a.patch.unassign !== undefined) {
+          unassign.mutate({ id: task.id, profileId: a.patch.unassign }, { onError });
         } else {
-          update.mutate({ id: task.id, patch: a.patch }, { onError: (err) => toast.error(err) });
+          update.mutate({ id: task.id, patch: { due_date: a.patch.due_date } }, { onError });
         }
       },
     }));

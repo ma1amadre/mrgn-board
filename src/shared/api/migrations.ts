@@ -31,6 +31,7 @@ export const EXPECTED_MIGRATIONS = [
   '025_retention',
   '026_recurrence_skip_if_open',
   '027_deal_activity',
+  '028_task_assignees',
 ] as const;
 
 export async function fetchAppliedMigrations(): Promise<string[]> {

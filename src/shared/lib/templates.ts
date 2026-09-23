@@ -12,7 +12,7 @@ export type TaskFormLike = {
   title: string;
   description: string;
   stage_id: string;
-  assignee_id: string | null;
+  assignee_ids: string[];
   client_id: string | null;
   priority: Priority;
   due_date: string | null;
@@ -28,7 +28,7 @@ export function templateToForm(
     title: t.title,
     description: t.description ?? '',
     stage_id: ctx.stage_id,
-    assignee_id: null,
+    assignee_ids: [],
     client_id: ctx.client_id,
     priority: t.priority,
     due_date: null,

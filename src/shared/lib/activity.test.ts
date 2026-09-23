@@ -13,6 +13,12 @@ describe('describeActivity', () => {
     expect(describeActivity({ kind: 'stage', from_value: 'Бэклог', to_value: 'В работе' })).toBe(
       'Стадия: Бэклог → В работе',
     );
+    expect(describeActivity({ kind: 'assignee_add', from_value: null, to_value: 'Алик' })).toBe(
+      'Исполнитель добавлен: Алик',
+    );
+    expect(describeActivity({ kind: 'assignee_remove', from_value: 'Алик', to_value: null })).toBe(
+      'Исполнитель снят: Алик',
+    );
     expect(describeActivity({ kind: 'assignee', from_value: null, to_value: 'Алик' })).toBe(
       'Исполнитель: не назначен → Алик',
     );

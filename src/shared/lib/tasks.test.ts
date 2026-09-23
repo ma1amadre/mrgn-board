@@ -14,7 +14,7 @@ const TODAY = '2026-09-11';
 function task(over: Partial<Parameters<typeof groupByStage>[0][number]> & { id: string }) {
   return {
     stage_id: 's1',
-    assignee_id: null,
+    assignee_ids: [] as string[],
     due_date: null,
     done_at: null,
     position: 0,
@@ -62,15 +62,16 @@ describe('groupByStage', () => {
 describe('workloadByAssignee', () => {
   it('считает открытые и просроченные, закрытые пропускает', () => {
     const tasks = [
-      task({ id: '1', assignee_id: 'p1', due_date: '2026-09-01' }),
-      task({ id: '2', assignee_id: 'p1' }),
-      task({ id: '3', assignee_id: 'p1', done_at: '2026-09-05T00:00:00Z' }),
-      task({ id: '4', assignee_id: null, due_date: '2026-09-01' }),
+      task({ id: '1', assignee_ids: ['p1'], due_date: '2026-09-01' }),
+      task({ id: '2', assignee_ids: ['p1', 'p2'] }),
+      task({ id: '3', assignee_ids: ['p1'], done_at: '2026-09-05T00:00:00Z' }),
+      task({ id: '4', assignee_ids: [], due_date: '2026-09-01' }),
     ];
     const rows = workloadByAssignee(tasks, ['p1', 'p2'], TODAY);
+    // Задача 2 у двоих: считается и p1, и p2.
     expect(rows).toEqual([
       { profileId: 'p1', open: 2, overdue: 1 },
-      { profileId: 'p2', open: 0, overdue: 0 },
+      { profileId: 'p2', open: 1, overdue: 0 },
       { profileId: null, open: 1, overdue: 1 },
     ]);
   });

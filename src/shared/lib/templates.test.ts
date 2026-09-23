@@ -17,7 +17,7 @@ describe('templateToForm', () => {
       title: 'Подключить CDN',
       description: '',
       stage_id: 's1',
-      assignee_id: null,
+      assignee_ids: [],
       client_id: 'c1',
       priority: 'high',
       due_date: null,

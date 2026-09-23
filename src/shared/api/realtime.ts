@@ -17,6 +17,7 @@ const TABLE_KEYS: Record<string, ReadonlyArray<readonly string[]>> = {
   // Пункты чек-листа приезжают вложенными в задачи — сбрасываем кеш задач.
   task_checklist_items: [keys.tasks.all],
   task_attachments: [keys.tasks.all],
+  task_assignees: [keys.tasks.all],
   stages: [keys.stages.all],
   clients: [keys.clients.all],
   // Контакты приезжают вложенными в клиентов.

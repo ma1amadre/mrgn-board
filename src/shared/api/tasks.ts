@@ -2,11 +2,20 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabase/client';
 import { assertAffected } from './assert';
 import { keys } from './keys';
-import type { Inserts, Stage, TaskWithRefs, Updates } from './types';
+import type { Inserts, ProfileRef, Stage, TaskWithRefs, Updates } from './types';
 
-/** Два FK на profiles (assignee_id, created_by) — без хинта PostgREST не знает, какой брать. */
+/** Исполнители — через task_assignees (028); профиль внутри может быть null, если его удалили. */
 const TASK_SELECT =
-  '*, assignee:profiles!tasks_assignee_id_fkey(id,name,color), client:clients(id,name), checklist:task_checklist_items(*), attachments:task_attachments(*)';
+  '*, assignees:task_assignees(profile:profiles(id,name,color)), client:clients(id,name), checklist:task_checklist_items(*), attachments:task_attachments(*)';
+
+type TaskRow = Omit<TaskWithRefs, 'assignees' | 'assignee_ids'> & {
+  assignees: { profile: ProfileRef | null }[];
+};
+
+function normalize(row: TaskRow): TaskWithRefs {
+  const assignees = row.assignees.map((a) => a.profile).filter((p): p is ProfileRef => p !== null);
+  return { ...row, assignees, assignee_ids: assignees.map((p) => p.id) };
+}
 
 /** Архивные на доску не попадают — у них свой запрос. */
 export async function fetchTasks(): Promise<TaskWithRefs[]> {
@@ -16,7 +25,7 @@ export async function fetchTasks(): Promise<TaskWithRefs[]> {
     .is('archived_at', null)
     .order('created_at');
   if (error) throw error;
-  return data as TaskWithRefs[];
+  return (data as unknown as TaskRow[]).map(normalize);
 }
 
 export async function fetchArchivedTasks(): Promise<TaskWithRefs[]> {
@@ -26,7 +35,31 @@ export async function fetchArchivedTasks(): Promise<TaskWithRefs[]> {
     .not('archived_at', 'is', null)
     .order('archived_at', { ascending: false });
   if (error) throw error;
-  return data as TaskWithRefs[];
+  return (data as unknown as TaskRow[]).map(normalize);
+}
+
+/** Исполнители задачи как множество: добавляем новых, снимаем выбывших; порядок не важен. */
+export async function setAssignees(
+  taskId: string,
+  next: string[],
+  current: string[],
+): Promise<void> {
+  const add = next.filter((id) => !current.includes(id));
+  const remove = current.filter((id) => !next.includes(id));
+  if (add.length > 0) {
+    const { error } = await supabase
+      .from('task_assignees')
+      .insert(add.map((profile_id) => ({ task_id: taskId, profile_id })));
+    if (error) throw error;
+  }
+  if (remove.length > 0) {
+    const { error } = await supabase
+      .from('task_assignees')
+      .delete()
+      .eq('task_id', taskId)
+      .in('profile_id', remove);
+    if (error) throw error;
+  }
 }
 
 /** enabled=false — не грузить, пока не понадобится (карточка задачи ищет в архиве только после промаха). */
@@ -39,10 +72,15 @@ export function useTasks() {
   return useQuery({ queryKey: keys.tasks.all, queryFn: fetchTasks });
 }
 
-export async function createTask(input: Inserts<'tasks'>): Promise<TaskWithRefs> {
+export async function createTask(
+  input: Inserts<'tasks'>,
+  assigneeIds: string[] = [],
+): Promise<TaskWithRefs> {
   const { data, error } = await supabase.from('tasks').insert(input).select(TASK_SELECT).single();
   if (error) throw error;
-  return data as TaskWithRefs;
+  const task = normalize(data as unknown as TaskRow);
+  if (assigneeIds.length > 0) await setAssignees(task.id, assigneeIds, []);
+  return task;
 }
 
 export async function updateTask(id: string, patch: Updates<'tasks'>): Promise<void> {
@@ -72,9 +110,35 @@ export function useTaskMutations() {
   const qc = useQueryClient();
   const invalidate = () => qc.invalidateQueries({ queryKey: keys.tasks.all });
   return {
-    create: useMutation({ mutationFn: createTask, onSettled: invalidate }),
+    create: useMutation({
+      mutationFn: ({ input, assigneeIds }: { input: Inserts<'tasks'>; assigneeIds?: string[] }) =>
+        createTask(input, assigneeIds),
+      onSettled: invalidate,
+    }),
     update: useMutation({
-      mutationFn: ({ id, patch }: { id: string; patch: Updates<'tasks'> }) => updateTask(id, patch),
+      mutationFn: async ({
+        id,
+        patch,
+        assignees,
+      }: {
+        id: string;
+        patch: Updates<'tasks'>;
+        /** Новый и текущий наборы исполнителей; без поля исполнители не трогаются. */
+        assignees?: { next: string[]; current: string[] };
+      }) => {
+        if (Object.keys(patch).length > 0) await updateTask(id, patch);
+        if (assignees) await setAssignees(id, assignees.next, assignees.current);
+      },
+      onSettled: invalidate,
+    }),
+    assign: useMutation({
+      mutationFn: ({ id, profileId }: { id: string; profileId: string }) =>
+        setAssignees(id, [profileId], []),
+      onSettled: invalidate,
+    }),
+    unassign: useMutation({
+      mutationFn: ({ id, profileId }: { id: string; profileId: string }) =>
+        setAssignees(id, [], [profileId]),
       onSettled: invalidate,
     }),
     remove: useMutation({
