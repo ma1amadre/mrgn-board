@@ -7,7 +7,7 @@ import { dueBadgeClass } from '../board/dueBadge';
 export function DeadlinesList({ tasks, today }: { tasks: TaskWithRefs[]; today: string }) {
   return (
     <section className="card">
-      <h2>Ближайшие сроки — 7 дней</h2>
+      <h2>Сроки: просроченные и ближайшие 7 дней</h2>
       {tasks.length === 0 ? <p className="muted">Ничего не горит.</p> : null}
       <div className="tile-rows">
         {tasks.map((t) => (
