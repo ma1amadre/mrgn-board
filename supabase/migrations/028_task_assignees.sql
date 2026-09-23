@@ -42,7 +42,8 @@ BEGIN
   IF TG_OP = 'INSERT' THEN
     INSERT INTO public.task_activity (task_id, actor_id, kind, to_value)
     VALUES (v_row.task_id, auth.uid(), 'assignee_add', public.activity_label(v_name, v_row.profile_id));
-  ELSE
+  -- Каскад при удалении задачи: строки истории удаляются вместе с ней, писать некуда.
+  ELSIF EXISTS (SELECT 1 FROM public.tasks WHERE id = v_row.task_id) THEN
     INSERT INTO public.task_activity (task_id, actor_id, kind, from_value)
     VALUES (v_row.task_id, auth.uid(), 'assignee_remove', public.activity_label(v_name, v_row.profile_id));
   END IF;

@@ -47,9 +47,12 @@ export async function setAssignees(
   const add = next.filter((id) => !current.includes(id));
   const remove = current.filter((id) => !next.includes(id));
   if (add.length > 0) {
-    const { error } = await supabase
-      .from('task_assignees')
-      .insert(add.map((profile_id) => ({ task_id: taskId, profile_id })));
+    // «Взять себе» из меню идёт без текущего списка, а повтор до обновления кеша или из второй
+    // вкладки не должен падать на первичном ключе — дубли молча пропускаем.
+    const { error } = await supabase.from('task_assignees').upsert(
+      add.map((profile_id) => ({ task_id: taskId, profile_id })),
+      { onConflict: 'task_id,profile_id', ignoreDuplicates: true },
+    );
     if (error) throw error;
   }
   if (remove.length > 0) {
@@ -79,7 +82,15 @@ export async function createTask(
   const { data, error } = await supabase.from('tasks').insert(input).select(TASK_SELECT).single();
   if (error) throw error;
   const task = normalize(data as unknown as TaskRow);
-  if (assigneeIds.length > 0) await setAssignees(task.id, assigneeIds, []);
+  if (assigneeIds.length === 0) return task;
+  try {
+    await setAssignees(task.id, assigneeIds, []);
+  } catch (e) {
+    // Задача уже в базе, а исполнители — нет. Убираем её, чтобы повтор из открытой формы
+    // не оставил дубль без исполнителей; если и откат не прошёл, наружу уходит исходная ошибка.
+    await supabase.from('tasks').delete().eq('id', task.id);
+    throw e;
+  }
   return task;
 }
 

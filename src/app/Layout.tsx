@@ -126,6 +126,12 @@ export function Layout() {
   const rest = nav.filter((i) => !TABBAR.has(i.to));
   // Группа раскрыта, пока пользователь внутри одного из её разделов.
   const settingsActive = settingsNav.some((i) => location.pathname.startsWith(i.to));
+  // <details open> — неконтролируемый: если группу свернули руками, переход между её разделами
+  // не меняет проп, и активный пункт остаётся спрятанным. Раскрываем при каждом таком переходе.
+  const groupRef = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (settingsActive && groupRef.current) groupRef.current.open = true;
+  }, [settingsActive, location.pathname]);
   const toggleTheme = () => setTheme(nextTheme(theme));
 
   return (
@@ -145,7 +151,7 @@ export function Layout() {
               {item.label}
             </NavLink>
           ))}
-          <details className="nav-group" open={settingsActive}>
+          <details ref={groupRef} className="nav-group" open={settingsActive}>
             <summary className="nav-group-title">Настройки</summary>
             {settingsNav.map((item) => (
               <NavLink key={item.to} to={item.to} end={item.end} className="nav-item">

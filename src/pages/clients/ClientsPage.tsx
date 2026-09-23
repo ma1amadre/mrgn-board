@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type MouseEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useProfile } from '../../app/auth/authContext';
 import { useClientMutations, useClients } from '../../shared/api/clients';
@@ -42,6 +42,13 @@ export function ClientsPage() {
   const me = useProfile();
   const toast = useToast();
   const navigate = useNavigate();
+  // Вся строка кликабельна, но ссылка и кнопки внутри обрабатывают клик сами: обычный клик по
+  // ссылке уже отменён роутером, а Ctrl/Shift+клик открывает вкладку — текущую не уводим.
+  const openRow = (e: MouseEvent<HTMLTableRowElement>, id: string) => {
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    if ((e.target as HTMLElement).closest('a, button')) return;
+    navigate(`/clients/${id}`);
+  };
   const [sp, setSp] = useSearchParams();
   const clients = useClients();
   const tasks = useTasks();
@@ -266,7 +273,7 @@ export function ClientsPage() {
             <tbody>
               {rows.map((c) => (
                 // Вся строка ведёт в карточку; ссылка в первой ячейке остаётся для клавиатуры и читалок.
-                <tr key={c.id} className="row-link" onClick={() => navigate(`/clients/${c.id}`)}>
+                <tr key={c.id} className="row-link" onClick={(e) => openRow(e, c.id)}>
                   <td>
                     <Link className="link" to={`/clients/${c.id}`}>
                       {c.name}
