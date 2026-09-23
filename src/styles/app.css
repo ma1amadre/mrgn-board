@@ -157,6 +157,14 @@ textarea {
   overflow-x: auto;
 }
 
+/* Строка таблицы, ведущая в карточку: курсор и подсветка, чтобы кликабельность была видна. */
+.table tr.row-link {
+  cursor: pointer;
+}
+.table tr.row-link:hover td {
+  background: var(--surface-2);
+}
+
 /* Клиенты на телефоне — карточки вместо таблицы с горизонтальной прокруткой. */
 .client-cards {
   display: none;

@@ -255,7 +255,8 @@ export function ClientsPage() {
             </thead>
             <tbody>
               {rows.map((c) => (
-                <tr key={c.id}>
+                // Вся строка ведёт в карточку; ссылка в первой ячейке остаётся для клавиатуры и читалок.
+                <tr key={c.id} className="row-link" onClick={() => navigate(`/clients/${c.id}`)}>
                   <td>
                     <Link className="link" to={`/clients/${c.id}`}>
                       {c.name}
