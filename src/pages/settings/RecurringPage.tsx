@@ -357,7 +357,17 @@ export function RecurringPage() {
       </p>
       {rules.isPending ? <SkeletonRows rows={3} /> : null}
       {rules.isError ? <EmptyState>Не удалось загрузить правила.</EmptyState> : null}
-      {rules.data?.length === 0 ? <EmptyState>Правил пока нет.</EmptyState> : null}
+      {rules.data?.length === 0 ? (
+        <EmptyState
+          action={
+            <button type="button" className="btn btn-primary" onClick={() => setEditing('new')}>
+              Новое правило
+            </button>
+          }
+        >
+          Правил пока нет. Еженедельный отчёт или ежемесячная проверка — хороший первый кандидат.
+        </EmptyState>
+      ) : null}
       {rules.data && rules.data.length > 0 ? (
         <div className="table-wrap">
           <table className="table">

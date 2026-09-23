@@ -210,7 +210,17 @@ export function ClientsPage() {
       </div>
       {clients.isPending ? <SkeletonRows rows={4} /> : null}
       {clients.isError ? <EmptyState>Не удалось загрузить клиентов.</EmptyState> : null}
-      {clients.data?.length === 0 ? <EmptyState>Клиентов пока нет.</EmptyState> : null}
+      {clients.data?.length === 0 ? (
+        <EmptyState
+          action={
+            <button type="button" className="btn btn-primary" onClick={() => setCreating(true)}>
+              Новый клиент
+            </button>
+          }
+        >
+          Клиентов пока нет. Начните с первого: название, направление и контакт.
+        </EmptyState>
+      ) : null}
       {clients.data && clients.data.length > 0 && rows.length === 0 ? (
         <EmptyState>Под этот фильтр никто не попал.</EmptyState>
       ) : null}

@@ -524,6 +524,19 @@ a.tile-row {
   color: var(--text-muted);
   font-size: var(--t-sm);
 }
+.empty-inline {
+  padding: var(--s-2) 0;
+  text-align: left;
+}
+.empty-action {
+  display: flex;
+  justify-content: center;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+.empty-inline .empty-action {
+  justify-content: flex-start;
+}
 .comment {
   display: flex;
   flex-direction: column;

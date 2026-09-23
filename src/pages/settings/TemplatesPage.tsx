@@ -41,7 +41,17 @@ export function TemplatesPage() {
       </p>
       {templates.isPending ? <SkeletonRows rows={3} /> : null}
       {templates.isError ? <EmptyState>Не удалось загрузить шаблоны.</EmptyState> : null}
-      {templates.data?.length === 0 ? <EmptyState>Шаблонов пока нет.</EmptyState> : null}
+      {templates.data?.length === 0 ? (
+        <EmptyState
+          action={
+            <Link className="btn btn-secondary" to="/board">
+              На доску
+            </Link>
+          }
+        >
+          Шаблонов пока нет. Откройте готовую задачу на доске и нажмите «В шаблон».
+        </EmptyState>
+      ) : null}
       {templates.data && templates.data.length > 0 ? (
         <div className="table-wrap">
           <table className="table">

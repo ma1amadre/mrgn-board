@@ -86,7 +86,15 @@ export function IdeasPage() {
       ) : null}
       {ideas.isError ? <EmptyState>Не удалось загрузить идеи.</EmptyState> : null}
       {ideas.data?.length === 0 ? (
-        <EmptyState>Идей пока нет — предложите первую.</EmptyState>
+        <EmptyState
+          action={
+            <button type="button" className="btn btn-primary" onClick={() => setCreating(true)}>
+              Новая идея
+            </button>
+          }
+        >
+          Идей пока нет. Здесь копятся предложения команды, за них голосуют и превращают в задачи.
+        </EmptyState>
       ) : null}
       <div className="stack">
         {sorted.map((idea) => (
