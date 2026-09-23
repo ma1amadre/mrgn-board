@@ -30,6 +30,7 @@ export function TeamPage() {
   const test = useNotifyTest();
   const [editing, setEditing] = useState<Profile | null>(null);
   const [draftDirty, setDraftDirty] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   useDocumentTitle('Команда');
 
   const save = (values: ProfileFormValues) => {
@@ -66,13 +67,23 @@ export function TeamPage() {
         title="Команда"
         actions={
           isAdmin ? (
-            <Link className="btn btn-secondary" to="/settings/notifications">
-              Настройка уведомлений
-            </Link>
+            <>
+              <Link className="btn btn-secondary" to="/settings/notifications">
+                Telegram-бот
+              </Link>
+              <button
+                type="button"
+                className="btn btn-primary"
+                aria-expanded={inviteOpen}
+                onClick={() => setInviteOpen((v) => !v)}
+              >
+                Пригласить
+              </button>
+            </>
           ) : null
         }
       />
-      {isAdmin ? <InvitePanel /> : null}
+      {isAdmin ? <InvitePanel open={inviteOpen} /> : null}
       {profiles.isPending ? <SkeletonRows rows={4} /> : null}
       {profiles.isError ? <EmptyState>Не удалось загрузить команду.</EmptyState> : null}
       {profiles.data ? (
