@@ -1055,6 +1055,43 @@ kbd {
   border-radius: var(--r-full);
 }
 
+/* Название задачи в шторке — кнопка в заголовке: клик открывает поле правки. */
+.title-edit {
+  all: unset;
+  cursor: text;
+  border-radius: var(--r-sm);
+  text-decoration: underline dotted transparent;
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--dur-1) var(--ease);
+}
+.title-edit:hover {
+  text-decoration-color: var(--text-faint);
+}
+.title-edit:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Аватар как кнопка меню пользователя. */
+.avatar-button {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-full);
+  background: none;
+  cursor: pointer;
+}
+@media (min-width: 801px) {
+  /* Меню открывается вверх и вправо: аватар стоит внизу сайдбара. */
+  .shell-user .menu .popover {
+    top: auto;
+    right: auto;
+    bottom: calc(100% + var(--s-1));
+    left: 0;
+    margin-top: 0;
+  }
+}
+
 /* Подпись поля со ссылкой-действием справа («Взять себе»). */
 .field-label.row {
   justify-content: space-between;

@@ -52,6 +52,8 @@ export function TaskDrawer({
   const [editing, setEditing] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [savingTemplate, setSavingTemplate] = useState(false);
+  // Черновик названия при правке по клику; null — не редактируем.
+  const [titleDraft, setTitleDraft] = useState<string | null>(null);
   useDocumentTitle(task?.title ?? null);
   // Счётчики для заголовков секций; сами списки грузят те же запросы из кеша.
   const comments = useComments(task?.id ?? null);
@@ -76,6 +78,12 @@ export function TaskDrawer({
     ...actionsFor(task),
     ...(isAdmin ? [{ key: 'delete', label: 'Удалить…', onSelect: () => void del() }] : []),
   ];
+  const saveTitle = () => {
+    const next = (titleDraft ?? '').trim();
+    setTitleDraft(null);
+    if (!next || next === task.title) return;
+    update.mutate({ id: task.id, patch: { title: next } }, { onError: (err) => toast.error(err) });
+  };
   const restore = () =>
     update.mutate(
       { id: task.id, patch: { archived_at: null } },
@@ -135,7 +143,39 @@ export function TaskDrawer({
     <Drawer
       title={
         <div className="row" style={{ flexWrap: 'nowrap' }}>
-          <h2 className="grow">{task.title}</h2>
+          {titleDraft !== null ? (
+            <input
+              className="input grow"
+              autoFocus
+              maxLength={200}
+              aria-label="Название задачи"
+              value={titleDraft}
+              onChange={(e) => setTitleDraft(e.target.value)}
+              onBlur={saveTitle}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') saveTitle();
+                if (e.key === 'Escape') {
+                  e.stopPropagation();
+                  setTitleDraft(null);
+                }
+              }}
+            />
+          ) : (
+            <h2 className="grow">
+              {editing || archived ? (
+                task.title
+              ) : (
+                <button
+                  type="button"
+                  className="title-edit"
+                  title="Нажмите, чтобы переименовать"
+                  onClick={() => setTitleDraft(task.title)}
+                >
+                  {task.title}
+                </button>
+              )}
+            </h2>
+          )}
           {editing || archived ? null : <Menu label="Быстрые действия" items={menuItems} />}
         </div>
       }

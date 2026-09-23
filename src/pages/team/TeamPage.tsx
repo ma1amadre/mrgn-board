@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth, useProfile } from '../../app/auth/authContext';
 import { useNotifyTest } from '../../shared/api/notifications';
 import { useProfiles, useUpdateProfile } from '../../shared/api/profiles';
@@ -32,6 +32,17 @@ export function TeamPage() {
   const [draftDirty, setDraftDirty] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   useDocumentTitle('Команда');
+
+  // ?edit=me приходит из меню пользователя: открыть свой профиль и убрать параметр из адреса.
+  const [sp, setSp] = useSearchParams();
+  const wantsMe = sp.get('edit') === 'me';
+  useEffect(() => {
+    if (!wantsMe) return;
+    setEditing(me);
+    const next = new URLSearchParams(sp);
+    next.delete('edit');
+    setSp(next, { replace: true });
+  }, [wantsMe, me, sp, setSp]);
 
   const save = (values: ProfileFormValues) => {
     if (!editing) return;

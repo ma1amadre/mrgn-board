@@ -1,8 +1,9 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useMissingMigrations } from '../shared/api/migrations';
 import { useRealtimeInvalidation } from '../shared/api/realtime';
 import { Avatar } from '../shared/ui/Avatar';
+import { Menu } from '../shared/ui/Menu';
 import { useToast } from '../shared/ui/toastContext';
 import { useAuth, useProfile } from './auth/authContext';
 import { CommandPalette } from './CommandPalette';
@@ -118,6 +119,7 @@ export function Layout() {
   useSwUpdateToast();
 
   const location = useLocation();
+  const navigate = useNavigate();
   const settingsNav = isAdmin ? [...SETTINGS_NAV, ...ADMIN_NAV] : SETTINGS_NAV;
   const nav = [...NAV, ...settingsNav];
   const primary = nav.filter((i) => TABBAR.has(i.to));
@@ -149,7 +151,16 @@ export function Layout() {
         </nav>
         <div className="shell-user">
           <div className="shell-user-row">
-            <Avatar name={profile.name} color={profile.color} />
+            {/* Аватар — меню: профиль и тема живут здесь, а не занимают постоянное место в подвале. */}
+            <Menu
+              label="Меню пользователя"
+              triggerClassName="avatar-button"
+              trigger={<Avatar name={profile.name} color={profile.color} />}
+              items={[
+                { key: 'profile', label: 'Профиль', onSelect: () => navigate('/team?edit=me') },
+                { key: 'theme', label: `Тема: ${THEME_LABEL[theme]}`, onSelect: toggleTheme },
+              ]}
+            />
             <span className="name grow" title={profile.email}>
               {profile.name}
             </span>
@@ -181,14 +192,6 @@ export function Layout() {
           </button>
         </div>
         <div className="shell-hint">
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm"
-            onClick={toggleTheme}
-            title="Переключить тему"
-          >
-            Тема: {THEME_LABEL[theme]}
-          </button>
           <div>
             <kbd>?</kbd> — горячие клавиши
           </div>
