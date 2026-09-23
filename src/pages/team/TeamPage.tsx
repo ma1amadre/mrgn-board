@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth, useProfile } from '../../app/auth/authContext';
 import { useNotifyTest } from '../../shared/api/notifications';
@@ -33,18 +33,22 @@ export function TeamPage() {
   const [inviteOpen, setInviteOpen] = useState(false);
   useDocumentTitle('Команда');
 
-  // ?edit=me приходит из меню пользователя: открыть свой профиль и убрать параметр из адреса.
+  // ?edit=me приходит из меню пользователя: пока параметр в адресе, открыт свой профиль;
+  // закрытие убирает параметр. Без эффекта — состояние выводится из адреса.
   const [sp, setSp] = useSearchParams();
   const wantsMe = sp.get('edit') === 'me';
-  useEffect(() => {
-    if (!wantsMe) return;
-    setEditing(me);
-    const next = new URLSearchParams(sp);
-    next.delete('edit');
-    setSp(next, { replace: true });
-  }, [wantsMe, me, sp, setSp]);
+  const shown = editing ?? (wantsMe ? me : null);
+  const closeEditor = () => {
+    setEditing(null);
+    if (wantsMe) {
+      const next = new URLSearchParams(sp);
+      next.delete('edit');
+      setSp(next, { replace: true });
+    }
+  };
 
   const save = (values: ProfileFormValues) => {
+    const editing = shown;
     if (!editing) return;
     const patch = {
       name: values.name,
@@ -60,7 +64,7 @@ export function TeamPage() {
     };
     update.mutate(
       { id: editing.id, patch },
-      { onSuccess: () => setEditing(null), onError: (err) => toast.error(err) },
+      { onSuccess: closeEditor, onError: (err) => toast.error(err) },
     );
   };
 
@@ -171,21 +175,21 @@ export function TeamPage() {
           </table>
         </div>
       ) : null}
-      {editing ? (
+      {shown ? (
         <Modal
-          title={editing.id === me.id ? 'Мой профиль' : editing.name}
-          onClose={() => setEditing(null)}
+          title={shown.id === me.id ? 'Мой профиль' : shown.name}
+          onClose={closeEditor}
           dirty={draftDirty}
         >
           <ProfileForm
-            profile={editing}
+            profile={shown}
             adminFields={isAdmin}
             busy={update.isPending}
             onSubmit={save}
-            onCancel={() => setEditing(null)}
+            onCancel={closeEditor}
             onDirtyChange={setDraftDirty}
           />
-          {editing.id === me.id ? (
+          {shown.id === me.id ? (
             <p className="small" style={{ marginTop: 'var(--s-3)' }}>
               <Link className="link" to="/reset-password">
                 Сменить пароль
