@@ -52,6 +52,14 @@ textarea {
 }
 
 /* ── Каркас: сайдбар + контент ── */
+/* Кит рисует фокус у .btn/.input/.link; у собственных интерактивов (карточки с tabindex, плитки
+   обзора, дни недели, пункты нижней панели) кольца не было. :where — нулевая специфичность,
+   правила кита остаются главнее. */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
 .shell {
   display: grid;
   grid-template-columns: 224px minmax(0, 1fr);
