@@ -55,6 +55,8 @@ describe('avgDays / dealConversion / formatDays', () => {
       ]),
     ).toBe(1.8);
     expect(avgDays([])).toBeNull();
+    // Конец раньше начала — ноль, а не отрицательные дни.
+    expect(avgDays([{ from: '2026-09-10T00:00:00Z', to: '2026-09-01T00:00:00Z' }])).toBe(0);
   });
   it('конверсия только по закрытым', () => {
     expect(dealConversion([{ stage: 'won' }, { stage: 'lost' }, { stage: 'new' }])).toEqual({

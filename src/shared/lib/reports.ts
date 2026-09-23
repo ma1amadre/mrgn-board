@@ -29,11 +29,12 @@ export function countByWeek<T>(
   return counts;
 }
 
-/** Среднее число дней между парами дат; пустой список — null. */
+/** Среднее число дней между парами дат; пустой список — null. Пара, где конец раньше начала
+ *  (импорт, правка руками), считается нулём: отрицательный «средний срок» читателю ни о чём. */
 export function avgDays(pairs: ReadonlyArray<{ from: string; to: string }>): number | null {
   if (pairs.length === 0) return null;
   const total = pairs.reduce(
-    (s, p) => s + (new Date(p.to).getTime() - new Date(p.from).getTime()) / 86_400_000,
+    (s, p) => s + Math.max(0, new Date(p.to).getTime() - new Date(p.from).getTime()) / 86_400_000,
     0,
   );
   return Math.round((total / pairs.length) * 10) / 10;
