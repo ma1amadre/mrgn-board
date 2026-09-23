@@ -68,15 +68,12 @@ function StageRow({
       </td>
       <td>
         <div className="row" style={{ flexWrap: 'nowrap' }}>
-          <span
-            aria-hidden="true"
-            style={{
-              width: 14,
-              height: 14,
-              borderRadius: 999,
-              flex: '0 0 auto',
-              background: colorValid && color ? color : 'var(--n-300)',
-            }}
+          <input
+            type="color"
+            className="color-input"
+            aria-label={`Выбрать цвет стадии «${stage.name}»`}
+            value={colorValid && color ? color : '#9aa0a0'}
+            onChange={(e) => setColor(e.target.value)}
           />
           <input
             className="input"
