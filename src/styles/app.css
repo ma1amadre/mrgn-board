@@ -1246,16 +1246,19 @@ kbd {
 }
 .bar-row {
   display: grid;
-  grid-template-columns: minmax(80px, 1fr) 2fr auto;
+  /* Подписи по-русски длинные («КП отправлено»): колонка не уже 7em, длинное переносится,
+     а не режется многоточием; полоса отдаёт лишнее. */
+  grid-template-columns: minmax(7em, 1fr) minmax(3em, 2fr) auto;
   align-items: center;
   gap: var(--s-3);
   font-size: var(--t-sm);
 }
 .bar-label {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+}
+.bar-label.row {
+  flex-wrap: nowrap;
 }
 .bar-track {
   height: 10px;
