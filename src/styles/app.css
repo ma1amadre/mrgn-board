@@ -819,7 +819,8 @@ code {
 .popover-item:hover,
 .popover-item:focus-visible {
   background: var(--surface-2);
-  outline: none;
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
 }
 
 /* «Мои задачи»: полоса недели и сетка карточек по корзинам срока. */
@@ -1117,7 +1118,8 @@ kbd {
 .notif-item:hover,
 .notif-item:focus-visible {
   background: var(--surface-2);
-  outline: none;
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
 }
 .notif-item.is-unread .notif-title {
   font-weight: 600;
