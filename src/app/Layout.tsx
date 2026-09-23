@@ -20,13 +20,14 @@ const NAV: NavItem[] = [
   { to: '/deals', label: 'Сделки' },
   { to: '/ideas', label: 'Идеи' },
   { to: '/reports', label: 'Отчёты' },
+  { to: '/notifications', label: 'Уведомления' },
   { to: '/team', label: 'Команда' },
   { to: '/settings/templates', label: 'Шаблоны' },
   { to: '/archive', label: 'Архив' },
 ];
 const ADMIN_NAV: NavItem[] = [
   { to: '/settings/stages', label: 'Стадии' },
-  { to: '/settings/notifications', label: 'Уведомления' },
+  { to: '/settings/notifications', label: 'Telegram' },
   { to: '/settings/errors', label: 'Ошибки' },
 ];
 
