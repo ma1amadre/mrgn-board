@@ -133,7 +133,12 @@ export function Layout() {
       <Hotkeys />
       <CommandPalette />
       <aside className="shell-aside">
-        <div className="shell-brand">MRGN board</div>
+        <div className="shell-brand">
+          <span className="brand-mark" aria-hidden="true">
+            M
+          </span>
+          MRGN board
+        </div>
         <nav className="nav" aria-label="Разделы">
           {NAV.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end} className="nav-item">

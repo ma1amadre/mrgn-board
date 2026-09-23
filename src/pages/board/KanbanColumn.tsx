@@ -23,20 +23,11 @@ export function KanbanColumn({
       className={`column ${isOver ? 'column-over' : ''}`}
       ref={setNodeRef}
       aria-label={stage.name}
+      // Цвет стадии подсвечивает заголовок колонки: доска читается издалека, не только по точке.
+      style={stage.color ? ({ '--stage': stage.color } as React.CSSProperties) : undefined}
     >
       <div className="column-head">
-        {stage.color ? (
-          <span
-            aria-hidden="true"
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: 999,
-              background: stage.color,
-              flex: '0 0 auto',
-            }}
-          />
-        ) : null}
+        {stage.color ? <span className="stage-dot" aria-hidden="true" /> : null}
         <span>{stage.name}</span>
         <span className="badge">{tasks.length}</span>
       </div>

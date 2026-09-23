@@ -1055,6 +1055,48 @@ kbd {
   border-radius: var(--r-full);
 }
 
+/* Заголовок колонки с лёгкой подсветкой цветом стадии (--stage задаёт колонка). */
+.column-head {
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--stage, transparent) 12%, transparent);
+}
+.stage-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--stage);
+  flex: 0 0 auto;
+}
+/* Монограмма перед названием: у бренда появляется отметка, а не только текст. */
+.shell-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: var(--accent-fg, #fff);
+  font: 700 12px/1 var(--font-display);
+  letter-spacing: 0;
+}
+
+/* Иконка перед числом (чек-лист, вложения на карточке). */
+.with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.btn svg,
+.link-button svg {
+  flex: 0 0 auto;
+}
+
 /* Название задачи в шторке — кнопка в заголовке: клик открывает поле правки. */
 .title-edit {
   all: unset;
