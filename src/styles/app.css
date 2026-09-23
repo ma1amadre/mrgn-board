@@ -439,6 +439,10 @@ a.tile-row {
   font-size: var(--t-xs);
   color: var(--text-muted);
 }
+/* Имя и дата не ломаются на две строки на узком экране; переносится только ссылка на объект. */
+.comment-meta > span {
+  white-space: nowrap;
+}
 .prewrap {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
