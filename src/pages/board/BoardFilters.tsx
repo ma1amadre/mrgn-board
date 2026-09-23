@@ -35,18 +35,13 @@ export function BoardFilters({
   viewQuery: string;
   onApplyView: (query: string) => void;
 }) {
-  // На телефоне селекты свёрнуты за кнопкой «Фильтры»: иначе они съедали полэкрана над доской.
-  const [open, setOpen] = useState(false);
+  // Исполнитель и клиент нужны каждый день и стоят на виду; приоритет, срок и метки — за кнопкой
+  // «Фильтры» на любом экране: семь контролов в ряд не помещались даже на 1440.
+  const secondaryCount = [filters.priority, filters.label, filters.due].filter(Boolean).length;
+  const [open, setOpen] = useState(secondaryCount > 0);
   // Метка из ссылки могла уже исчезнуть из задач — оставляем её в списке, чтобы фильтр было видно.
   const labelOptions =
     filters.label && !labels.includes(filters.label) ? [filters.label, ...labels] : labels;
-  const activeCount = [
-    filters.assignee,
-    filters.client,
-    filters.priority,
-    filters.label,
-    filters.due,
-  ].filter(Boolean).length;
 
   return (
     <div className="toolbar" role="search">
@@ -59,42 +54,42 @@ export function BoardFilters({
         onChange={(e) => onChange({ ...filters, q: e.target.value })}
       />
       <BoardViews current={viewQuery} canSave={isFilterActive(filters)} onApply={onApplyView} />
+      <select
+        className="select"
+        aria-label="Исполнитель"
+        value={filters.assignee ?? ''}
+        onChange={(e) => onChange({ ...filters, assignee: e.target.value || null })}
+      >
+        <option value="">Все исполнители</option>
+        <option value={UNASSIGNED}>Без исполнителя</option>
+        {profiles.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.name}
+          </option>
+        ))}
+      </select>
+      <select
+        className="select"
+        aria-label="Клиент"
+        value={filters.client ?? ''}
+        onChange={(e) => onChange({ ...filters, client: e.target.value || null })}
+      >
+        <option value="">Все клиенты</option>
+        {clients.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.name}
+          </option>
+        ))}
+      </select>
       <button
         type="button"
         className="btn btn-secondary btn-sm toolbar-toggle"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
-        Фильтры{activeCount > 0 ? ` · ${activeCount}` : ''}
+        Фильтры{secondaryCount > 0 ? ` · ${secondaryCount}` : ''}
       </button>
       <div className={open ? 'toolbar-filters is-open' : 'toolbar-filters'}>
-        <select
-          className="select"
-          aria-label="Исполнитель"
-          value={filters.assignee ?? ''}
-          onChange={(e) => onChange({ ...filters, assignee: e.target.value || null })}
-        >
-          <option value="">Все исполнители</option>
-          <option value={UNASSIGNED}>Без исполнителя</option>
-          {profiles.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-        <select
-          className="select"
-          aria-label="Клиент"
-          value={filters.client ?? ''}
-          onChange={(e) => onChange({ ...filters, client: e.target.value || null })}
-        >
-          <option value="">Все клиенты</option>
-          {clients.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
         <select
           className="select"
           aria-label="Приоритет"

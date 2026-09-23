@@ -457,7 +457,8 @@ a.tile-row {
   min-width: 160px;
 }
 .toolbar-search {
-  width: 220px;
+  flex: 1 1 220px;
+  min-width: 180px;
 }
 /* На узком экране поиск во всю ширину, селекты делят строки по два — вместо четырёх строк подряд. */
 @media (max-width: 800px) {
@@ -748,7 +749,12 @@ code {
 .task-labels {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s-1);
+  gap: var(--s-1) var(--s-2);
+}
+/* Метка на карточке — тихий текст, а не плашка: плашки остались приоритету и сроку. */
+.task-label {
+  color: var(--text-muted);
+  font-size: var(--t-xs);
 }
 .labels-input {
   display: flex;
@@ -1089,26 +1095,16 @@ kbd {
   }
 }
 
-/* Фильтры доски: на десктопе стоят в один ряд, на телефоне свёрнуты за кнопкой. */
-.toolbar-toggle {
-  display: none;
-}
+/* Редкие фильтры доски (приоритет, срок, метки) свёрнуты за кнопкой на любом экране;
+   раскрытые занимают отдельную строку под основными. */
 .toolbar-filters {
-  display: contents;
+  display: none;
+  flex: 1 0 100%;
+  flex-wrap: wrap;
+  gap: var(--s-2);
 }
-@media (max-width: 800px) {
-  .toolbar-toggle {
-    display: inline-flex;
-  }
-  .toolbar-filters {
-    display: none;
-    flex: 1 0 100%;
-    flex-wrap: wrap;
-    gap: var(--s-2);
-  }
-  .toolbar-filters.is-open {
-    display: flex;
-  }
+.toolbar-filters.is-open {
+  display: flex;
 }
 
 /* Секции карточки задачи сворачиваются: на телефоне четыре подряд давали два экрана прокрутки. */
