@@ -1168,13 +1168,16 @@ kbd {
   align-items: flex-start;
   gap: var(--s-2);
   padding-right: var(--s-2);
+  /* Разделитель на строке, а не на кнопке внутри: у прочитанных нет галочки, и линии были разной длины. */
+  border-top: 1px solid var(--border);
 }
-.notif-row:first-child .notif-item {
+.notif-row:first-child {
   border-top: 0;
 }
 .notif-row .notif-item {
   flex: 1;
   min-width: 0;
+  border-top: 0;
 }
 .notif-row > .btn {
   margin-top: var(--s-2);
