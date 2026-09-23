@@ -70,6 +70,11 @@ export function TaskDrawer({
   const stage = stages.find((s) => s.id === task.stage_id);
   // Архивную открывают по старой ссылке: показываем как есть, без правок, с кнопкой «Восстановить».
   const archived = task.archived_at !== null;
+  // Удаление — в меню рядом с быстрыми действиями, а не в ряду с «Редактировать».
+  const menuItems = [
+    ...actionsFor(task),
+    ...(isAdmin ? [{ key: 'delete', label: 'Удалить…', onSelect: () => void del() }] : []),
+  ];
   const restore = () =>
     update.mutate(
       { id: task.id, patch: { archived_at: null } },
@@ -130,7 +135,7 @@ export function TaskDrawer({
       title={
         <div className="row" style={{ flexWrap: 'nowrap' }}>
           <h2 className="grow">{task.title}</h2>
-          {editing || archived ? null : <Menu label="Быстрые действия" items={actionsFor(task)} />}
+          {editing || archived ? null : <Menu label="Быстрые действия" items={menuItems} />}
         </div>
       }
       onClose={onClose}
@@ -242,7 +247,7 @@ export function TaskDrawer({
                 </button>
               </>
             )}
-            {isAdmin ? (
+            {isAdmin && archived ? (
               <button
                 type="button"
                 className="btn btn-ghost btn-sm"
