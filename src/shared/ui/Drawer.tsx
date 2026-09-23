@@ -1,4 +1,4 @@
-import { useRef, type MouseEvent, type ReactNode } from 'react';
+import { useId, useRef, type MouseEvent, type ReactNode } from 'react';
 import { useEscape } from './useEscape';
 import { useFocusTrap } from './useFocusTrap';
 
@@ -15,6 +15,8 @@ export function Drawer({
   children: ReactNode;
 }) {
   const ref = useRef<HTMLElement>(null);
+  // Диалогу нужно имя: читалка объявляет заголовок шторки, а не «диалог».
+  const titleId = useId();
   useEscape(dirty ? () => undefined : onClose);
   useFocusTrap(ref);
   const onBackdrop = (e: MouseEvent<HTMLDivElement>) => {
@@ -22,9 +24,11 @@ export function Drawer({
   };
   return (
     <div className="backdrop backdrop-end" onMouseDown={onBackdrop}>
-      <aside ref={ref} className="drawer" role="dialog" aria-modal="true">
+      <aside ref={ref} className="drawer" role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <div className="drawer-head">
-          <div className="grow">{title}</div>
+          <div className="grow" id={titleId}>
+            {title}
+          </div>
           <button
             type="button"
             className="btn btn-ghost btn-icon"
