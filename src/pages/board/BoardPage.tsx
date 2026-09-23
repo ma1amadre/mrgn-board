@@ -130,7 +130,7 @@ export function BoardPage() {
     const rows = visibleTasks.map((t) => [
       t.title,
       stageName.get(t.stage_id) ?? '',
-      t.assignee?.name ?? '',
+      t.assignees.map((a) => a.name).join(', '),
       t.client?.name ?? '',
       PRIORITY_LABEL[t.priority],
       t.due_date ?? '',
@@ -165,7 +165,7 @@ export function BoardPage() {
         title: '',
         description: '',
         stage_id: firstStage.id,
-        assignee_id: null,
+        assignee_ids: [],
         client_id: filters.client,
         priority: 'normal',
         due_date: null,
@@ -198,16 +198,18 @@ export function BoardPage() {
     const maxPos = inStage.reduce((m, t) => Math.max(m, t.position), 0);
     create.mutate(
       {
-        title: values.title,
-        description: values.description || null,
-        stage_id: values.stage_id,
-        assignee_id: values.assignee_id,
-        client_id: values.client_id,
-        priority: values.priority,
-        due_date: values.due_date,
-        labels: values.labels,
-        position: maxPos + GAP,
-        created_by: me.id,
+        input: {
+          title: values.title,
+          description: values.description || null,
+          stage_id: values.stage_id,
+          client_id: values.client_id,
+          priority: values.priority,
+          due_date: values.due_date,
+          labels: values.labels,
+          position: maxPos + GAP,
+          created_by: me.id,
+        },
+        assigneeIds: values.assignee_ids,
       },
       {
         onSuccess: (created) => {

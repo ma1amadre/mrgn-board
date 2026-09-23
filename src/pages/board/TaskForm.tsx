@@ -2,7 +2,9 @@ import { useId, useState, type FormEvent } from 'react';
 import type { ClientRef, Profile, Stage } from '../../shared/api/types';
 import { addDays, today as todayIso } from '../../shared/lib/dates';
 import { PRIORITIES, PRIORITY_LABEL, type Priority } from '../../shared/lib/labels';
+import { Avatar } from '../../shared/ui/Avatar';
 import { Field } from '../../shared/ui/Field';
+import { IconClose } from '../../shared/ui/icons';
 import { useDirty } from '../../shared/ui/useDirty';
 import { LabelsInput } from './LabelsInput';
 
@@ -10,7 +12,8 @@ export type TaskFormValues = {
   title: string;
   description: string;
   stage_id: string;
-  assignee_id: string | null;
+  /** Исполнителей может быть несколько; пустой список — не назначена. */
+  assignee_ids: string[];
   client_id: string | null;
   priority: Priority;
   due_date: string | null;
@@ -50,6 +53,11 @@ export function TaskForm({
   const set = <K extends keyof TaskFormValues>(key: K, value: TaskFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
   const today = todayIso();
+  // Активные, кого ещё не добавили; выключенный участник остаётся в списке, если уже назначен.
+  const available = profiles.filter((p) => p.is_active && !values.assignee_ids.includes(p.id));
+  const addAssignee = (id: string) => {
+    if (id && !values.assignee_ids.includes(id)) set('assignee_ids', [...values.assignee_ids, id]);
+  };
   const quickDates: Array<{ label: string; value: string | null }> = [
     { label: 'Сегодня', value: today },
     { label: 'Завтра', value: addDays(today, 1) },
@@ -102,32 +110,54 @@ export function TaskForm({
         </Field>
         <div className="field">
           <div className="field-label row">
-            <label htmlFor={assigneeId}>Исполнитель</label>
-            {meId && values.assignee_id !== meId ? (
-              <button
-                type="button"
-                className="link-button"
-                onClick={() => set('assignee_id', meId)}
-              >
+            <span id={assigneeId}>Исполнители</span>
+            {meId && !values.assignee_ids.includes(meId) ? (
+              <button type="button" className="link-button" onClick={() => addAssignee(meId)}>
                 Взять себе
               </button>
             ) : null}
           </div>
-          <select
-            id={assigneeId}
-            className="select"
-            value={values.assignee_id ?? ''}
-            onChange={(e) => set('assignee_id', e.target.value || null)}
-          >
-            <option value="">Не назначен</option>
-            {profiles
-              .filter((p) => p.is_active || p.id === values.assignee_id)
-              .map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
+          <div className="assignees" role="group" aria-labelledby={assigneeId}>
+            {values.assignee_ids.map((id) => {
+              const p = profiles.find((x) => x.id === id);
+              return (
+                <span key={id} className="chip assignee-chip">
+                  {p ? <Avatar name={p.name} color={p.color} /> : null}
+                  {p?.name ?? '?'}
+                  <button
+                    type="button"
+                    className="chip-remove"
+                    aria-label={`Снять ${p?.name ?? 'исполнителя'}`}
+                    onClick={() =>
+                      set(
+                        'assignee_ids',
+                        values.assignee_ids.filter((x) => x !== id),
+                      )
+                    }
+                  >
+                    <IconClose size={12} />
+                  </button>
+                </span>
+              );
+            })}
+            {available.length > 0 ? (
+              <select
+                className="select"
+                aria-label="Добавить исполнителя"
+                value=""
+                onChange={(e) => addAssignee(e.target.value)}
+              >
+                <option value="">
+                  {values.assignee_ids.length === 0 ? 'Не назначена…' : 'Добавить…'}
                 </option>
-              ))}
-          </select>
+                {available.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            ) : null}
+          </div>
         </div>
       </div>
       <div className="form-row">

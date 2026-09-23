@@ -411,7 +411,7 @@ a.tile-row {
   font-size: var(--t-xs);
   color: var(--text-muted);
 }
-.task-meta .avatar {
+.task-meta > .avatar {
   margin-left: auto;
 }
 .task-dragging {
@@ -1053,6 +1053,40 @@ kbd {
 .color-input::-webkit-color-swatch {
   border: 0;
   border-radius: var(--r-full);
+}
+
+/* Стопка аватаров: нахлёст, обводка цветом поверхности, «+N» для остальных. */
+.avatar-stack {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.avatar-stack .avatar + .avatar {
+  margin-left: -8px;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.avatar-more {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+.task-meta .avatar-stack {
+  margin-left: auto;
+}
+/* Исполнители в форме: чипы с аватаром и селект «Добавить…». */
+.assignees {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+.assignees .select {
+  width: auto;
+  min-width: 160px;
+}
+.assignee-chip {
+  height: 28px;
+  padding-left: 2px;
+  gap: var(--s-1);
 }
 
 /* Заголовок колонки с лёгкой подсветкой цветом стадии (--stage задаёт колонка). */

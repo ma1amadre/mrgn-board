@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import type { TaskWithRefs } from '../../shared/api/types';
 import { formatDate } from '../../shared/lib/dates';
 import { PRIORITY_BADGE, PRIORITY_LABEL } from '../../shared/lib/labels';
-import { Avatar } from '../../shared/ui/Avatar';
+import { AvatarStack } from '../../shared/ui/AvatarStack';
 import { IconCheck, IconPaperclip } from '../../shared/ui/icons';
 import { Menu, type MenuItem } from '../../shared/ui/Menu';
 import { dueTone } from './dueBadge';
@@ -75,7 +75,7 @@ export function TaskCardView({
           </span>
         ) : null}
         {task.client ? <span className="muted">{task.client.name}</span> : null}
-        {task.assignee ? <Avatar name={task.assignee.name} color={task.assignee.color} /> : null}
+        <AvatarStack people={task.assignees} />
       </div>
     </div>
   );

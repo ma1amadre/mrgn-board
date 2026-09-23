@@ -32,7 +32,10 @@
 - Vite слушает 127.0.0.1 (на Windows `localhost` может уйти на ::1).
 - Vite может отдать старую версию файла после правки на месте (perl -i, Write): `touch` файла
   чинит; проверять через `curl http://127.0.0.1:5173/src/…` перед тем, как искать баг в коде.
-- У `tasks` два FK на `profiles` — в embed обязателен хинт `profiles!tasks_assignee_id_fkey`.
+- Исполнители задачи — таблица `task_assignees` (028), колонки `tasks.assignee_id` больше нет:
+  в embed `assignees:task_assignees(profile:profiles(id,name,color))`, в кеше задача несёт
+  `assignees` и `assignee_ids`. Назначение меняется только через `setAssignees` (диф вставок и
+  удалений): уведомление и история вешаются на строки `task_assignees`, а не на задачу.
 - `.env.local` не коммитится; в клиент попадает только anon-ключ. Service key — только в
   `scripts/` против локального стека.
 - `.ps1` с кириллицей — UTF-8 с BOM (PowerShell 5.1).

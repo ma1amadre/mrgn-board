@@ -68,11 +68,14 @@ export function ReportsPage() {
     const closedInPeriod = all.filter((t) => t.done_at !== null && t.done_at.slice(0, 10) >= since);
     const byAssignee = new Map<string | null, { open: number; closed: number }>();
     for (const t of all) {
-      const key = t.assignee_id;
-      const row = byAssignee.get(key) ?? { open: 0, closed: 0 };
-      if (isOpen(t)) row.open += 1;
-      else if (t.done_at !== null && t.done_at.slice(0, 10) >= since) row.closed += 1;
-      byAssignee.set(key, row);
+      // Задача с несколькими исполнителями считается каждому.
+      const owners: Array<string | null> = t.assignee_ids.length > 0 ? t.assignee_ids : [null];
+      for (const key of owners) {
+        const row = byAssignee.get(key) ?? { open: 0, closed: 0 };
+        if (isOpen(t)) row.open += 1;
+        else if (t.done_at !== null && t.done_at.slice(0, 10) >= since) row.closed += 1;
+        byAssignee.set(key, row);
+      }
     }
     const allDeals = deals.data ?? [];
     const wonInPeriod = allDeals.filter(

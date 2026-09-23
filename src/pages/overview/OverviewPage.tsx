@@ -46,7 +46,7 @@ export function OverviewPage() {
   const stats = useMemo(() => {
     const all = tasks.data ?? [];
     const open = all.filter(isOpen);
-    const mine = open.filter((t) => t.assignee_id === me.id);
+    const mine = open.filter((t) => t.assignee_ids.includes(me.id));
     const activeProfiles = (profiles.data ?? []).filter((p) => p.is_active);
     const workload = workloadByAssignee(
       open,

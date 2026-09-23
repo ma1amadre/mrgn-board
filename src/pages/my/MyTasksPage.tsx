@@ -45,7 +45,8 @@ export function MyTasksPage() {
   const actionsFor = useTaskQuickActions(stages.data ?? [], tasks.data ?? [], today);
 
   const open = useMemo(
-    () => (tasks.data ?? []).filter((t) => isOpen(t) && (scopeAll || t.assignee_id === me.id)),
+    () =>
+      (tasks.data ?? []).filter((t) => isOpen(t) && (scopeAll || t.assignee_ids.includes(me.id))),
     [tasks.data, scopeAll, me.id],
   );
   const days = useMemo(() => weekDays(today), [today]);

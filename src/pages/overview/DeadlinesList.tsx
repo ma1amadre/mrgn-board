@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { TaskWithRefs } from '../../shared/api/types';
 import { formatDate } from '../../shared/lib/dates';
-import { Avatar } from '../../shared/ui/Avatar';
+import { AvatarStack } from '../../shared/ui/AvatarStack';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { dueBadgeClass } from '../board/dueBadge';
 
@@ -28,7 +28,7 @@ export function DeadlinesList({ tasks, today }: { tasks: TaskWithRefs[]; today: 
             </span>
             <span className="grow">{t.title}</span>
             {t.client ? <span className="muted small">{t.client.name}</span> : null}
-            {t.assignee ? <Avatar name={t.assignee.name} color={t.assignee.color} /> : null}
+            <AvatarStack people={t.assignees} />
           </Link>
         ))}
       </div>

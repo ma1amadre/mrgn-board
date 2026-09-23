@@ -19,6 +19,7 @@ import {
 } from '../../shared/lib/labels';
 import { isOpen, sortByPosition } from '../../shared/lib/tasks';
 import { Avatar } from '../../shared/ui/Avatar';
+import { AvatarStack } from '../../shared/ui/AvatarStack';
 import { useConfirm } from '../../shared/ui/confirmContext';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { Markdown } from '../../shared/ui/Markdown';
@@ -140,7 +141,7 @@ export function ClientPage() {
         {t.due_date ? (
           <span className={dueBadgeClass(t, todayIso)}>{formatDate(t.due_date)}</span>
         ) : null}
-        {t.assignee ? <Avatar name={t.assignee.name} color={t.assignee.color} /> : null}
+        <AvatarStack people={t.assignees} />
       </div>
     </Link>
   );

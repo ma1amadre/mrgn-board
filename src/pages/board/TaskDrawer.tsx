@@ -8,7 +8,7 @@ import type { Client, Profile, Stage, TaskWithRefs } from '../../shared/api/type
 import { withCurrentClient } from '../../shared/lib/clients';
 import { formatDate, formatDateTime } from '../../shared/lib/dates';
 import { PRIORITY_BADGE, PRIORITY_LABEL } from '../../shared/lib/labels';
-import { Avatar } from '../../shared/ui/Avatar';
+import { AvatarStack } from '../../shared/ui/AvatarStack';
 import { useConfirm } from '../../shared/ui/confirmContext';
 import { Drawer } from '../../shared/ui/Drawer';
 import { Menu } from '../../shared/ui/Menu';
@@ -93,7 +93,7 @@ export function TaskDrawer({
     title: task.title,
     description: task.description ?? '',
     stage_id: task.stage_id,
-    assignee_id: task.assignee_id,
+    assignee_ids: task.assignee_ids,
     client_id: task.client_id,
     priority: task.priority,
     due_date: task.due_date,
@@ -108,12 +108,12 @@ export function TaskDrawer({
           title: values.title,
           description: values.description || null,
           stage_id: values.stage_id,
-          assignee_id: values.assignee_id,
           client_id: values.client_id,
           priority: values.priority,
           due_date: values.due_date,
           labels: values.labels,
         },
+        assignees: { next: values.assignee_ids, current: task.assignee_ids },
       },
       { onSuccess: () => setEditing(false), onError: (err) => toast.error(err) },
     );
@@ -231,14 +231,16 @@ export function TaskDrawer({
           ) : null}
           <div className="stack small">
             <div className="row">
-              <span className="muted">Исполнитель:</span>
-              {task.assignee ? (
-                <span className="row">
-                  <Avatar name={task.assignee.name} color={task.assignee.color} />{' '}
-                  {task.assignee.name}
-                </span>
+              <span className="muted">
+                {task.assignees.length > 1 ? 'Исполнители:' : 'Исполнитель:'}
+              </span>
+              {task.assignees.length > 0 ? (
+                <>
+                  <AvatarStack people={task.assignees} max={5} />
+                  <span>{task.assignees.map((a) => a.name).join(', ')}</span>
+                </>
               ) : (
-                <span>не назначен</span>
+                <span>не назначена</span>
               )}
             </div>
             <div className="row">
