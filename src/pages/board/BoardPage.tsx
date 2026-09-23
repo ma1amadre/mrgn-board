@@ -321,6 +321,7 @@ export function BoardPage() {
             profiles={profiles.data ?? []}
             clients={filterClients}
             labelSuggestions={allLabels}
+            meId={me.id}
             submitLabel="Создать"
             busy={create.isPending}
             onSubmit={submitNew}

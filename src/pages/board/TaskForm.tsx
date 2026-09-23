@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import type { ClientRef, Profile, Stage } from '../../shared/api/types';
+import { addDays, today as todayIso } from '../../shared/lib/dates';
 import { PRIORITIES, PRIORITY_LABEL, type Priority } from '../../shared/lib/labels';
 import { Field } from '../../shared/ui/Field';
 import { useDirty } from '../../shared/ui/useDirty';
@@ -22,6 +23,7 @@ export function TaskForm({
   profiles,
   clients,
   labelSuggestions,
+  meId,
   submitLabel,
   busy,
   onSubmit,
@@ -34,6 +36,8 @@ export function TaskForm({
   clients: ClientRef[];
   /** Метки, уже встречающиеся в задачах, — подсказки в поле. */
   labelSuggestions: string[];
+  /** Текущий пользователь — для «Взять себе»; чаще всего исполнитель и есть автор. */
+  meId?: string;
   submitLabel: string;
   busy: boolean;
   onSubmit: (values: TaskFormValues) => void;
@@ -42,8 +46,16 @@ export function TaskForm({
 }) {
   const [values, setValues] = useState<TaskFormValues>(initial);
   useDirty(values, initial, onDirtyChange);
+  const assigneeId = useId();
   const set = <K extends keyof TaskFormValues>(key: K, value: TaskFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
+  const today = todayIso();
+  const quickDates: Array<{ label: string; value: string | null }> = [
+    { label: 'Сегодня', value: today },
+    { label: 'Завтра', value: addDays(today, 1) },
+    { label: 'Через неделю', value: addDays(today, 7) },
+    { label: 'Без срока', value: null },
+  ];
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -88,8 +100,21 @@ export function TaskForm({
             ))}
           </select>
         </Field>
-        <Field label="Исполнитель">
+        <div className="field">
+          <div className="field-label row">
+            <label htmlFor={assigneeId}>Исполнитель</label>
+            {meId && values.assignee_id !== meId ? (
+              <button
+                type="button"
+                className="link-button"
+                onClick={() => set('assignee_id', meId)}
+              >
+                Взять себе
+              </button>
+            ) : null}
+          </div>
           <select
+            id={assigneeId}
             className="select"
             value={values.assignee_id ?? ''}
             onChange={(e) => set('assignee_id', e.target.value || null)}
@@ -103,7 +128,7 @@ export function TaskForm({
                 </option>
               ))}
           </select>
-        </Field>
+        </div>
       </div>
       <div className="form-row">
         <Field label="Клиент / проект">
@@ -141,6 +166,22 @@ export function TaskForm({
             onChange={(e) => set('due_date', e.target.value || null)}
           />
         </Field>
+      </div>
+      {/* Те же быстрые сроки, что в меню «⋯» на доске: не лезть в календарь ради «завтра». */}
+      <div className="row quick-dates" role="group" aria-label="Быстрый срок">
+        {quickDates.map((q) => (
+          <button
+            key={q.label}
+            type="button"
+            className={
+              values.due_date === q.value ? 'btn btn-secondary btn-sm' : 'btn btn-ghost btn-sm'
+            }
+            aria-pressed={values.due_date === q.value}
+            onClick={() => set('due_date', q.value)}
+          >
+            {q.label}
+          </button>
+        ))}
       </div>
       <Field label="Метки" hint="Enter или запятая добавляет метку, до десяти на задачу.">
         <LabelsInput

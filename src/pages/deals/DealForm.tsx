@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import type { ClientRef, Profile } from '../../shared/api/types';
 import { parseAmount } from '../../shared/lib/deals';
 import { DEAL_STAGES, DEAL_STAGE_LABEL, type DealStage } from '../../shared/lib/labels';
@@ -22,6 +22,7 @@ export function DealForm({
   initial,
   clients,
   profiles,
+  meId,
   submitLabel,
   busy,
   onSubmit,
@@ -31,6 +32,8 @@ export function DealForm({
   initial: DealFormValues;
   clients: ClientRef[];
   profiles: Profile[];
+  /** Текущий пользователь — для «Взять себе». */
+  meId?: string;
   submitLabel: string;
   busy: boolean;
   onSubmit: (values: DealFormValues) => void;
@@ -39,6 +42,7 @@ export function DealForm({
 }) {
   const [values, setValues] = useState<DealFormValues>(initial);
   const [amountError, setAmountError] = useState<string | null>(null);
+  const ownerId = useId();
   useDirty(values, initial, onDirtyChange);
   const set = <K extends keyof DealFormValues>(key: K, value: DealFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
@@ -117,8 +121,17 @@ export function DealForm({
             onChange={(e) => set('amount', e.target.value)}
           />
         </Field>
-        <Field label="Ответственный">
+        <div className="field">
+          <div className="field-label row">
+            <label htmlFor={ownerId}>Ответственный</label>
+            {meId && values.owner_id !== meId ? (
+              <button type="button" className="link-button" onClick={() => set('owner_id', meId)}>
+                Взять себе
+              </button>
+            ) : null}
+          </div>
           <select
+            id={ownerId}
             className="select"
             value={values.owner_id ?? ''}
             onChange={(e) => set('owner_id', e.target.value || null)}
@@ -132,7 +145,7 @@ export function DealForm({
                 </option>
               ))}
           </select>
-        </Field>
+        </div>
         <Field label="Ожидаемое закрытие">
           <input
             className="input"

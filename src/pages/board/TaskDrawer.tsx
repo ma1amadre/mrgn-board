@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../app/auth/authContext';
+import { useAuth, useProfile } from '../../app/auth/authContext';
 import { useActivity } from '../../shared/api/activity';
 import { useComments } from '../../shared/api/comments';
 import { useTaskMutations, useTasks } from '../../shared/api/tasks';
@@ -48,6 +48,7 @@ export function TaskDrawer({
   const confirm = useConfirm();
   const { update, remove } = useTaskMutations();
   const { isAdmin } = useAuth();
+  const me = useProfile();
   const [editing, setEditing] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [savingTemplate, setSavingTemplate] = useState(false);
@@ -163,6 +164,7 @@ export function TaskDrawer({
           profiles={profiles}
           clients={withCurrentClient(clients, task.client)}
           labelSuggestions={labelSuggestions}
+          meId={me.id}
           submitLabel="Сохранить"
           busy={update.isPending}
           onSubmit={save}

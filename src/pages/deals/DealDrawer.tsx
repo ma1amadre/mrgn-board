@@ -103,6 +103,7 @@ export function DealDrawer({
           initial={initial}
           clients={withCurrentClient(clients, deal.client)}
           profiles={profiles}
+          meId={me.id}
           submitLabel="Сохранить"
           busy={update.isPending}
           onSubmit={save}

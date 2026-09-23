@@ -1055,6 +1055,14 @@ kbd {
   border-radius: var(--r-full);
 }
 
+/* Подпись поля со ссылкой-действием справа («Взять себе»). */
+.field-label.row {
+  justify-content: space-between;
+}
+.quick-dates {
+  margin-top: calc(-1 * var(--s-2));
+}
+
 /* Бейдж-кнопка: выглядит как бейдж статуса, открывает меню смены статуса. */
 .badge-button {
   appearance: none;

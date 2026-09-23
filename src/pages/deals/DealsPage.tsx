@@ -313,6 +313,7 @@ export function DealsPage() {
             initial={newDealInitial}
             clients={filterClients}
             profiles={profiles.data ?? []}
+            meId={me.id}
             submitLabel="Создать"
             busy={create.isPending}
             onSubmit={submitNew}
