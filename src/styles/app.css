@@ -80,6 +80,47 @@ textarea {
   padding: var(--s-2) var(--s-3);
   font: 700 var(--t-md)/1 var(--font-display);
 }
+/* На ноутбуке 1366×768 список разделов не помещался, и блок пользователя уходил за край экрана:
+   прокручивается сам список, а не весь сайдбар (иначе поповер колокольчика режется overflow). */
+.shell-aside .nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--s-2);
+}
+.nav-group-title {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  list-style: none;
+  color: var(--text-muted);
+  font: 600 var(--t-xs) / 1.4 var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  user-select: none;
+}
+.nav-group-title::-webkit-details-marker {
+  display: none;
+}
+.nav-group-title::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--dur-1) var(--ease);
+}
+.nav-group[open] > .nav-group-title::after {
+  transform: rotate(45deg);
+}
 /* Две строки: аватар с именем и иконками, под ними «Выйти» во всю ширину. В одной строке
    имя вытеснялось кнопками и сайдбар показывал только аватар. */
 .shell-user {

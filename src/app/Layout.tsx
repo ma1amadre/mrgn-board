@@ -12,6 +12,7 @@ import { THEME_LABEL, nextTheme, useTheme, type Theme } from './theme';
 
 type NavItem = { to: string; label: string; end?: boolean };
 
+/** Ежедневные разделы — плоским списком; служебные — группой «Настройки», свёрнутой по умолчанию. */
 const NAV: NavItem[] = [
   { to: '/', label: 'Обзор', end: true },
   { to: '/board', label: 'Доска' },
@@ -21,6 +22,8 @@ const NAV: NavItem[] = [
   { to: '/ideas', label: 'Идеи' },
   { to: '/reports', label: 'Отчёты' },
   { to: '/notifications', label: 'Уведомления' },
+];
+const SETTINGS_NAV: NavItem[] = [
   { to: '/team', label: 'Команда' },
   { to: '/settings/templates', label: 'Шаблоны' },
   { to: '/archive', label: 'Архив' },
@@ -114,9 +117,13 @@ export function Layout() {
   useRealtimeInvalidation();
   useSwUpdateToast();
 
-  const nav = isAdmin ? [...NAV, ...ADMIN_NAV] : NAV;
+  const location = useLocation();
+  const settingsNav = isAdmin ? [...SETTINGS_NAV, ...ADMIN_NAV] : SETTINGS_NAV;
+  const nav = [...NAV, ...settingsNav];
   const primary = nav.filter((i) => TABBAR.has(i.to));
   const rest = nav.filter((i) => !TABBAR.has(i.to));
+  // Группа раскрыта, пока пользователь внутри одного из её разделов.
+  const settingsActive = settingsNav.some((i) => location.pathname.startsWith(i.to));
   const toggleTheme = () => setTheme(nextTheme(theme));
 
   return (
@@ -126,11 +133,19 @@ export function Layout() {
       <aside className="shell-aside">
         <div className="shell-brand">MRGN board</div>
         <nav className="nav" aria-label="Разделы">
-          {nav.map((item) => (
+          {NAV.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end} className="nav-item">
               {item.label}
             </NavLink>
           ))}
+          <details className="nav-group" open={settingsActive}>
+            <summary className="nav-group-title">Настройки</summary>
+            {settingsNav.map((item) => (
+              <NavLink key={item.to} to={item.to} end={item.end} className="nav-item">
+                {item.label}
+              </NavLink>
+            ))}
+          </details>
         </nav>
         <div className="shell-user">
           <div className="shell-user-row">
