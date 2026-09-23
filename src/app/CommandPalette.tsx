@@ -14,6 +14,29 @@ import {
 } from '../shared/lib/labels';
 import { SEARCH_KIND_LABEL, searchAll, type SearchHit } from '../shared/lib/search';
 
+const RECENT_KEY = 'mrgn-palette-recent';
+const RECENT_MAX = 6;
+
+/** Последние открытые из палитры — в localStorage: пустой запрос показывает их вместо пустоты. */
+function readRecent(): SearchHit[] {
+  try {
+    const raw = localStorage.getItem(RECENT_KEY);
+    const list: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? (list as SearchHit[]).slice(0, RECENT_MAX) : [];
+  } catch {
+    return [];
+  }
+}
+
+function pushRecent(hit: SearchHit): void {
+  try {
+    const next = [hit, ...readRecent().filter((h) => h.to !== hit.to)].slice(0, RECENT_MAX);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+  } catch {
+    // Приватный режим без storage: недавние просто не запомнятся.
+  }
+}
+
 const LABELS = {
   clientStatus: (s: string) => CLIENT_STATUS_LABEL[s as ClientStatus] ?? s,
   dealStage: (s: string) => DEAL_STAGE_LABEL[s as DealStage] ?? s,
@@ -38,6 +61,7 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
+  const [recent] = useState(readRecent);
   const inputRef = useRef<HTMLInputElement>(null);
   const tasks = useTasks();
   const clients = useClients();
@@ -48,25 +72,29 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
     inputRef.current?.focus();
   }, []);
 
+  const searching = query.trim() !== '';
   const hits = useMemo(
     () =>
-      searchAll(
-        query,
-        {
-          tasks: tasks.data ?? [],
-          clients: clients.data ?? [],
-          deals: deals.data ?? [],
-          ideas: ideas.data ?? [],
-        },
-        LABELS,
-      ),
-    [query, tasks.data, clients.data, deals.data, ideas.data],
+      searching
+        ? searchAll(
+            query,
+            {
+              tasks: tasks.data ?? [],
+              clients: clients.data ?? [],
+              deals: deals.data ?? [],
+              ideas: ideas.data ?? [],
+            },
+            LABELS,
+          )
+        : recent,
+    [searching, query, recent, tasks.data, clients.data, deals.data, ideas.data],
   );
   const current = Math.min(active, Math.max(hits.length - 1, 0));
   // На страницах без задач и сделок кеш холодный: первые секунды пустой список — это загрузка.
   const loading = tasks.isPending || clients.isPending || deals.isPending || ideas.isPending;
 
   const go = (hit: SearchHit) => {
+    pushRecent(hit);
     onClose();
     navigate(hit.to);
   };
@@ -110,13 +138,21 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
           onKeyDown={onKeyDown}
         />
         <div className="palette-list" role="listbox">
-          {query.trim() !== '' && hits.length === 0 ? (
+          {searching && hits.length === 0 ? (
             <p className="muted small palette-empty">
               {loading ? 'Загрузка…' : 'Ничего не нашлось.'}
             </p>
           ) : null}
+          {!searching && hits.length === 0 ? (
+            <p className="muted small palette-empty">
+              Название задачи, клиента, сделки или идеи. Клиент находится и по имени, телефону или
+              Telegram контакта.
+            </p>
+          ) : null}
+          {!searching && hits.length > 0 ? <div className="palette-group">Недавние</div> : null}
           {hits.map((hit, i) => {
-            const header = hits[i - 1]?.kind !== hit.kind ? SEARCH_KIND_LABEL[hit.kind] : null;
+            const header =
+              searching && hits[i - 1]?.kind !== hit.kind ? SEARCH_KIND_LABEL[hit.kind] : null;
             return (
               <div key={`${hit.kind}:${hit.id}`}>
                 {header ? <div className="palette-group">{header}</div> : null}
