@@ -52,12 +52,8 @@ export function ClientPage() {
     () => (deals.data ?? []).filter((d) => d.client_id === id).map((d) => d.id),
     [deals.data, id],
   );
-  const feed = useClientFeed(
-    id ?? '',
-    taskIds,
-    dealIds,
-    id !== undefined && tasks.data !== undefined && deals.data !== undefined,
-  );
+  const feedEnabled = id !== undefined && tasks.data !== undefined && deals.data !== undefined;
+  const feed = useClientFeed(id ?? '', taskIds, dealIds, feedEnabled);
 
   const found = clients.data?.find((c) => c.id === id);
   // Среди активных нет — ищем в архиве: ссылки из задач и сделок ведут и на архивных клиентов.
@@ -284,8 +280,8 @@ export function ClientPage() {
       ) : null}
       <ClientFeed
         data={feed.data}
-        pending={feed.isPending}
-        error={feed.isError}
+        pending={feedEnabled && feed.isPending}
+        error={feed.isError || tasks.isError || deals.isError}
         tasks={clientTasks}
         deals={clientDeals}
       />

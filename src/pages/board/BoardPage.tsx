@@ -319,7 +319,7 @@ export function BoardPage() {
             initial={newTaskInitial}
             stages={stages.data ?? []}
             profiles={profiles.data ?? []}
-            clients={clients.data ?? []}
+            clients={filterClients}
             labelSuggestions={allLabels}
             submitLabel="Создать"
             busy={create.isPending}

@@ -38,6 +38,8 @@ export function DealDrawer({
   const { update, remove } = useDealMutations();
   const [editing, setEditing] = useState(false);
   const [dirty, setDirty] = useState(false);
+  // Историю тянем, только когда секцию развернули: свёрнутый <details> всё равно смонтирован.
+  const [historyOpen, setHistoryOpen] = useState(false);
   useDocumentTitle(deal?.title ?? null);
   // Задачи клиента сделки: работа по ней живёт на доске, здесь только ссылки.
   const tasks = useTasks();
@@ -196,9 +198,9 @@ export function DealDrawer({
           </div>
         </>
       )}
-      <details className="drawer-section">
+      <details className="drawer-section" onToggle={(e) => setHistoryOpen(e.currentTarget.open)}>
         <summary>История</summary>
-        <DealActivityList dealId={deal.id} />
+        <DealActivityList dealId={deal.id} enabled={historyOpen} />
       </details>
     </Drawer>
   );

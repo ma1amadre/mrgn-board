@@ -30,8 +30,13 @@ export type FeedInput = {
 
 const COMMENT_PREVIEW = 120;
 
-/** Лента клиента: изменения его задач и сделок и комментарии к задачам, свежие сверху. */
-export function buildClientFeed(input: FeedInput, limit = 50, now: Date = new Date()): FeedEvent[] {
+/** Лента клиента: изменения его задач и сделок и комментарии к задачам, свежие сверху.
+ *  Объём ограничивает выборка (api/feed.ts); limit нужен только там, где список надо укоротить. */
+export function buildClientFeed(
+  input: FeedInput,
+  limit?: number,
+  now: Date = new Date(),
+): FeedEvent[] {
   const taskTitle = new Map(input.tasks.map((t) => [t.id, t.title]));
   const dealTitle = new Map(input.deals.map((d) => [d.id, d.title]));
   const events: FeedEvent[] = [];
@@ -66,7 +71,8 @@ export function buildClientFeed(input: FeedInput, limit = 50, now: Date = new Da
       to: `/deals?deal=${a.deal_id}`,
     });
   }
-  return events.sort((x, y) => y.at.localeCompare(x.at)).slice(0, limit);
+  const sorted = events.sort((x, y) => y.at.localeCompare(x.at));
+  return limit === undefined ? sorted : sorted.slice(0, limit);
 }
 
 /** Последняя активность клиента: самое свежее из updated_at клиента, его задач и сделок.

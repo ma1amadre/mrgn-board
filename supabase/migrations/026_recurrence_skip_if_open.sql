@@ -1,10 +1,22 @@
 -- 026_recurrence_skip_if_open: правило может ждать закрытия предыдущей задачи.
 -- Еженедельный отчёт, который не закрыли, раньше накапливался дублями. Теперь у правила есть
 -- флажок skip_if_open, а у задачи — ссылка на правило, по которой это и проверяется.
+-- Заодно правило архивного клиента больше не выключается (024), а пропускает запуски:
+-- после восстановления клиента оно продолжает работать само.
 
 ALTER TABLE public.task_recurrences ADD COLUMN skip_if_open BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE public.tasks ADD COLUMN recurrence_id UUID REFERENCES public.task_recurrences(id) ON DELETE SET NULL;
 CREATE INDEX idx_tasks_recurrence ON public.tasks (recurrence_id) WHERE recurrence_id IS NOT NULL;
+
+-- Задачи, созданные правилами до этой миграции, привязываем по совпадению заготовки: иначе
+-- флажок не увидит уже висящий открытый отчёт и создаст дубль.
+UPDATE public.tasks t SET recurrence_id = r.id
+FROM public.task_recurrences r
+WHERE t.recurrence_id IS NULL
+  AND t.title = r.title
+  AND t.client_id IS NOT DISTINCT FROM r.client_id
+  AND t.created_by = r.created_by
+  AND t.labels = r.labels;
 
 CREATE OR REPLACE FUNCTION public.spawn_recurring_tasks()
 RETURNS INTEGER
@@ -26,20 +38,19 @@ BEGIN
     ORDER BY next_run, created_at
     FOR UPDATE
   LOOP
-    -- Клиент в архиве: правило выключаем и задачу не создаём, иначе архивный клиент обрастает новыми задачами.
-    IF r.client_id IS NOT NULL AND EXISTS (
-      SELECT 1 FROM public.clients WHERE id = r.client_id AND archived_at IS NOT NULL
-    ) THEN
-      UPDATE public.task_recurrences SET active = false WHERE id = r.id;
-      CONTINUE;
-    END IF;
-
     -- Сдвигаем вперёд, пока не окажемся строго после сегодня: если cron молчал неделю, задача одна.
     v_next := r.next_run;
     WHILE v_next <= v_today LOOP
       v_next := public.recurrence_next(r.period, r.run_day, v_next);
     END LOOP;
     UPDATE public.task_recurrences SET next_run = v_next WHERE id = r.id;
+
+    -- Клиент в архиве: запуск пропускаем, правило остаётся включённым и оживёт с клиентом.
+    IF r.client_id IS NOT NULL AND EXISTS (
+      SELECT 1 FROM public.clients WHERE id = r.client_id AND archived_at IS NOT NULL
+    ) THEN
+      CONTINUE;
+    END IF;
 
     -- Предыдущая задача по правилу ещё открыта — этот запуск пропускаем, дата уже сдвинута.
     IF r.skip_if_open AND EXISTS (

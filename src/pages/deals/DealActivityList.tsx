@@ -8,8 +8,8 @@ import { Avatar } from '../../shared/ui/Avatar';
 const PREVIEW = 5;
 
 /** История сделки: те же блоки, что у задачи, — автор, время, список изменений. */
-export function DealActivityList({ dealId }: { dealId: string }) {
-  const activity = useDealActivity(dealId);
+export function DealActivityList({ dealId, enabled }: { dealId: string; enabled: boolean }) {
+  const activity = useDealActivity(dealId, enabled);
   const [expanded, setExpanded] = useState(false);
   const groups = groupActivity(activity.data ?? []);
   const shown = expanded ? groups : groups.slice(0, PREVIEW);

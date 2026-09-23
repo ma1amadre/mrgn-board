@@ -63,6 +63,8 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
     [query, tasks.data, clients.data, deals.data, ideas.data],
   );
   const current = Math.min(active, Math.max(hits.length - 1, 0));
+  // На страницах без задач и сделок кеш холодный: первые секунды пустой список — это загрузка.
+  const loading = tasks.isPending || clients.isPending || deals.isPending || ideas.isPending;
 
   const go = (hit: SearchHit) => {
     onClose();
@@ -109,7 +111,9 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
         />
         <div className="palette-list" role="listbox">
           {query.trim() !== '' && hits.length === 0 ? (
-            <p className="muted small palette-empty">Ничего не нашлось.</p>
+            <p className="muted small palette-empty">
+              {loading ? 'Загрузка…' : 'Ничего не нашлось.'}
+            </p>
           ) : null}
           {hits.map((hit, i) => {
             const header = hits[i - 1]?.kind !== hit.kind ? SEARCH_KIND_LABEL[hit.kind] : null;

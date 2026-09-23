@@ -63,12 +63,11 @@ describe('buildClientFeed', () => {
       actor: null,
       created_at: `2026-09-1${i}T00:00:00Z`,
     }));
-    const feed = buildClientFeed(
-      { activity, comments: [], dealActivity: [], tasks: [], deals: [] },
-      2,
-    );
+    const input = { activity, comments: [], dealActivity: [], tasks: [], deals: [] };
+    const feed = buildClientFeed(input, 2);
     expect(feed.map((e) => e.id)).toEqual(['a:a4', 'a:a3']);
     expect(feed[0]?.about).toBe('Задача');
+    expect(buildClientFeed(input)).toHaveLength(5);
   });
 });
 

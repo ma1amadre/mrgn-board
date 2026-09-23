@@ -311,7 +311,7 @@ export function DealsPage() {
         <Modal title="Новая сделка" onClose={() => setCreating(false)} dirty={draftDirty}>
           <DealForm
             initial={newDealInitial}
-            clients={clients.data ?? []}
+            clients={filterClients}
             profiles={profiles.data ?? []}
             submitLabel="Создать"
             busy={create.isPending}
