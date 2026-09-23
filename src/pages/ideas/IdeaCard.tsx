@@ -10,6 +10,7 @@ import {
 } from '../../shared/lib/labels';
 import { Avatar } from '../../shared/ui/Avatar';
 import { Markdown } from '../../shared/ui/Markdown';
+import { Menu } from '../../shared/ui/Menu';
 import { IdeaComments } from './IdeaComments';
 import { IdeaForm, type IdeaFormValues } from './IdeaForm';
 
@@ -77,7 +78,28 @@ export function IdeaCard({
           ▲ {votes}
         </button>
         <h3 className="card-title grow">{idea.title}</h3>
-        <span className={IDEA_STATUS_BADGE[idea.status]}>{IDEA_STATUS_LABEL[idea.status]}</span>
+        {/* Статус один раз: бейдж и есть переключатель, отдельный селект в футере не нужен. */}
+        <Menu
+          label={`Статус: ${IDEA_STATUS_LABEL[idea.status]}`}
+          triggerClassName={`${IDEA_STATUS_BADGE[idea.status]} badge-button`}
+          trigger={<>{IDEA_STATUS_LABEL[idea.status]} ▾</>}
+          items={IDEA_STATUSES.filter((s) => s !== idea.status).map((s) => ({
+            key: s,
+            label: IDEA_STATUS_LABEL[s],
+            onSelect: () => onStatus(s),
+          }))}
+        />
+        {idea.author_id === myId || canDelete ? (
+          <Menu
+            label={`Действия: ${idea.title}`}
+            items={[
+              ...(idea.author_id === myId
+                ? [{ key: 'edit', label: 'Изменить', onSelect: () => setEditing(true) }]
+                : []),
+              ...(canDelete ? [{ key: 'delete', label: 'Удалить…', onSelect: onDelete }] : []),
+            ]}
+          />
+        ) : null}
       </div>
       {idea.body ? (
         <div className="card-body">
@@ -90,20 +112,6 @@ export function IdeaCard({
         <span>· {formatDate(idea.created_at)}</span>
       </div>
       <div className="card-footer">
-        <select
-          className="select"
-          style={{ width: 'auto', height: 28, fontSize: 12 }}
-          value={idea.status}
-          aria-label="Статус идеи"
-          disabled={busy}
-          onChange={(e) => onStatus(e.target.value as IdeaStatus)}
-        >
-          {IDEA_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {IDEA_STATUS_LABEL[s]}
-            </option>
-          ))}
-        </select>
         <button
           type="button"
           className="btn btn-ghost btn-sm"
@@ -126,16 +134,6 @@ export function IdeaCard({
             В задачу
           </button>
         )}
-        {idea.author_id === myId ? (
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}>
-            Изменить
-          </button>
-        ) : null}
-        {canDelete ? (
-          <button type="button" className="btn btn-ghost btn-sm" onClick={onDelete} disabled={busy}>
-            Удалить
-          </button>
-        ) : null}
       </div>
       {discussion ? <IdeaComments ideaId={idea.id} /> : null}
     </article>

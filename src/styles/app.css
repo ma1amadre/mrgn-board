@@ -219,6 +219,13 @@ textarea {
   flex-wrap: wrap;
 }
 
+/* На десктопе заголовок страницы крупнее заголовка карточки: 24px читались как ещё одна карточка. */
+@media (min-width: 801px) {
+  .page-head h1 {
+    font-size: var(--t-2xl);
+  }
+}
+
 /* Мобильная шапка: бренд и пользователь в одной строке, навигация — прокручиваемой лентой ниже.
    Строка `auto 1fr`: иначе свободная высота делится между шапкой и контентом, и шапка растёт. */
 @media (max-width: 800px) {
@@ -1027,6 +1034,31 @@ kbd {
   padding-top: var(--s-4);
   color: var(--text-muted);
   font-size: var(--t-xs);
+}
+
+/* Нативный выбор цвета в виде круглого образца рядом с hex-полем. */
+.color-input {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-full);
+  background: none;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.color-input::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+.color-input::-webkit-color-swatch {
+  border: 0;
+  border-radius: var(--r-full);
+}
+
+/* Бейдж-кнопка: выглядит как бейдж статуса, открывает меню смены статуса. */
+.badge-button {
+  appearance: none;
+  cursor: pointer;
 }
 
 /* Кнопка, выглядящая как ссылка — для «как настроить» внутри абзаца. */

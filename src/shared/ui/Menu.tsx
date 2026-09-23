@@ -1,12 +1,30 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type SyntheticEvent } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+  type SyntheticEvent,
+} from 'react';
 
 export type MenuItem = { key: string; label: string; onSelect: () => void };
 
 /** Не даём событиям уйти в карточку: там на них висят drag (dnd-kit) и открытие задачи. */
 const stop = (e: SyntheticEvent) => e.stopPropagation();
 
-/** Кнопка «⋯» с выпадающим списком действий; стрелки, Enter, Escape, клик мимо закрывает. */
-export function Menu({ label, items }: { label: string; items: MenuItem[] }) {
+/** Кнопка «⋯» с выпадающим списком действий; стрелки, Enter, Escape, клик мимо закрывает.
+ *  trigger/triggerClassName — своя кнопка вместо «⋯» (например, бейдж статуса). */
+export function Menu({
+  label,
+  items,
+  trigger,
+  triggerClassName,
+}: {
+  label: string;
+  items: MenuItem[];
+  trigger?: ReactNode;
+  triggerClassName?: string;
+}) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -59,13 +77,13 @@ export function Menu({ label, items }: { label: string; items: MenuItem[] }) {
     >
       <button
         type="button"
-        className="btn btn-ghost btn-sm btn-icon menu-trigger"
+        className={triggerClassName ?? 'btn btn-ghost btn-sm btn-icon menu-trigger'}
         aria-label={label}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
       >
-        ⋯
+        {trigger ?? '⋯'}
       </button>
       {open ? (
         <div className="popover" role="menu" aria-label={label}>
