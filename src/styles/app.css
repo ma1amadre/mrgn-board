@@ -80,14 +80,25 @@ textarea {
   padding: var(--s-2) var(--s-3);
   font: 700 var(--t-md)/1 var(--font-display);
 }
+/* Две строки: аватар с именем и иконками, под ними «Выйти» во всю ширину. В одной строке
+   имя вытеснялось кнопками и сайдбар показывал только аватар. */
 .shell-user {
   margin-top: auto;
   display: flex;
-  align-items: center;
-  gap: var(--s-3);
+  flex-direction: column;
+  gap: var(--s-2);
   padding: var(--s-2) var(--s-3);
   font-size: var(--t-sm);
   min-width: 0;
+}
+.shell-user-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+}
+.shell-logout {
+  width: 100%;
 }
 .shell-user .name {
   overflow: hidden;
@@ -168,6 +179,12 @@ textarea {
   .shell-user {
     margin: 0 0 0 auto;
     padding: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--s-3);
+  }
+  .shell-logout {
+    width: auto;
   }
   .nav {
     order: 3;

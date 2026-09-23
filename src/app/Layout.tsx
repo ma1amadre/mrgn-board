@@ -133,29 +133,35 @@ export function Layout() {
           ))}
         </nav>
         <div className="shell-user">
-          <Avatar name={profile.name} color={profile.color} />
-          <span className="name grow" title={profile.email}>
-            {profile.name}
-          </span>
+          <div className="shell-user-row">
+            <Avatar name={profile.name} color={profile.color} />
+            <span className="name grow" title={profile.email}>
+              {profile.name}
+            </span>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm btn-icon"
+              aria-label="Поиск по всему (Ctrl K)"
+              title="Поиск по всему · Ctrl K"
+              onClick={() => window.dispatchEvent(new Event('open-palette'))}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.8" />
+                <path
+                  d="m16 16 4.5 4.5"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+            <NotificationsBell />
+          </div>
           <button
             type="button"
-            className="btn btn-ghost btn-sm btn-icon"
-            aria-label="Поиск по всему (Ctrl K)"
-            title="Поиск по всему · Ctrl K"
-            onClick={() => window.dispatchEvent(new Event('open-palette'))}
+            className="btn btn-secondary shell-logout"
+            onClick={() => void signOut()}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.8" />
-              <path
-                d="m16 16 4.5 4.5"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-          <NotificationsBell />
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => void signOut()}>
             Выйти
           </button>
         </div>
